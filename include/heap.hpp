@@ -13,10 +13,7 @@ namespace hd
 // more intelligent implementation that had a database
 // and automatic memory management and so on. 
 template<typename K, typename M>
-class heap : public error_theory<K, M> {
-    // an implementation of the derivation functions.
-    typedef const algebra<K, M>& implementation;
-    
+class heap : public error_theory<K, M> {    
     typedef typename theory<K, M>::key ideal_key;
     typedef typename theory<K, M>::parent parent;
     
@@ -29,7 +26,7 @@ class heap : public error_theory<K, M> {
         
         const ideal_key& child(M n) const override final;
         
-        key(implementation im, K k, const parent* const p):ideal_key(im, k, p), Children(nullptr) {}
+        key(algebra<K, M> a, K k, const parent* const p):ideal_key(a, k, p), Children(nullptr) {}
         ~key() {
             delete Children;
         }
@@ -63,7 +60,9 @@ class heap : public error_theory<K, M> {
     };
     
 public:
-    heap(implementation im, const K master) : Master(im, master) {}
+    heap(algebra<K, M> a, const K master) : Master(a, master) {}
+    
+    // TODO should implement move constructor. 
 };
     
 template<typename K, typename M>
@@ -81,9 +80,9 @@ const typename theory<K, M>::key& heap<K, M>::key::child(M n) const {
     // if K is equal to the default constructor, then this is an error state.
     if (derived == K()) {
         // we use the zero key because it won't spawn new nodes. 
-        k = new typename error_theory<K, M>::zero(theory<K, M>::key::Implementation, *this);
+        k = new typename error_theory<K, M>::zero(theory<K, M>::key::Algebra, *this);
     } else {
-        k = new typename heap<K, M>::key(theory<K, M>::key::Implementation, derived, *this);
+        k = new typename heap<K, M>::key(theory<K, M>::key::Algebra, derived, *this);
     }
     
     // create a new child object

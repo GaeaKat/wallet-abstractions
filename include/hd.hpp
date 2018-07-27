@@ -4,23 +4,12 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include "algebra.hpp"
 
 // Namsepace hd contains types related to the management of 
 // heirarchical deterministic keys. 
 namespace hd
 {
-
-// An algebra by which a new key can be derived from any given key. 
-//   K - whatever the underlying implementation uses as a HD node.
-//   M - whatever is used as the index of the key derivation,
-//       most likely uint32_t for bip32. 
-template<typename K, typename M>
-struct algebra {
-    const K derive(const K, const M) const = 0;
-};
-
-template<typename K, typename M>
-using implementation = const algebra<K, M>&;
 
 // A representation of a chain of operations which create a
 // particular key. 
@@ -35,13 +24,13 @@ struct theory {
     // Key takes any type K and attaches some extra data
     // that keeps track of where it is in the heirarchy. 
     class key {
-        implementation<K, M> Implementation;
+        algebra<K, M> Algebra;
     public:
-        const K Key;
+        K Key;
         
         // this key knows how to derive new objects of type K.
-        const K derive(M m) {
-            return Implementation.derive(Key, m);
+        K derive(M m) {
+            return Derivation(Key, m);
         }
         
         // pointer to the parent key from which this key was derived.
@@ -57,27 +46,27 @@ struct theory {
         
         // Keys are equal if they have equal K types, even
         // if they were derived in a different way. 
-        bool operator==(const theory<K, M>::key& x) const {
+        bool operator==(const key& x) const {
             return Key == x.Key;
         }
         
         // an implementation and object of type K must exist for a key
         // to exist, but alone they are not sufficient. 
-        key(implementation<K, M> im, K k, const parent* const p) : Implementation(im), Key(k), Parent(p) {}
+        key(algebra<K, M> a, K k, const parent* const p) : Algebra(a), Key(k), Parent(p) {}
     };
     
     // parent connects a key to its parent and tells
     // how the key was derived from the parent. 
     struct parent {
         const key& Key;
-        const M Index;
+        M Index;
         
         // may be overrided to provide for error cases.
         virtual const std::string* const error() const {
             return nullptr;
         }
         
-        parent(const key& key, const M index) : Key(key), Index(index) {}
+        parent(const key& key, M index) : Key(key), Index(index) {}
     };
 
     // every implementation must have a master key. 
@@ -109,7 +98,7 @@ struct error_theory : public theory<K, M> {
             return *this;
         }
         
-        zero(implementation<K, M> im, const ideal_parent* const p) : key(im, K(), p) {}
+        zero(algebra<K, M> a, const ideal_parent* const p) : key(a, K(), p) {}
     };
     
     struct parent : ideal_parent {
@@ -119,8 +108,8 @@ struct error_theory : public theory<K, M> {
             return Error;
         }
         
-        parent(const key& p, const M index, const std::string* const err) : ideal_parent(p, index), Error(err) {}
-        parent(const key& p, const M index) : ideal_parent(p, index), Error(nullptr) {}
+        parent(const key& p, M index, const std::string* const err) : ideal_parent(p, index), Error(err) {}
+        parent(const key& p, M index) : ideal_parent(p, index), Error(nullptr) {}
     };
 };
 
