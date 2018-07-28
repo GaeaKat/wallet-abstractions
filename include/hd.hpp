@@ -29,8 +29,8 @@ struct theory {
         K Key;
         
         // this key knows how to derive new objects of type K.
-        K derive(M m) {
-            return Derivation(Key, m);
+        K derive(M m) const {
+            return Algebra(Key, m);
         }
         
         // pointer to the parent key from which this key was derived.
@@ -53,6 +53,7 @@ struct theory {
         // an implementation and object of type K must exist for a key
         // to exist, but alone they are not sufficient. 
         key(algebra<K, M> a, K k, const parent* const p) : Algebra(a), Key(k), Parent(p) {}
+        virtual ~key() {}
     };
     
     // parent connects a key to its parent and tells
@@ -67,6 +68,7 @@ struct theory {
         }
         
         parent(const key& key, M index) : Key(key), Index(index) {}
+        virtual ~parent() {}
     };
 
     // every implementation must have a master key. 
@@ -82,6 +84,8 @@ struct theory {
         
         return *r;
     }
+    
+    virtual ~theory() {}
 };
 
 // in the case that the key type K has a default constructor,
@@ -91,7 +95,7 @@ struct error_theory : public theory<K, M> {
     typedef typename theory<K, M>::key key;
     typedef typename theory<K, M>::parent ideal_parent;
     
-    struct zero : public key {
+    struct zero final : public key {
         // objects of type zero simply return themselves
         // for any possible derivation. 
         const key& child(M n) const {
@@ -110,7 +114,13 @@ struct error_theory : public theory<K, M> {
         
         parent(const key& p, M index, const std::string* const err) : ideal_parent(p, index), Error(err) {}
         parent(const key& p, M index) : ideal_parent(p, index), Error(nullptr) {}
+        
+        // the underlying implementation is considered to be responsible for whatever Error
+        // points to, so we don't delete it. 
+        ~parent() {}
     };
+    
+    virtual ~error_theory() {}
 };
 
 }

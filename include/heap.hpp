@@ -13,13 +13,13 @@ namespace hd
 // more intelligent implementation that had a database
 // and automatic memory management and so on. 
 template<typename K, typename M>
-class heap : public error_theory<K, M> {    
+class heap final : public error_theory<K, M> {    
     typedef typename theory<K, M>::key ideal_key;
     typedef typename theory<K, M>::parent parent;
     
     struct child;
     
-    struct key : public ideal_key {
+    struct key final : public ideal_key {
         // mutable because adding childen does not change the key 
         // as it is seen publicly. 
         mutable const child* Children;
@@ -30,19 +30,22 @@ class heap : public error_theory<K, M> {
         ~key() {
             delete Children;
         }
+        key(key&& k) : ideal_key(k.Algebra, k.Key, k.Parent), Children(k.Children) {
+            k.Children = nullptr;
+        }
     };
     
     // child is a linked list that keeps track of all children generated from
     // a given key. 
-    struct child : public parent {
+    struct child final : public parent {
         const key* const Child;
         const child* const Next;
         
         // child is able to search recursively down itself to find if
         // any keys have already been generated. 
         const child* const get(M n) const {
-            if (this == nullptr) return nullptr;
             if (theory<K, M>::parent::Index == n) return this;
+            if (Next == nullptr) return nullptr;
             return Next->get(n);
         }
         
@@ -60,9 +63,7 @@ class heap : public error_theory<K, M> {
     };
     
 public:
-    heap(algebra<K, M> a, const K master) : Master(a, master) {}
-    
-    // TODO should implement move constructor. 
+    heap(algebra<K, M> a, K master) : Master(a, master, nullptr) {}
 };
     
 template<typename K, typename M>
@@ -75,7 +76,7 @@ const typename theory<K, M>::key& heap<K, M>::key::child(M n) const {
     K derived = theory<K, M>::key::derive(n);
     
     // This will store the new key until it's passed off to the new child. 
-    const key* const k;
+    const key* k;
     
     // if K is equal to the default constructor, then this is an error state.
     if (derived == K()) {
