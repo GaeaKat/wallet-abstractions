@@ -1,7 +1,6 @@
 #ifndef HD_TREZOR_BIP32_HPP
 #define HD_TREZOR_BIP32_HPP
 
-#include <hd.hpp>
 #include <bip32.hpp>
 #include <heap.hpp>
 
