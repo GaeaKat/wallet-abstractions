@@ -3,6 +3,7 @@
 
 #include "bip32.hpp"
 #include "hd.hpp"
+#include "wallet.hpp"
 
 namespace hd_tools
 {
@@ -22,9 +23,9 @@ enum coin_type {
     
 typedef child_index account;
     
-enum internal {
-    no = 0,
-    yes = 1
+enum sequence_type {
+    External = 0,
+    Internal = 1
 };
     
 typedef child_index index;
@@ -32,15 +33,17 @@ typedef child_index index;
 struct address {
     const coin_type CoinType;
     const account Account;
-    const internal Internal;
+    const sequence_type SequenceType;
     const index Index;
+    
+    address(coin_type c, account a, sequence_type t, index i) : CoinType(c), Account(a), SequenceType(t), Index(i) {}
 };
 
 derivation<child_index> to_derivation(address address) {
     return new node<child_index>(purpose,
         new node<child_index>(address.CoinType,
             new node<child_index>(address.Account + hardened_flag,
-                new node<child_index>(address.Internal, 
+                new node<child_index>(address.SequenceType, 
                     new node<child_index>(address.Index, nullptr)))));
 }
 
@@ -56,6 +59,48 @@ struct theory : public hd_tools::theory<K, child_index> {
         return k;
     }
 };
+
+const int default_max_future_addresses = 20;
+
+// derive a bunch of keys based on which ones you find have balances in them, according to a bip44 schema. 
+template<typename K, typename U>
+void generate(const theory<K>& b44, const wallet<K, U>& w, std::vector<coin_type> coins, const int max_future_addresses) {
+    for (coin_type c : coins) {
+        while (true) {
+            uint32_t account = 0;
+            uint32_t index = 0;
+            typename ::hd_tools::theory<K, child_index>::key& first = b44.derive(address(c, account, External, index));
+            
+            // We've found all accounts when we find an account whose first key has never received anything.
+            if (!w.has_balance(first.Key)) break;
+            
+            // we have already checked the zeroth address so we can go up one. 
+            index++;
+            
+            // Now generate all the addresses we can find that have a balance. 
+            // max_future_addresses is how far we go without finding anything
+            // before we stop.
+            for (sequence_type t : {External, Internal}) {
+                int last_with_balance = 0;
+                while (last_with_balance < max_future_addresses) {
+                    typename ::hd_tools::theory<K, child_index>::key& k = b44.derive(address(c, account, t, index));
+                    
+                    if (w.has_balance(k.Key)) {
+                        last_with_balance = 0;
+                    } else {
+                        last_with_balance++;
+                    }
+                    
+                    index++;
+                }  
+                
+                index = 0;
+            } 
+            
+            account++;
+        }
+    }
+}
 
 }
 

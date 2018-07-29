@@ -102,6 +102,11 @@ const typename theory<K, M>::key& heap<K, M>::key::child(M n) const {
     // Derive the new key
     K derived = theory<K, M>::key::derive(n);
     
+    // if the new key is equal to the one we already have, we just return ourselves.
+    } else if (derived == theory<K, M>::key::Key) {
+        return *this;
+    }
+    
     // This will store the new key until it's passed off to the new child. 
     const key* k;
     
