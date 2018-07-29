@@ -6,7 +6,7 @@
 
 #include <bitcoin/bitcoin/wallet/hd_private.hpp>
 
-namespace hd
+namespace hd_tools
 {
 
 namespace libbitcoin

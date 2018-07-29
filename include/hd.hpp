@@ -4,17 +4,12 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
-#include "algebra.hpp"
+#include "derivation.hpp"
 
 // Namsepace hd contains types related to the management of 
 // heirarchical deterministic keys. 
-namespace hd
+namespace hd_tools
 {
-
-// A representation of a chain of operations which create a
-// particular key. 
-template<typename M>
-using derivation = std::vector<M>;
 
 // abstract class containing the theory of hd key derivation.
 template<typename K, typename M>
@@ -43,6 +38,10 @@ struct theory {
         
         // Only implementations know how to create objects of type key&. 
         virtual const key& child(M n) const = 0;
+        
+        const key& operator^(M n) const {
+            return child(n);
+        }
         
         // Keys are equal if they have equal K types, even
         // if they were derived in a different way. 
@@ -78,8 +77,9 @@ struct theory {
     // results from that derivation. 
     const key& derive(derivation<M> d) {
         key* const r = master();
-        for(M i : d) {
-            r = r->child(i);
+        
+        for(derivation<M> i = d; i != nullptr; i = i->Rest) {
+            r = r->child(i->First);
         }
         
         return *r;

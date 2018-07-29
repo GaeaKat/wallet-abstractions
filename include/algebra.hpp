@@ -1,7 +1,7 @@
 #ifndef HD_ALGEBRA_HPP
 #define HD_ALGEBRA_HPP
 
-namespace hd
+namespace hd_tools
 {
 
 // types for function pointers to fundamental operations.
@@ -14,9 +14,14 @@ template<typename K, typename M>
 using algebra = K (* const)(K, M);
 
 // A function which transforms objects of type K to type P
-// representing a public-key schema. 
+// representing a public-key schema. I haven't really needed
+// this one for anything yet. 
 template<typename K, typename P>
 using to_public = P (* const)(K);
+
+// useful for bip47. 
+template<typename K, typename P>
+using to_shared = P (* const)(K, P);
 
 }
 

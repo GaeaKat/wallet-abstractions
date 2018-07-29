@@ -8,7 +8,7 @@ extern "C" {
 #include <trezor-crypto/bip32.h>
 }
 
-namespace hd
+namespace hd_tools
 {
     
 namespace bip32
