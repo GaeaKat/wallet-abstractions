@@ -1,4 +1,7 @@
-# hd
+# Wallet Abstractions
+
+Ideas about wallets and transactions. 
+
 contents: 
 
 include/algebra.hpp
