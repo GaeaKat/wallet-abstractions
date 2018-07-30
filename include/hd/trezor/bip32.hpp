@@ -1,14 +1,17 @@
 #ifndef HD_TREZOR_BIP32_HPP
 #define HD_TREZOR_BIP32_HPP
 
-#include <bip32.hpp>
-#include <heap.hpp>
+#include <hd/bip32.hpp>
+#include <hd/heap.hpp>
 
 extern "C" {
 #include <trezor-crypto/bip32.h>
 }
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
     
 namespace bip32
@@ -60,6 +63,8 @@ const error_theory<const node, index>* const private_hd_tree(node n) {
 const heap<const node, uint32_t> private_tree_heap(node n) {
     return heap<const node, uint32_t>(private_algebra, n);
 }*/
+
+}
 
 }
 

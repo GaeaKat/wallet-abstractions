@@ -3,7 +3,10 @@
 
 #include <array>
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
 
 // namespace bip32 contains material directly related to bip32. 
@@ -53,6 +56,10 @@ public_key::public_key() : std::array<byte, public_key_size>(zero_public_key) {}
 private_key::private_key() : std::array<byte, private_key_size>(zero_private_key) {}
 chain_code::chain_code() : std::array<byte, chain_code_size>(zero_chain_code) {}
 
+const public_key max({0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFC, 0x2F});
+
 struct public_node {
     const public_key Pubkey;
     const chain_code ChainCode;
@@ -67,6 +74,8 @@ struct private_node : public_node {
     private_node() : public_node(), Secret() {}
     private_node(private_key s, public_key p, chain_code c) : public_node(p, c), Secret(s) {}
 };
+
+}
 
 }
 

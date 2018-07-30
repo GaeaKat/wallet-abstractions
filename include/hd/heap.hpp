@@ -3,7 +3,10 @@
 
 #include "hd.hpp"
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
 
 // Implementation of theory which stores all data
@@ -103,7 +106,7 @@ const typename theory<K, M>::key& heap<K, M>::key::child(M n) const {
     K derived = theory<K, M>::key::derive(n);
     
     // if the new key is equal to the one we already have, we just return ourselves.
-    } else if (derived == theory<K, M>::key::Key) {
+    if (derived == theory<K, M>::key::Key) {
         return *this;
     }
     
@@ -122,6 +125,8 @@ const typename theory<K, M>::key& heap<K, M>::key::child(M n) const {
     Children = new heap<K, M>::child_node(*this, n, k, Children);
     
     return *k;
+}
+
 }
 
 }

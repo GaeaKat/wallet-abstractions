@@ -3,7 +3,10 @@
 
 #include "algebra.hpp"
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
  
 template<typename M>
@@ -43,6 +46,8 @@ R reduce(R zero, R (*const value)(K), R (*const plus)(K, R), list<K> z) {
     }
     
     return plus(value(z->First), reduce(zero, value, plus, z->Rest));
+}
+
 }
 
 }

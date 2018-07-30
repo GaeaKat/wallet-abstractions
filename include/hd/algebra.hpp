@@ -1,7 +1,10 @@
 #ifndef HD_ALGEBRA_HPP
 #define HD_ALGEBRA_HPP
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
 
 // types for function pointers to fundamental operations.
@@ -22,6 +25,8 @@ using to_public = P (* const)(K);
 // useful for bip47. 
 template<typename K, typename P>
 using to_shared = P (* const)(K, P);
+
+}
 
 }
 

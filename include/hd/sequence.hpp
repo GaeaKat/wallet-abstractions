@@ -4,7 +4,10 @@
 #include <hd.hpp>
 #include <bip32.hpp>
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
     
 typedef bip32::child_index index;
@@ -40,6 +43,8 @@ public:
     hd_sequence(const key& i) : sequence<Q>(), initial(i)  {}
     hd_sequence(const key& i, index n) : sequence<Q>(n), initial(i) {}
 };
+
+}
 
 }
 

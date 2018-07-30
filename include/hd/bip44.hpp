@@ -5,7 +5,10 @@
 #include "hd.hpp"
 #include "wallet.hpp"
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
 
 namespace bip32
@@ -100,6 +103,8 @@ void generate(const theory<K>& b44, const wallet<K, U>& w, std::vector<coin_type
             account++;
         }
     }
+}
+
 }
 
 }

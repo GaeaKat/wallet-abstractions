@@ -6,9 +6,12 @@
 #include <string>
 #include "derivation.hpp"
 
+namespace abstractions
+{
+
 // Namsepace hd contains types related to the management of 
 // heirarchical deterministic keys. 
-namespace hd_tools
+namespace hd
 {
 
 // abstract class containing the theory of hd key derivation.
@@ -122,6 +125,8 @@ struct error_theory : public theory<K, M> {
     
     virtual ~error_theory() {}
 };
+
+}
 
 }
 
