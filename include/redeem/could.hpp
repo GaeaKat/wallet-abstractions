@@ -53,7 +53,7 @@ namespace abstractions
         // can happen if we've got a multisig output and we can
         // add our signature such that fewer signatures are 
         // required before it has been redeemed. 
-        accomplishment intermediate = 2;
+        accomplishment intermediate          = 2;
 
         // things we could do to an input script. 
         // not a complete implementation of the primitive
@@ -61,20 +61,20 @@ namespace abstractions
         // a thing could exist. 
         typedef ℕ action;
         
-        action identity = 1;
-        action constant = 2;
-        action successor = 3;
+        action identity                      = 1;
+        action constant                      = 2;
+        action successor                     = 3;
             
         // This is a possible category which is not required
         // in practice by my essences. You could probably 
         // just do something with this and become a billionare
         // without a clear explanation about what's valuable
         // about it at all. 
-        action recurse = 4;
+        action recurse                       = 4;
         
         // How much data do we have in relation to how much we want?
         // should be disjoint because we will want to be able to
-        // form sums and products of them with ^ and 
+        // form sums and products of them with ^ and |
         typedef ℕ proposition; 
         
         proposition impossible             = 0;
