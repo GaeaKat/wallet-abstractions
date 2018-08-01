@@ -15,7 +15,9 @@ using ℕ = const unsigned long long int;
 
 const ℕ zero = 0;
 
-const ℕ ℵ0 = ℕ(zero - 1) / 2;
+const ℕ all = ℕ(zero - 1);
+
+const ℕ ℵ0 = all / 2;
 
 }
 

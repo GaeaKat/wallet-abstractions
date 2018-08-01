@@ -1,76 +1,172 @@
-#ifndef #REDEEM_REDEEM_HPP
-#define #REDEEM_REDEEM_HPP
+#ifndef ABSTRACTIONS_REDEEM_HPP
+#define ABSTRACTIONS_REDEEM_HPP
 
-#include<vector>
+#include<redeem/could.hpp>
 
 namespace abstractions 
 {
 
-namespace redeem
-{
-    
-template<typename X>
-using vector = std::vector<X>;
+    namespace redeem
+    {        
+        // Let's start with information that came to us from the 
+        // outside world. 
+        template<
+        
+            // I imagine Link is a connection in the blockchain.
+            // It is an output and index to the output and it includes
+            // the knowledge that this index points to the blockchain.
+            typename Link, 
+            
+            // I imagine that an Outpoint is an index to a Link.
+            typename Outpoint,
+            
+            // An output is a function in the blockchain, which we 
+            // may know know to redeem! 
+            typename Output>
+        struct eyes {
+            
+            // From an outpoint, we can get a pointer to a 
+            // Link. And we are going to dereference that pointer
+            // if it is not nullptr, so you had better make sure 
+            // that any pointer you give us which is not nullptr
+            // had better be something that we can dereference!! 
+            virtual Link const * prior(Outpoint) const = 0;
 
-// Things we can do to inputs corresponding to a given output. 
-enum action {
-    none = 0, 
-    add_signature_to_multisig = 1, 
-    redeem = 2
-};
+            // From a reference to a link, we can get an output. 
+            // Thus, it is only possible to have an output if it
+            // was given to us, or if an instance of Link can 
+            // really be constructed somewhere, somehow in 
+            // this program. It is up to the implementer to 
+            // describe this type, beyond the requirement that 
+            // this function cannot be called unless an instance
+            // of that type actually exists somewhere else in the program.
+            virtual Output output(Link&) const = 0;
+            
+            // from an output we cannot get an outpoint, so we cannot
+            // go arbitrarily far back in the blockchain. 
+            
+            vector<Output> outputs(vector<Outpoint> outpoints) const
+            {
+                std::vector<Output> outs(outpoints.size());
+                        
+                for (int i = 0; i < outpoints.size(); i++)
+                {
+                    Link const * p = prior(outpoints[i]);
+                    if (p == nullptr) return {};
+                    outs[i] = saves(output(p));
+                }
+                        
+                return outs;
+            }
 
-// transformation is an operation that is applied to an input script. 
-template<typename Script>
-struct transformation {
-    virtual Script operator()(Script) = 0;
-};
+            virtual ℕ saves(Output) const = 0;
+            
+            ℕ saves(vector<Outpoint> outpoints) const
+            {
+                ℕ spent = 0;
+                        
+                for (Outpoint o : outpoints)
+                {
+                    Link const * p = prior(o);
+                    if (p == nullptr) return ℵ0;
+                    spent += saves(output(p));
+                }
+                        
+                return spent;
+            }
+        };
+        
+        template<typename Goal, typename Magic, typename Outpoint>
+        struct desire {
+            virtual ℕ spend(Goal) const = 0;
+        
+            struct transformation
+            {
+                virtual const Magic operator()(Magic) const = 0;
+            };
+        
+            struct input final
+            {
+                Outpoint outpoint;
+                Magic magic;
+                
+                const input replace(Magic m) {
+                    return {outpoint, m};
+                }
+                
+                const input transform(const transformation& t) {
+                    return {outpoint, t(magic)};
+                }
+            };
 
-// a possibility is something which, when given a transaction, gives us a transformation. 
-template<typename Transaction, typename Script>
-struct possibility {
-    virtual transformation<Script> operator()(Transaction) = 0;
-    
-    Script Initial;
-};
+            // a possibility is something which gives us a transformation 
+            // when provided with a vector of outputs and a desire. 
+            struct possibility
+            {
+                virtual transformation operator()(vector<Outpoint>, Goal) const = 0;
+                
+                Magic initial;
+                
+                possibility() : Magic() {}
+                possibility(Magic i) : Magic(i) {}
+            };
+        };
 
-// These are the axioms of my theory. 
-template<
-    typename Goal,          // Transaction without any inputs. 
-    typename Link,          // An output combined with an outpoint (ie an output that's in the blockchain)
-    typename Transaction,   // A transaction, possibly not yet fully redeemed. 
-    typename Outpoint,      // An index in the blockchain. 
-    typename Output,        // an input (Outpoint + Script
-    typename Script,        // Something that redeems an output. 
-    typename Input>         // An output (Link - Outpoint)
-struct axioms {
-    // A link is just an output and and outpoint put together, so we can get both from a Link.
-    virtual Outpoint outpoint(Link) = 0;
-    virtual Output output(Link) = 0;
-    
-    // We can get a possibility from a Link and an action. 
-    virtual possibility<Transaction, Script> can_do(Link, action) = 0;
-    
-    // From an outpoint and Script, we can make an input. 
-    virtual Input input(Outpoint, Script) = 0;
-    
-    virtual Transaction replace(Transaction, Outpoint, Script) = 0;
-    
-    // A transaction is a goal plus inputs. (Therefore, a Goal is a transaction without inputs)
-    virtual Transaction tx(Goal, vector<Input>);
-};
-
-template<typename Goal, typename Link, typename Transaction, typename Outpoint, typename Output, typename Script, typename Input>
-Transaction sign(axioms<Goal, Link, Transaction, Outpoint, Output, Script, Input> go, possibility<Transaction, Script> sign, Transaction t, Outpoint op) {
-    Script in = go.output(t, op);
-    
-    if (in == Script()) {
-        return Transaction();
+        template<
+            typename Link,
+            typename Outpoint,
+            typename Output,
+            typename Desire,
+            typename Magic>
+        struct will : 
+            public eyes<Link, Outpoint, Output>,
+            public desire<Desire, Magic, Outpoint>
+        {
+            typedef typename desire<Desire, Magic, Outpoint>::input input;
+            
+            struct transaction
+            {
+                vector<input> inputs;
+                Desire desire;
+            };
+                
+            bool positive(transaction t) const
+            {
+                int spendable = 0;
+                for(input i : t.inputs) {
+                    spendable += saves(i.outpoint);
+                }
+                    
+                return spends(t.goal);
+            }
+            
+            // This is a non-const function because it changes the state of the network. 
+            virtual void send(transaction) = 0;
+        };
+        
+        enum status {
+            valid, 
+            invalid, 
+            open_minded
+        };
     }
     
-    go.replace(t, op, sign(t)(in));
-}
+} // redeem
 
-}
+template<
+    typename Link,
+    typename Proposition,
+    typename Action,
+    typename Accomplishment,
+    typename Outpoint,
+    typename Output,
+    typename Desire,
+    typename Magic>
+struct redeemer : 
+    public redeem::thought<Link, Proposition, Action, Accomplishment>, 
+    public redeem::body<Link, Outpoint, Output, Desire, Magic>
+{
+};
 
 }
 
