@@ -6,7 +6,10 @@
 
 #include <bitcoin/bitcoin/wallet/hd_private.hpp>
 
-namespace hd_tools
+namespace abstractions
+{
+
+namespace hd
 {
 
 namespace libbitcoin
@@ -41,7 +44,9 @@ const error_theory<const hd_private, index>* const private_hd_tree(hd_private n)
 }
 
 }
-    
+
+}
+
 }
 
 #endif

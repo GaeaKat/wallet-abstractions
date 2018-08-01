@@ -13,7 +13,7 @@ struct requirement {
 };
 
 template<typename... P>
-struct proposition {
+struct claim {
     virtual bool satisfies(P...) const = 0;
 };
 
@@ -23,7 +23,7 @@ template<typename K, typename A, typename Format>
 using to_address = A (* const)(K, Format);
 
 template<typename K, typename P, typename Database>
-class is_private_of_public : public proposition<K> , public requirement<Database> {
+class is_private_of_public : public claim<K> , public requirement<Database> {
     P pubkey;
 public:
     bool satisfies(K k) const final override {
@@ -40,7 +40,7 @@ public:
 };
 
 template<typename K, typename A, typename T, typename Database>
-class is_private_of_address : public proposition<K> , public requirement<Database> {
+class is_private_of_address : public claim<K> , public requirement<Database> {
     A address;
     T address_type;
 public:

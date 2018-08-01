@@ -52,8 +52,8 @@ derivation<child_index> to_derivation(address address) {
 
 //inherets from hd_tools theory and adds a function for finding bip44 addresses. 
 template<typename K>
-struct theory : public hd_tools::theory<K, child_index> {
-    typedef typename hd_tools::theory<K, child_index>::key key;
+struct theory : public hd::theory<K, child_index> {
+    typedef typename hd::theory<K, child_index>::key key;
     
     const key& derive(address address) {
         derivation<child_index> d = to_derivation(address);
@@ -86,7 +86,7 @@ void generate(const theory<K>& b44, const wallet<K, U>& w, std::vector<coin_type
             for (sequence_type t : {External, Internal}) {
                 int last_with_balance = 0;
                 while (last_with_balance < max_future_addresses) {
-                    typename ::hd_tools::theory<K, child_index>::key& k = b44.derive(address(c, account, t, index));
+                    typename ::hd::theory<K, child_index>::key& k = b44.derive(address(c, account, t, index));
                     
                     if (w.has_balance(k.Key)) {
                         last_with_balance = 0;
