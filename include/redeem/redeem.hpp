@@ -151,23 +151,6 @@ namespace abstractions
         };
     }
     
-} // redeem
-
-template<
-    typename Link,
-    typename Proposition,
-    typename Action,
-    typename Accomplishment,
-    typename Outpoint,
-    typename Output,
-    typename Desire,
-    typename Magic>
-struct redeemer : 
-    public redeem::thought<Link, Proposition, Action, Accomplishment>, 
-    public redeem::body<Link, Outpoint, Output, Desire, Magic>
-{
-};
-
-}
+} // abstractions
 
 #endif
