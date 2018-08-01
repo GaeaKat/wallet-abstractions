@@ -36,29 +36,6 @@ namespace abstractions
         // appearance because all pay to hash outputs look the
         // same in the blockchain. 
         
-        // This categorization does not cover every possible
-        // bitcoin transaction. I would argue that it is only
-        // necessary to think about redeeming outputs if we
-        // know how to invert a kind of function because that
-        // is what must be done in order to redeem an output.
-        // Thus, if the categorization actually did cover every
-        // possible transaction, that this would imply that we
-        // had something to say on the inversion of all
-        // computable functions.  
-        // 
-        // Instead, essence is a finite list of known cases
-        // from a list that will never be exhausted in principle.
-        // 
-        // If other categories of transactions were to exist,
-        // then a running wallet shouldn't think about whether
-        // anything can be done with them. Thus, the set of
-        // categories of interactions consist of those which
-        // we understand.
-        //
-        // The unknown category exists by virtue of the fact
-        // that this list can be extended in future versions of
-        // this library. 
-        
         // multisig is a description of how to interact with other
         // people which abstracts away the question of whether we
         // are going to use pay to script hash. 
