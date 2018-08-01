@@ -121,7 +121,7 @@ namespace abstractions
         //
         // could() is a function which says whether for a given
         // essence, and for a given accomplishment that we wish to
-        // achive, have we achived it if the given proposition about
+        // achieve, have we achieved it if the given proposition about
         // the input that is used to transform some future transaction
         // is true if I were to perform the given action upon the
         // transaction.
