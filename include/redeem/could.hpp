@@ -22,13 +22,13 @@ namespace abstractions
             
         // These are some basic transaction types... or are they?
         essence pay_to_public_key           = 1 << 1;
-        essence pay_to_address              = 1 << 2;
-        essence pay_to_multisig             = 1 << 3;
+        essence pay_to_address              = 2 << 1;
+        essence pay_to_multisig             = 3 << 1;
             
         // pay to script hash versions of the previous three. 
-        essence public_key_pay_to_script    = 1 << 4;
-        essence address_pay_to_script       = 1 << 5;
-        essence multisig_pay_to_script      = 1 << 6;
+        essence public_key_pay_to_script    = 1 << 3;
+        essence address_pay_to_script       = 2 << 3;
+        essence multisig_pay_to_script      = 3 << 3;
             
         // There is something very interesting about this set of
         // categories. And that is, that we presume to
@@ -36,9 +36,10 @@ namespace abstractions
         // appearance because all pay to hash outputs look the
         // same in the blockchain. 
         
-        // multisig is a description of how to interact with other
-        // people which abstracts away the question of whether we
-        // are going to use pay to script hash. 
+        // the categories are description of how to interact with
+        // other people. 
+        essence single_payer = pay_to_public_key | pay_to_address
+            | public_key_pay_to_script | address_pay_to_script;
         essence multisig = pay_to_multisig | multisig_pay_to_script;
         
         // redeeming a bitcoin transaction may require more 
@@ -64,6 +65,11 @@ namespace abstractions
         action identity                      = 1;
         action constant                      = 2;
         action successor                     = 3;
+        
+        action sighash_all                   = 1 << 2;
+        action sighash_none                  = 2 << 2;
+        action sighash_single                = 3 << 2;
+        action sighash_anyone_can_pay        = 1 << 4;
             
         // This is a possible category which is not required
         // in practice by my essences. You could probably 
@@ -121,8 +127,8 @@ namespace abstractions
         //
         // could() is a function which says whether for a given
         // essence, and for a given accomplishment that we wish to
-        // achieve, have we achieved it if the given proposition about
-        // the input that is used to transform some future transaction
+        // achieve, have we achieved it if the given proposition
+        // about the input that is used to transform some future transaction
         // is true if I were to perform the given action upon the
         // transaction.
         // 
@@ -176,14 +182,14 @@ namespace abstractions
         
         constexpr const proposition would(
             const accomplishment what
-        ) {
-            const bool r1 = remember(have_none, what);
-            const bool r2 = remember(have_all, what);
-            const bool r3 = remember(have_some_but_not_all, what);
-            
-            return (((r1 && have_none) * all) | have_none) ^
-                (((r2 && have_all) * all) | have_all) ^ 
-                (((r3 && have_some_but_not_all) * all) | have_some_but_not_all);
+        ) {            
+            return 
+                (((remember(have_none, what) && have_none) * all)
+                    | have_none) ^
+                (((remember(have_all, what) && have_all) * all)
+                    | have_all) ^ 
+                (((remember(have_some_but_not_all, what) && have_some_but_not_all) * all)
+                    | have_some_but_not_all);
         }
         
         // Normally we have an observation and want to know what
@@ -221,12 +227,12 @@ namespace abstractions
             accomplishment what
         ) {
             return
-                could(pay_to_address, what, how, observation) && 
-                could(address_pay_to_script, what, how, observation) && 
-                could(pay_to_multisig, what, how, observation) && 
-                could(multisig_pay_to_script, what, how, observation) &&
-                could(pay_to_public_key, what, how, observation) && 
-                could(public_key_pay_to_script, what, how, observation) && 
+                could(pay_to_address, what, how, observation) || 
+                could(address_pay_to_script, what, how, observation) || 
+                could(pay_to_multisig, what, how, observation) || 
+                could(multisig_pay_to_script, what, how, observation) ||
+                could(pay_to_public_key, what, how, observation) || 
+                could(public_key_pay_to_script, what, how, observation) || 
                 could(coinbase, what, how, observation);
         }
         
