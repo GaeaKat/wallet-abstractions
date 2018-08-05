@@ -2,22 +2,27 @@
 #define ABSTRACTIONS_HPP
 
 #include<vector>
+#include<map>
 #include<string>
 
 namespace abstractions 
 {
 
-template<typename X> using vector = const std::vector<const X>;
+template<typename X>
+using vector = const std::vector<X>;
+
+template<typename X, typename Y>
+using map = const std::map<X, Y>;
 
 using string = const std::string;
 
 using ℕ = const unsigned long long int;
 
-const ℕ zero = 0;
+ℕ zero = 0;
 
-const ℕ all = ℕ(zero - 1);
+ℕ all = ℕ(zero - 1);
 
-const ℕ ℵ0 = all / 2;
+ℕ ℵ0 = all / 2;
 
 }
 

@@ -3,153 +3,162 @@
 
 #include<redeem/could.hpp>
 
+#include<abstractions.hpp>
+
 namespace abstractions 
 {
-
+    // redeem contains a high-level way of redeeming bitcoin txs.
     namespace redeem
-    {        
-        // Let's start with information that came to us from the 
-        // outside world. 
-        template<
+    {
         
-            // I imagine Link is a connection in the blockchain.
-            // It is an output and index to the output and it includes
-            // the knowledge that this index points to the blockchain.
-            typename Link, 
+    template<
+        typename input_script,   // means of redemption. 
+        typename outpoint,       // way if indexing a previous output. 
+        typename output_script,  // an amount of funds locked behind a puzzle. 
+        typename truth,      // cases that we know how to redeem. 
+        typename will>        // a desired outcome. 
+    struct concept {
+        // Link contains information about how money flows in the
+        // blockchain. 
+        struct link {
+            bool Valid;
+            ℕ Value;                 // how much was locked. 
+            output_script Function;  // the script that must return true.
+            input_script Power;      // how the script shall be made to return true.
+            truth Known;         // What is known about this script.  
             
-            // I imagine that an Outpoint is an index to a Link.
-            typename Outpoint,
+            link() : Valid(false) {}
+            link(ℕ v, output_script o, input_script p, truth x)
+                : Valid(true), Value(v), Function(o), Power(p), Known(x) {}
+        };
+        
+        struct vertex {
+            ℕ Value;
+            vector<outpoint> Outpoints;
+        };
+        
+        struct transformation {
+            input_script operator()(input_script) const = 0;
+        };
+        
+        using possibility = transformation (* const)(vertex);
+        
+        possibility* how(truth known, will) const = 0;
+        
+        link redeem(vertex v, link l, will w) {
+            possibility* p = how(l.known, w);
+            if (p == nullptr) return link();
+            possibility action = *p;
+            return Link(l.v, l.script, action(v)(l.Magic), l.known);
+        }
+        
+        struct transaction {
+            vertex Vertex;
+            map<outpoint, link> Incoming;
             
-            // An output is a function in the blockchain, which we 
-            // may know know to redeem! 
-            typename Output>
-        struct eyes {
+            ℕ redeemed() {
+                int r = 0;
+                for (link l : Incoming) r += l.Value;
+                return r;
+            }
+        };
+        
+        bool positive(transaction t) const {
+            t.Vertex.Value >= t.redeemed();
+        }
+        
+        transaction spend(transaction t, will w) const {
+            std::vector<link> links = t.Incoming;
+            for (link& l : links) {
+                l = redeem(t.Vertex, o);
+                if (!l.Valid) return {};
+            }
             
-            // From an outpoint, we can get a pointer to a 
-            // Link. And we are going to dereference that pointer
-            // if it is not nullptr, so you had better make sure 
-            // that any pointer you give us which is not nullptr
-            // had better be something that we can dereference!! 
-            virtual Link const * prior(Outpoint) const = 0;
+            return {t.Vertex, links};
+        }
+        
+        // We need this to know what to keep track of earlier on.
+        virtual will why(truth known, possibility*) const = 0;
+    };
 
-            // From a reference to a link, we can get an output. 
-            // Thus, it is only possible to have an output if it
-            // was given to us, or if an instance of Link can 
-            // really be constructed somewhere, somehow in 
-            // this program. It is up to the implementer to 
-            // describe this type, beyond the requirement that 
-            // this function cannot be called unless an instance
-            // of that type actually exists somewhere else in the program.
-            virtual Output output(Link&) const = 0;
-            
-            // from an output we cannot get an outpoint, so we cannot
-            // go arbitrarily far back in the blockchain. 
-            
-            vector<Output> outputs(vector<Outpoint> outpoints) const
+    template<
+        typename input_script,
+        typename outpoint,
+        typename script,
+        typename truth,
+        typename will>
+    struct body : virtual public concept<input_script, outpoint, script, truth, will> {
+        
+        using design = concept<input_script, outpoint, script, truth, will>;
+        using motion = const typename design::possibility*;
+        
+        const vector<motion>& actions;
+        
+        body(const vector<motion>& movements) : actions(movements) {}
+        
+        virtual will why(truth known, motion movement) const override {
+            for (motion concrete : actions)
+                if (how(known, concrete) == movement)
+                    return concrete;
+            return nullptr;
+        }
+    };
+
+    template<
+        typename input_script,
+        typename outpoint,
+        typename script,
+        typename truth,
+        typename will>
+    struct mind : virtual public concept<input_script, outpoint, script, truth, will> {
+        
+        using design = concept<input_script, outpoint, script, truth, will>;
+        using thought = const typename design::possibility*;
+        
+        vector<ℕ> essences;
+        
+        virtual thought what_if(ℕ, will, truth) const = 0;
+        
+        mind() {}
+        
+        virtual thought how(truth believed, will desire) const override {
+            for (int n : essences) 
             {
-                std::vector<Output> outs(outpoints.size());
-                        
-                for (int i = 0; i < outpoints.size(); i++)
+                thought idea = what_if(n, believed, desire);
+                if (idea != nullptr) return idea;
+            }
+            return nullptr;
+        }
+    };
+
+    template<
+        typename input_script,
+        typename outpoint,
+        typename script,
+        typename truth,
+        typename will>
+    struct brain :
+        virtual public mind<input_script, outpoint, script, truth, will>,
+        virtual public body<input_script, outpoint, script, truth, will>
+    {
+        using design = concept<input_script, outpoint, script, truth, will>;
+        using body = body<input_script, outpoint, script, truth, will>;
+        using mind = mind<input_script, outpoint, script, truth, will>;
+        using thought = const typename design::possibility*;
+        
+        virtual bool could(ℕ, will, truth, thought) const = 0;
+        
+        thought what_if(ℕ, will power, truth hypothetical) const {
+            for (int nature : mind::essences) 
+                for (int deed : body::actions)
                 {
-                    Link const * p = prior(outpoints[i]);
-                    if (p == nullptr) return {};
-                    outs[i] = saves(output(p));
+                    if(could(nature, power, hypothetical, deed)) return deed;
                 }
-                        
-                return outs;
-            }
-
-            virtual ℕ saves(Output) const = 0;
-            
-            ℕ saves(vector<Outpoint> outpoints) const
-            {
-                ℕ spent = 0;
-                        
-                for (Outpoint o : outpoints)
-                {
-                    Link const * p = prior(o);
-                    if (p == nullptr) return ℵ0;
-                    spent += saves(output(p));
-                }
-                        
-                return spent;
-            }
+            return nullptr;
         };
-        
-        template<typename Goal, typename Magic, typename Outpoint>
-        struct desire {
-            virtual ℕ spend(Goal) const = 0;
-        
-            struct transformation
-            {
-                virtual const Magic operator()(Magic) const = 0;
-            };
-        
-            struct input final
-            {
-                Outpoint outpoint;
-                Magic magic;
-                
-                const input replace(Magic m) {
-                    return {outpoint, m};
-                }
-                
-                const input transform(const transformation& t) {
-                    return {outpoint, t(magic)};
-                }
-            };
-
-            // a possibility is something which gives us a transformation 
-            // when provided with a vector of outputs and a desire. 
-            struct possibility
-            {
-                virtual transformation operator()(vector<Outpoint>, Goal) const = 0;
-                
-                Magic initial;
-                
-                possibility() : Magic() {}
-                possibility(Magic i) : Magic(i) {}
-            };
-        };
-
-        template<
-            typename Link,
-            typename Outpoint,
-            typename Output,
-            typename Desire,
-            typename Magic>
-        struct will : 
-            public eyes<Link, Outpoint, Output>,
-            public desire<Desire, Magic, Outpoint>
-        {
-            typedef typename desire<Desire, Magic, Outpoint>::input input;
-            
-            struct transaction
-            {
-                vector<input> inputs;
-                Desire desire;
-            };
-                
-            bool positive(transaction t) const
-            {
-                int spendable = 0;
-                for(input i : t.inputs) {
-                    spendable += saves(i.outpoint);
-                }
-                    
-                return spends(t.goal);
-            }
-            
-            // This is a non-const function because it changes the state of the network. 
-            virtual void send(transaction) = 0;
-        };
-        
-        enum status {
-            valid, 
-            invalid, 
-            open_minded
-        };
-    }
+    };
+    
+    } // redeem
     
 } // abstractions
 
