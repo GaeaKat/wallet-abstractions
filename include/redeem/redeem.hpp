@@ -5,31 +5,73 @@
 
 #include<abstractions.hpp>
 
+#include<forward_list>
+
 namespace abstractions 
 {
     // redeem contains a high-level way of redeeming bitcoin txs.
     namespace redeem
     {
-        
+
     template<
         typename input_script,   // means of redemption. 
         typename outpoint,       // way if indexing a previous output. 
         typename output_script,  // an amount of funds locked behind a puzzle. 
-        typename truth,      // cases that we know how to redeem. 
-        typename will>        // a desired outcome. 
-    struct concept {
+        typename truth,          // cases that we know how to redeem. 
+        typename will>           // a desired outcome. 
+    struct redeemer {
+        // An output is a disconnected piece of a bitcoin transaction, 
+        // containing a natural number value and function by which
+        // that value is redeemed by this output, if it were to exist
+        // in the blockchain. 
+        struct output {
+            ℕ Value;
+            
+            output_script Function;  
+            
+            output(ℕ v, output_script o) : Value(v), Function(o) {}
+        };
+        
+        // relation_to_owner represents an output that we own and information
+        // about how we own it. In other words, stuff like do we
+        // have all necessary keys? Do we have some keys but not all?
+        struct relation_to_owner {
+            const output Output;
+            
+            // Some category that this output fits in. 
+            ℕ Essence;
+            
+            // truth claims concerning this output. 
+            // (such as what information we have about it.) 
+            // Also may contain an index as to how tho find that 
+            // information. The sky's the limit. 
+            truth Claim; 
+            
+            relation_to_owner(output o, truth c) : Output(o), Claim(c) {}
+        };
+        
         // Link contains information about how money flows in the
         // blockchain. 
         struct link {
-            bool Valid;
-            ℕ Value;                 // how much was locked. 
-            output_script Function;  // the script that must return true.
-            input_script Power;      // how the script shall be made to return true.
-            truth Known;         // What is known about this script.  
+            // Whether this link exists in the database. 
+            // agnostic as to whether that means that it exists in the blockchain
+            // or if we just don't have the whole blockchain in our database. 
+            bool Exists;
             
-            link() : Valid(false) {}
-            link(ℕ v, output_script o, input_script p, truth x)
-                : Valid(true), Value(v), Function(o), Power(p), Known(x) {}
+            relation_to_owner Posession;             
+            
+            // How the script shall be made to return true. 
+            // In other words, the input script. 
+            input_script Power;
+            
+            // We need to be able to create the nonexistent value in
+            // order to detect limiting cases. 
+            link() : Exists(false) {}
+            
+            // If the necessary information is given, the link 
+            // is assumed to exist. You cannot 
+            link(relation_to_owner mine, input_script word)
+                : Exists(true), Posession(mine), Power(word) {}
         };
         
         struct vertex {
@@ -37,16 +79,19 @@ namespace abstractions
             vector<outpoint> Outpoints;
         };
         
-        struct transformation {
-            input_script operator()(input_script) const = 0;
-        };
+        using transformation = input_script (* const)(input_script);
         
         using possibility = transformation (* const)(vertex);
         
-        possibility* how(truth known, will) const = 0;
+        // a thought is a pointer to a possibility. 
+        // I think that makes sense. 
+        using thought = const possibility*;
+        
+        thought what_if(ℕ essence, truth known, will) const = 0;
         
         link redeem(vertex v, link l, will w) {
-            possibility* p = how(l.known, w);
+            relation_to_owner r = l.Posession;
+            thought p = what_if(r.Essence, r.Claim, w);
             if (p == nullptr) return link();
             possibility action = *p;
             return Link(l.v, l.script, action(v)(l.Magic), l.known);
@@ -56,107 +101,32 @@ namespace abstractions
             vertex Vertex;
             map<outpoint, link> Incoming;
             
-            ℕ redeemed() {
+            ℕ amount_transferred() const {
                 int r = 0;
                 for (link l : Incoming) r += l.Value;
                 return r;
             }
+            
+            bool positive() const {
+                Vertex.Value >= amount_transferred();
+            }
         };
-        
-        bool positive(transaction t) const {
-            t.Vertex.Value >= t.redeemed();
-        }
         
         transaction spend(transaction t, will w) const {
             std::vector<link> links = t.Incoming;
             for (link& l : links) {
-                l = redeem(t.Vertex, o);
+                l = redeem(t.Vertex, w);
                 if (!l.Valid) return {};
             }
             
             return {t.Vertex, links};
         }
         
-        // We need this to know what to keep track of earlier on.
-        virtual will why(truth known, possibility*) const = 0;
-    };
-
-    template<
-        typename input_script,
-        typename outpoint,
-        typename script,
-        typename truth,
-        typename will>
-    struct body : virtual public concept<input_script, outpoint, script, truth, will> {
-        
-        using design = concept<input_script, outpoint, script, truth, will>;
-        using motion = const typename design::possibility*;
-        
-        const vector<motion>& actions;
-        
-        body(const vector<motion>& movements) : actions(movements) {}
-        
-        virtual will why(truth known, motion movement) const override {
-            for (motion concrete : actions)
-                if (how(known, concrete) == movement)
-                    return concrete;
-            return nullptr;
-        }
-    };
-
-    template<
-        typename input_script,
-        typename outpoint,
-        typename script,
-        typename truth,
-        typename will>
-    struct mind : virtual public concept<input_script, outpoint, script, truth, will> {
-        
-        using design = concept<input_script, outpoint, script, truth, will>;
-        using thought = const typename design::possibility*;
-        
-        vector<ℕ> essences;
-        
-        virtual thought what_if(ℕ, will, truth) const = 0;
-        
-        mind() {}
-        
-        virtual thought how(truth believed, will desire) const override {
-            for (int n : essences) 
-            {
-                thought idea = what_if(n, believed, desire);
-                if (idea != nullptr) return idea;
-            }
-            return nullptr;
-        }
-    };
-
-    template<
-        typename input_script,
-        typename outpoint,
-        typename script,
-        typename truth,
-        typename will>
-    struct brain :
-        virtual public mind<input_script, outpoint, script, truth, will>,
-        virtual public body<input_script, outpoint, script, truth, will>
-    {
-        using design = concept<input_script, outpoint, script, truth, will>;
-        using body = body<input_script, outpoint, script, truth, will>;
-        using mind = mind<input_script, outpoint, script, truth, will>;
-        using thought = const typename design::possibility*;
-        
-        virtual bool could(ℕ, will, truth, thought) const = 0;
-        
-        thought what_if(ℕ, will power, truth hypothetical) const {
-            for (int nature : mind::essences) 
-                for (int deed : body::actions)
-                {
-                    if(could(nature, power, hypothetical, deed)) return deed;
-                }
-            return nullptr;
+        // should we remember this observation given this known information about it for the given purpose?
+        virtual bool remember(relation_to_owner identification, will purpose) const {
+            return what_if(identification.Essence, identification.Claim, purpose) != nullptr;
         };
-    };
+    }; // redeemer
     
     } // redeem
     
