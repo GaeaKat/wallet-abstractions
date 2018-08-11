@@ -10,41 +10,51 @@ namespace abstractions
     {
 
     template<
-        typename input_script,   // means of redemption. 
-        typename outpoint,       // way if indexing a previous output. 
-        typename output_script,  // an amount of funds locked behind a puzzle. 
-        typename truth,          // cases that we know how to redeem. 
+        typename output,         // 
+        typename knowledge,      // cases that we know how to redeem. 
         typename will>           // a desired outcome. 
-    struct redeemer {
-        // An output is a disconnected piece of a bitcoin transaction, 
-        // containing a natural number value and function by which
-        // that value is redeemed by this output, if it were to exist
-        // in the blockchain. 
-        struct output {
-            ℕ Value;
-            
-            output_script Function;  
-            
-            output(ℕ v, output_script o) : Value(v), Function(o) {}
-        };
-        
-        // relation_to_owner represents an output that we own and information
+    struct memory {
+        // my_output represents an output that we own and information
         // about how we own it. In other words, stuff like do we
         // have all necessary keys? Do we have some keys but not all?
-        struct relation_to_owner {
-            const output Output;
-            
-            // Some category that this output fits in. 
-            ℕ Essence;
+        struct posession {
+            output Output;
             
             // truth claims concerning this output. 
             // (such as what information we have about it.) 
             // Also may contain an index as to how tho find that 
             // information. The sky's the limit. 
-            truth Claim; 
+            knowledge Claim; 
             
-            relation_to_owner(output o, truth c) : Output(o), Claim(c) {}
+            posession(output o, knowledge c) : Output(o), Claim(c) {}
         };
+        
+        // should we remember this observation given this known information about it for the given purpose?
+        virtual bool remember(posession identification, will purpose) const = 0;
+    };
+        
+    // An output is a disconnected piece of a bitcoin transaction, 
+    // containing a natural number value and function by which
+    // that value is redeemed by this output, if it were to exist
+    // in the blockchain. 
+    template<typename function>
+    struct output {
+        ℕ Value;
+            
+        function Function; 
+            
+        output(ℕ v, function o) : Value(v), Function(o) {}
+    };
+
+    template<
+        typename input_script,   // means of redemption. 
+        typename outpoint,       // way if indexing a previous output. 
+        typename output_script,  // an amount of funds locked behind a puzzle. 
+        typename knowledge,      // cases that we know how to redeem. 
+        typename will>           // a desired outcome. 
+    struct redeemer : public memory<output<input_script>, knowledge, will> {
+        using sin = memory<output<input_script>, knowledge, will>;
+        using mine = typename sin::posession;
         
         // Link contains information about how money flows in the
         // blockchain. 
@@ -54,7 +64,7 @@ namespace abstractions
             // or if we just don't have the whole blockchain in our database. 
             bool Exists;
             
-            relation_to_owner Posession;             
+            mine Posession;             
             
             // How the script shall be made to return true. 
             // In other words, the input script. 
@@ -66,7 +76,7 @@ namespace abstractions
             
             // If the necessary information is given, the link 
             // is assumed to exist. You cannot 
-            link(relation_to_owner mine, input_script word)
+            link(mine mine, input_script word)
                 : Exists(true), Posession(mine), Power(word) {}
         };
         
@@ -83,11 +93,15 @@ namespace abstractions
         // I think that makes sense. 
         using thought = const possibility*;
         
-        thought how(ℕ essence, will, truth known) const = 0;
+        thought how(will, knowledge known) const = 0;
+        
+        bool remember(mine identification, will purpose) const override {
+            return how(identification.Claim, purpose) != nullptr;
+        }
         
         link redeem(vertex v, link l, will w) {
-            relation_to_owner r = l.Posession;
-            thought p = how(r.Essence, w, r.Claim);
+            mine r = l.Posession;
+            thought p = how(w, r.Claim);
             if (p == nullptr) return link();
             possibility action = *p;
             return Link(l.v, l.script, action(v)(l.Magic), l.known);
@@ -117,12 +131,13 @@ namespace abstractions
             
             return {t.Vertex, links};
         }
-        
-        // should we remember this observation given this known information about it for the given purpose?
-        bool remember(relation_to_owner identification, will purpose) const {
-            return how(identification.Essence, identification.Claim, purpose) != nullptr;
-        }
-    }; 
+    };
+    
+    template<typename truth>
+    struct knowledge {
+        ℕ Category;
+        truth Observed;
+    };
     
     template<
         typename input_script,   // means of redemption. 
@@ -130,20 +145,22 @@ namespace abstractions
         typename output_script,  // an amount of funds locked behind a puzzle. 
         typename truth,          // cases that we know how to redeem. 
         typename will>           // a desired outcome. 
-    struct body : public redeemer<input_script, outpoint, output_script, truth, will> {
-        using logos = redeemer<input_script, outpoint, output_script, truth, will>;
+    struct mind : public redeemer<input_script, outpoint, output_script, knowledge<truth>, will> {
+        using logos = redeemer<input_script, outpoint, output_script, knowledge<truth>, will>;
         using action = typename logos::thought;
             
         vector<ℕ> moves;
             
-        body(vector<ℕ> m) : moves(m) {}
+        mind(vector<ℕ> m) : moves(m) {}
             
-        action act(ℕ essence, ℕ act) const = 0;
+        virtual action act(ℕ essence, ℕ act) const = 0;
+        
+        virtual bool could(ℕ form, will outcome, truth matter, ℕ motion) const = 0;
 
-        action how(ℕ essence, will outcome, truth known) const final override {
+        action how(will outcome, truth known) const final override {
             for (ℕ move : moves) 
-                if (could(essence, outcome, known, move)) 
-                    return act(essence, move);
+                if (could(known.Category, outcome, known.Observed, move)) 
+                    return act(known.Category, move);
             return nullptr;
         }
     };
