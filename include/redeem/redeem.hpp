@@ -1,11 +1,7 @@
-#ifndef ABSTRACTIONS_REDEEM_HPP
-#define ABSTRACTIONS_REDEEM_HPP
-
-#include<redeem/could.hpp>
+#ifndef ABSTRACTIONS_REDEEM_REDEEM_HPP
+#define ABSTRACTIONS_REDEEM_REDEEM_HPP
 
 #include<abstractions.hpp>
-
-#include<forward_list>
 
 namespace abstractions 
 {
@@ -87,11 +83,11 @@ namespace abstractions
         // I think that makes sense. 
         using thought = const possibility*;
         
-        thought what_if(ℕ essence, truth known, will) const = 0;
+        thought how(ℕ essence, will, truth known) const = 0;
         
         link redeem(vertex v, link l, will w) {
             relation_to_owner r = l.Posession;
-            thought p = what_if(r.Essence, r.Claim, w);
+            thought p = how(r.Essence, w, r.Claim);
             if (p == nullptr) return link();
             possibility action = *p;
             return Link(l.v, l.script, action(v)(l.Magic), l.known);
@@ -123,10 +119,34 @@ namespace abstractions
         }
         
         // should we remember this observation given this known information about it for the given purpose?
-        virtual bool remember(relation_to_owner identification, will purpose) const {
-            return what_if(identification.Essence, identification.Claim, purpose) != nullptr;
-        };
-    }; // redeemer
+        bool remember(relation_to_owner identification, will purpose) const {
+            return how(identification.Essence, identification.Claim, purpose) != nullptr;
+        }
+    }; 
+    
+    template<
+        typename input_script,   // means of redemption. 
+        typename outpoint,       // way if indexing a previous output. 
+        typename output_script,  // an amount of funds locked behind a puzzle. 
+        typename truth,          // cases that we know how to redeem. 
+        typename will>           // a desired outcome. 
+    struct body : public redeemer<input_script, outpoint, output_script, truth, will> {
+        using logos = redeemer<input_script, outpoint, output_script, truth, will>;
+        using action = typename logos::thought;
+            
+        vector<ℕ> moves;
+            
+        body(vector<ℕ> m) : moves(m) {}
+            
+        action act(ℕ essence, ℕ act) const = 0;
+
+        action how(ℕ essence, will outcome, truth known) const final override {
+            for (ℕ move : moves) 
+                if (could(essence, outcome, known, move)) 
+                    return act(essence, move);
+            return nullptr;
+        }
+    };
     
     } // redeem
     
