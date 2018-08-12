@@ -1,5 +1,5 @@
-#ifndef REDEEM_CLAIM_HPP
-#define REDEEM_CLAIM_HPP
+#ifndef REDEEM_OBSERVE_HPP
+#define REDEEM_OBSERVE_HPP
 
 #include<abstractions.hpp>
 

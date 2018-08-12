@@ -14,6 +14,12 @@ using vector = const std::vector<X>;
 template<typename X, typename Y>
 using map = const std::map<X, Y>;
 
+// the identity function is always possible. 
+template<typename anything>
+anything identity (anything a) {
+    return a;
+}
+
 using string = const std::string;
 
 using ℕ = const unsigned long long int;

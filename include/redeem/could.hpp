@@ -60,23 +60,23 @@ namespace abstractions
         // not a complete implementation of the primitive
         // recursive functions but you could imagine that such
         // a thing could exist. 
-        typedef ℕ action;
+        typedef ℕ motion;
         
-        action identity                      = 1;
-        action constant                      = 2;
-        action successor                     = 3;
+        motion identity                      = 1;
+        motion constant                      = 2;
+        motion successor                     = 3;
         
-        action sighash_all                   = 1 << 2;
-        action sighash_none                  = 2 << 2;
-        action sighash_single                = 3 << 2;
-        action sighash_anyone_can_pay        = 1 << 4;
+        motion sighash_all                   = 1 << 2;
+        motion sighash_none                  = 2 << 2;
+        motion sighash_single                = 3 << 2;
+        motion sighash_anyone_can_pay        = 1 << 4;
             
         // This is a possible category which is not required
         // in practice by my essences. You could probably 
         // just do something with this and become a billionare
         // without a clear explanation about what's valuable
         // about it at all. 
-        action recurse                       = 4;
+        motion recurse                       = 4;
         
         // How much data do we have in relation to how much we want?
         // should be disjoint because we will want to be able to
