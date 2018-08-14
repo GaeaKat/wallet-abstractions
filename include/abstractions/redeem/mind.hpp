@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_REDEEM_MIND_HPP
 #define ABSTRACTIONS_REDEEM_MIND_HPP
 
-#include<redeem/redeemer.hpp>
+#include "redeemer.hpp"
 
 namespace abstractions 
 {
@@ -20,7 +20,8 @@ namespace abstractions
             typename truth,          // cases that we know how to redeem. 
             typename will>           // a desired outcome. 
         struct mind : public redeemer<input_script, outpoint, output_script, knowledge<truth>, will> {
-            using action = thought<input_script, outpoint>;
+            using logos = redeemer<input_script, outpoint, output_script, knowledge<truth>, will>;
+            using action = typename logos::thought;
                 
             vector<ℕ> moves;
                 

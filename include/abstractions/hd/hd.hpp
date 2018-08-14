@@ -1,5 +1,5 @@
-#ifndef HD_HD_HPP
-#define HD_HD_HPP
+#ifndef ABSTRACTIONS_HD_HD_HPP
+#define ABSTRACTIONS_HD_HD_HPP
 
 #include <stdint.h>
 #include <vector>

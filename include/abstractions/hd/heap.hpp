@@ -1,5 +1,5 @@
-#ifndef HD_HEAP_HPP
-#define HD_HEAP_HPP
+#ifndef ABSTRACTIONS_HD_HEAP_HPP
+#define ABSTRACTIONS_HD_HEAP_HPP
 
 #include "hd.hpp"
 

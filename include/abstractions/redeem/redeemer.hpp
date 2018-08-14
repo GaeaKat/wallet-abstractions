@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_REDEEM_REDEEMER_HPP
 #define ABSTRACTIONS_REDEEM_REDEEMER_HPP
 
-#include<redeem/memory.hpp>
+#include "memory.hpp"
 
 namespace abstractions 
 {

@@ -1,9 +1,9 @@
 #ifndef ABSTRACTIONS_REDEEM_DEFAULT_HPP
 #define ABSTRACTIONS_REDEEM_DEFAULT_HPP
 
-#include<redeem/mind.hpp>
+#include "mind.hpp"
 
-#include<redeem/could.hpp>
+#include "could.hpp"
 
 namespace abstractions 
 {

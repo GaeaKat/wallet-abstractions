@@ -1,5 +1,5 @@
-#ifndef HD_DERIVATION_HPP
-#define HD_DERIVATION_HPP
+#ifndef ABSTRACTIONS_HD_DERIVATION_HPP
+#define ABSTRACTIONS_HD_DERIVATION_HPP
 
 #include "algebra.hpp"
 
@@ -36,7 +36,7 @@ K derive(algebra<K, M> a, K k, derivation<M> d) {
         return k;
     }
     
-    return derive_from_path(a, a(k, d.First), d.Rest);
+    return derive(a, a(k, d->First), d->Rest);
 }
 
 template<typename K, typename R>

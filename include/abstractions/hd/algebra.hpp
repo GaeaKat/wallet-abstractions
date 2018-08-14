@@ -1,5 +1,5 @@
-#ifndef HD_ALGEBRA_HPP
-#define HD_ALGEBRA_HPP
+#ifndef ABSTRACTIONS_HD_ALGEBRA_HPP
+#define ABSTRACTIONS_HD_ALGEBRA_HPP
 
 namespace abstractions
 {
