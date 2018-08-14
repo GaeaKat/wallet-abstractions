@@ -20,12 +20,6 @@ namespace abstractions
             output(ℕ v, function o) : Value(v), Function(o) {}
         };
         
-        // a transformation changes one power into another. 
-        template<typename power>
-        struct transformation {
-            power operator()(power) const = 0;
-        }
-        
         // a vertex represents the flow of bitcoins in the blockchain.
         // We don't need to know about the outputs, so there's just
         // one value that represents all outputs together. There's also
@@ -35,14 +29,6 @@ namespace abstractions
             ℕ Value;
             vector<index> Outpoints;
         };
-        
-        template<typename power, typename index>
-        using possibility = transformation<power> (* const)(vertex<index>);
-
-        // a thought is a pointer to a possibility. 
-        // I think that makes sense. 
-        template<typename power, typename index>
-        using thought = const possibility<power, index>*;
 
         template<
             typename input_script,   // means of redemption. 
@@ -53,9 +39,14 @@ namespace abstractions
         struct redeemer : public memory<output<input_script>, knowledge, will> {
             using sin = memory<output<input_script>, knowledge, will>;
             using mine = typename sin::posession;
-            
-            using thought = thought<input_script, outpoint>;
-            using possibility = possibility<input_script, outpoint>;
+        
+            struct possibility {
+                virtual input_script operator()(vertex<outpoint>, input_script) const = 0;
+            };
+
+            // a thought is a pointer to a possibility. 
+            // I think that makes sense. 
+            using thought = const possibility*;
             
             // Link contains information about how money flows in the
             // blockchain. 
@@ -65,7 +56,7 @@ namespace abstractions
                 // or if we just don't have the whole blockchain in our database. 
                 bool Exists;
                 
-                mine Posession;             
+                mine Posession;
                 
                 // How the script shall be made to return true. 
                 // In other words, the input script. 
@@ -81,7 +72,7 @@ namespace abstractions
                     : Exists(true), Posession(mine), Power(word) {}
             };
             
-            thought how(will, knowledge known) const = 0;
+            virtual thought how(will, knowledge known) const = 0;
             
             bool remember(mine identification, will purpose) const override {
                 return how(identification.Claim, purpose) != nullptr;
@@ -97,8 +88,8 @@ namespace abstractions
             }
             
             struct transaction {
-                virtual vertex<outpoint> Vertex() const = 0;
-                virtual map<outpoint, link> Incoming() const = 0;
+                vertex<outpoint> Vertex;
+                map<outpoint, link> Incoming;
                 
                 ℕ amount_transferred() const {
                     int r = 0;

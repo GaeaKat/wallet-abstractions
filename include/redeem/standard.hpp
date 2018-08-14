@@ -13,7 +13,7 @@ namespace abstractions
             typename input_script,   
             typename outpoint,       
             typename output_script>   
-        struct basic : public mind<input_script, outpoint, output_script, ℕ, ℕ> {
+        struct standard : public mind<input_script, outpoint, output_script, ℕ, ℕ> {
             using soul = mind<input_script, outpoint, output_script, ℕ, ℕ>;
             using action = typename soul::thought;
             
@@ -29,7 +29,7 @@ namespace abstractions
             action multisig_attach_signature;
             action multisig_p2sh_attach_signature;
             
-            basic(                        // constructor containing
+            standard(                     // constructor containing
                 action pa, action pah,    // the six basic functions
                 action pp, action pph,    // that we actually use. 
                 action ma, action mah)
@@ -41,7 +41,7 @@ namespace abstractions
                 multisig_attach_signature(ma), 
                 multisig_p2sh_attach_signature(mah) {}
 
-            virtual bool could(ℕ form, ℕ outcome, ℕ matter, ℕ impulse) const final override {
+            bool could(ℕ form, ℕ outcome, ℕ matter, ℕ impulse) const final override {
                 redeem::could(form, outcome, matter, impulse);
             };
             
