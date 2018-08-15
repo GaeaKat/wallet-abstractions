@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_REDEEM_REDEEMER_HPP
 #define ABSTRACTIONS_REDEEM_REDEEMER_HPP
 
-#include "memory.hpp"
+#include <abstractions/redeem/memory.hpp>
 
 namespace abstractions 
 {
@@ -12,7 +12,8 @@ namespace abstractions
         // that value is redeemed by this output, if it were to exist
         // in the blockchain. 
         template<typename function>
-        struct output {
+        struct output
+        {
             ℕ Value;
                 
             function Function; 
@@ -25,8 +26,9 @@ namespace abstractions
         // one value that represents all outputs together. There's also
         // a list of links to other locations in the blockchain. 
         template<typename index>
-        struct vertex {
-            ℕ Value;
+        struct vertex
+        {
+            virtual ℕ Value() const = 0;
             vector<index> Outpoints;
         };
 
@@ -36,9 +38,29 @@ namespace abstractions
             typename output_script,  // an amount of funds locked behind a puzzle. 
             typename knowledge,      // cases that we know how to redeem. 
             typename will>           // a desired outcome. 
-        struct redeemer : public memory<output<input_script>, knowledge, will> {
-            using sin = memory<output<input_script>, knowledge, will>;
-            using mine = typename sin::posession;
+        struct redeemer : memory<output_script, will> {
+            using mine = const posession<output_script, knowledge>&;
+            
+            // Link contains information about how money flows in the
+            // blockchain. 
+            struct link
+            {
+                // Whether this link exists in the database. 
+                // agnostic as to whether that means that it exists in the blockchain
+                // or if we just don't have the whole blockchain in our database. 
+                bool Exists;
+                
+                mine Posession;
+                
+                // We need to be able to create the nonexistent value in
+                // order to detect limiting cases. 
+                link() : Exists(false) {}
+                
+                // If the necessary information is given, the link 
+                // is assumed to exist. You cannot 
+                link(mine mine)
+                    : Exists(true), Posession(mine) {}
+            };
         
             struct possibility {
                 virtual input_script operator()(vertex<outpoint>, input_script) const = 0;
@@ -48,47 +70,30 @@ namespace abstractions
             // I think that makes sense. 
             using thought = const possibility*;
             
-            // Link contains information about how money flows in the
-            // blockchain. 
-            struct link {
-                // Whether this link exists in the database. 
-                // agnostic as to whether that means that it exists in the blockchain
-                // or if we just don't have the whole blockchain in our database. 
-                bool Exists;
-                
-                mine Posession;
-                
-                // How the script shall be made to return true. 
-                // In other words, the input script. 
-                input_script Power;
-                
-                // We need to be able to create the nonexistent value in
-                // order to detect limiting cases. 
-                link() : Exists(false) {}
-                
-                // If the necessary information is given, the link 
-                // is assumed to exist. You cannot 
-                link(mine mine, input_script word)
-                    : Exists(true), Posession(mine), Power(word) {}
-            };
-            
             virtual thought how(will, knowledge known) const = 0;
             
-            bool remember(mine identification, will purpose) const override {
+            bool remember(mine identification, will purpose) const override
+            {
                 return how(identification.Claim, purpose) != nullptr;
             }
             
-            link redeem(vertex<outpoint> v, link l, will w) {
+            input_script redeem(vertex<outpoint> v, link l, will w, input_script in)
+            {
                 thought p = how(w, l.Posession.Claim);
-                if (p == nullptr) return link();
+                if (p == nullptr) return input_script();
                 
                 possibility action = *p;
                 
-                return Link(l.v, l.script, action(v)(l.Magic), l.known);
+                return action(v)(in);
             }
             
-            struct transaction {
-                vertex<outpoint> Vertex;
+            input_script redeem(vertex<outpoint> v, link l, will w) {
+                return redeem(v, l, w, input_script());
+            }
+            
+            struct transaction
+            {
+                vertex<outpoint>& Vertex;
                 map<outpoint, link> Incoming;
                 
                 ℕ amount_transferred() const {
@@ -98,18 +103,23 @@ namespace abstractions
                 }
                 
                 bool positive() const {
-                    Vertex().Value >= amount_transferred();
+                    Vertex.Value() >= amount_transferred();
                 }
             };
             
-            transaction spend(const transaction& t, will w) const {
-                std::vector<link> links = t.Incoming;
-                for (link& l : links) {
-                    l = redeem(t.Vertex(), w);
-                    if (!l.Valid) return {};
+            map<outpoint, input_script> spend(
+                const transaction& t, 
+                map<outpoint, input_script> inputs,
+                will w) const
+            {
+                std::map<outpoint, input_script> m;
+                for (outpoint o : t.Incoming) {
+                    input_script i = redeem(t.Vertex(), t.Incoming[o], w, inputs[o]);
+                    if (i == input_script()) return {};
+                    m[o] = i;
                 }
                 
-                return {t.Vertex(), links};
+                return m;
             }
         };
     

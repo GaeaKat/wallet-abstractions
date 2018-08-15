@@ -8,28 +8,46 @@ namespace abstractions
     // redeem contains a high-level way of redeeming bitcoin txs.
     namespace redeem
     {
-        template<
-            typename function,       // something that we must invert in order to redeem later. 
-            typename knowledge,      // information about how to invert this function. 
-            typename will>           // a desired outcome one might have concerning these functions. 
+        template<typename function, typename will>
         struct memory {
-            // my_output represents an output that we own and information
-            // about how we own it. In other words, stuff like do we
-            // have all necessary keys? Do we have some keys but not all?
-            struct posession {
-                function Output;
+            bool remember(function, will) const = 0;
+        };
+        
+        template<typename power, typename function, typename knowledge>
+        using satisfies = bool (*)(function, power, knowledge);
+        
+        template<typename function, typename knowledge>
+        struct posession {            
+            function Output;
                 
-                // truth claims concerning this output. 
-                // (such as what information we have about it.) 
-                // Also may contain an index as to how tho find that 
-                // information. The sky's the limit. 
-                knowledge Claim; 
-                
-                posession(function o, knowledge c) : Output(o), Claim(c) {}
-            };
+            // truth claims concerning this output. 
+            // (such as what information we have about it.) 
+            // Also may contain an index as to how tho find that 
+            // information. 
+            knowledge Claim; 
             
-            // should we remember this observation given this known information about it for the given purpose?
-            virtual bool remember(posession identification, will purpose) const = 0;
+            virtual bool valid() const {
+                return true;
+            };
+        protected:
+            posession(function output, knowledge claim) : Output(output), Claim(claim) {}
+        };
+        
+        template<typename power, typename function, typename knowledge>
+        struct deed : posession<function, knowledge> {
+            // A power exists that will cause this function to return true.
+            const satisfies<function, power, knowledge> Existence;
+            
+            bool valid() const {
+                return Existence != nullptr;
+            }
+            
+            deed(function output, knowledge claim) : Existence(nullptr), posession<function, knowledge>(output, claim) {}
+            deed(
+                satisfies<function, power, knowledge> existence, 
+                power magic, 
+                function output,
+                knowledge claim) : Existence(existence(magic, output, claim) ? existence : nullptr), posession<function, knowledge>(output, claim) {}
         };
     }
 }
