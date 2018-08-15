@@ -11,28 +11,56 @@ namespace abstractions
         // containing a natural number value and function by which
         // that value is redeemed by this output, if it were to exist
         // in the blockchain. 
-        template<typename function>
+        template <typename function>
         struct output
         {
             ℕ Value;
                 
-            function Function; 
+            function Script; 
                 
-            output(ℕ v, function o) : Value(v), Function(o) {}
+            output(ℕ v, function o) : Value(v), Script(o) {}
         };
         
         // a vertex represents the flow of bitcoins in the blockchain.
         // We don't need to know about the outputs, so there's just
         // one value that represents all outputs together. There's also
         // a list of links to other locations in the blockchain. 
-        template<typename index>
+        template <typename index>
         struct vertex
         {
             virtual ℕ Value() const = 0;
             vector<index> Outpoints;
         };
+        
+        template <typename input_script, typename outpoint>
+        struct possibility {
+            virtual input_script operator()(vertex<outpoint>, input_script) const = 0;
+        };
 
-        template<
+        // a thought is a pointer to a possibility. 
+        // I think that makes sense.
+        template <typename input_script, typename outpoint>
+        using thought = const possibility<input_script, outpoint>*;
+        
+        template<typename function, typename knowledge>
+        struct posession {
+            output<function> Output;
+                
+            // truth claims concerning this output. 
+            // (such as what information we have about it.) 
+            // Also may contain an index as to how tho find that 
+            // information. 
+            knowledge Claim; 
+            
+            virtual bool valid() const = 0;
+        protected:
+            posession(ℕ v, function script, knowledge claim) : output<function>(v, script), Claim(claim) {}
+        };
+        
+        template <typename input_script, typename outpoint, typename output_script, typename knowledge, typename will>
+        using how = thought<input_script, outpoint> (*)(posession<output_script, knowledge>, will);
+
+        template <
             typename input_script,   // means of redemption. 
             typename outpoint,       // way if indexing a previous output. 
             typename output_script,  // an amount of funds locked behind a puzzle. 
@@ -40,46 +68,19 @@ namespace abstractions
             typename will>           // a desired outcome. 
         struct redeemer : memory<output_script, will> {
             using mine = const posession<output_script, knowledge>&;
+            using thought = thought<input_script, outpoint>;
+            using possibility = possibility<input_script, outpoint>;
             
-            // Link contains information about how money flows in the
-            // blockchain. 
-            struct link
-            {
-                // Whether this link exists in the database. 
-                // agnostic as to whether that means that it exists in the blockchain
-                // or if we just don't have the whole blockchain in our database. 
-                bool Exists;
-                
-                mine Posession;
-                
-                // We need to be able to create the nonexistent value in
-                // order to detect limiting cases. 
-                link() : Exists(false) {}
-                
-                // If the necessary information is given, the link 
-                // is assumed to exist. You cannot 
-                link(mine mine)
-                    : Exists(true), Posession(mine) {}
-            };
-        
-            struct possibility {
-                virtual input_script operator()(vertex<outpoint>, input_script) const = 0;
-            };
-
-            // a thought is a pointer to a possibility. 
-            // I think that makes sense. 
-            using thought = const possibility*;
-            
-            virtual thought how(will, knowledge known) const = 0;
+            const how<input_script, outpoint, output_script, knowledge, will> h;
             
             bool remember(mine identification, will purpose) const override
             {
-                return how(identification.Claim, purpose) != nullptr;
+                return h(identification.Claim, purpose) != nullptr;
             }
             
-            input_script redeem(vertex<outpoint> v, link l, will w, input_script in)
+            input_script redeem(vertex<outpoint> v, mine l, will w, input_script in)
             {
-                thought p = how(w, l.Posession.Claim);
+                thought p = h(w, l.Claim);
                 if (p == nullptr) return input_script();
                 
                 possibility action = *p;
@@ -87,18 +88,18 @@ namespace abstractions
                 return action(v)(in);
             }
             
-            input_script redeem(vertex<outpoint> v, link l, will w) {
+            input_script redeem(vertex<outpoint> v, mine l, will w) {
                 return redeem(v, l, w, input_script());
             }
             
             struct transaction
             {
                 vertex<outpoint>& Vertex;
-                map<outpoint, link> Incoming;
+                map<outpoint, mine> Incoming;
                 
                 ℕ amount_transferred() const {
                     int r = 0;
-                    for (link l : Incoming()) r += l.Value;
+                    for (mine l : Incoming) r += l.Output.Value;
                     return r;
                 }
                 

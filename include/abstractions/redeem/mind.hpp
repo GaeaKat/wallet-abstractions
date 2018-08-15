@@ -38,6 +38,26 @@ namespace abstractions
                 return nullptr;
             }
         };
+        
+        template<typename power, typename function, typename knowledge>
+        using satisfies = bool (*)(function, power, knowledge);
+        
+        template<typename power, typename function, typename knowledge>
+        struct deed : posession<function, knowledge> {
+            // A power exists that will cause this function to return true.
+            const satisfies<function, power, knowledge> Existence;
+            
+            bool valid() const {
+                return Existence != nullptr;
+            }
+            
+            deed(function output, knowledge claim) : Existence(nullptr), posession<function, knowledge>(output, claim) {}
+            deed(
+                satisfies<function, power, knowledge> existence, 
+                power magic, 
+                function output,
+                knowledge claim) : Existence(existence(magic, output, claim) ? existence : nullptr), posession<function, knowledge>(output, claim) {}
+        };
     
     } // redeem
     
