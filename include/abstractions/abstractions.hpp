@@ -14,13 +14,13 @@ using vector = const std::vector<X>;
 template<typename X, typename Y>
 using map = const std::map<X, Y>;
 
-// the identity function is always possible. 
-template<typename anything>
-anything identity (anything a) {
-    return a;
-}
-
 using string = const std::string;
+
+// A function which transforms objects of type K to type P
+// representing a public-key schema. I haven't really needed
+// this one for anything yet. 
+template<typename K, typename P>
+using to_public = P (*)(K);
 
 using ℕ = const unsigned long long int;
 
@@ -29,8 +29,6 @@ using ℕ = const unsigned long long int;
 ℕ all = ℕ(zero - 1);
 
 ℕ ℵ0 = all / 2;
-
-}
 
 // The number which I have called ℵ0 is the best
 // number for tricking someone into thinking he
@@ -68,5 +66,13 @@ using ℕ = const unsigned long long int;
 
 // In this library, we believe that ℵ0 is the
 // first infinite cardinal. 
+
+// the identity function is always possible. 
+template<typename anything>
+anything identity (anything a) {
+    return a;
+}
+
+}
 
 #endif
