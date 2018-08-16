@@ -18,7 +18,7 @@ namespace abstractions
         
         // We don't do anything with coinbase transactions, but
         // it is worth thinking about. 
-        essence coinbase                    = 1; 
+        essence coinbase                    = 1;
             
         // These are some basic transaction types... or are they?
         essence pay_to_public_key           = 1 << 1;
@@ -49,7 +49,7 @@ namespace abstractions
         typedef ℕ accomplishment;
         
         accomplishment none                  = 0;
-        accomplishment redeemed              = 1; 
+        accomplishment redeemed              = 1;
             
         // can happen if we've got a multisig output and we can
         // add our signature such that fewer signatures are 
@@ -60,33 +60,33 @@ namespace abstractions
         // not a complete implementation of the primitive
         // recursive functions but you could imagine that such
         // a thing could exist. 
-        typedef ℕ motion;
+        typedef ℕ action;
         
-        motion identity                      = 1;
-        motion constant                      = 2;
-        motion successor                     = 3;
+        action identity                      = 1;
+        action constant                      = 2;
+        action successor                     = 3;
         
-        motion sighash_all                   = 1 << 2;
-        motion sighash_none                  = 2 << 2;
-        motion sighash_single                = 3 << 2;
-        motion sighash_anyone_can_pay        = 1 << 4;
+        action sighash_all                   = 1 << 2;
+        action sighash_none                  = 2 << 2;
+        action sighash_single                = 3 << 2;
+        action sighash_anyone_can_pay        = 1 << 4;
             
         // This is a possible category which is not required
         // in practice by my essences. You could probably 
         // just do something with this and become a billionare
         // without a clear explanation about what's valuable
         // about it at all. 
-        motion recurse                       = 4;
+        action recurse                       = 4;
         
         // How much data do we have in relation to how much we want?
         // should be disjoint because we will want to be able to
         // form sums and products of them with ^ and |
-        typedef ℕ proposition; 
+        typedef const uint64_t knowledge; 
         
-        proposition impossible             = 0;
-        proposition have_none              = 1 << 0; 
-        proposition have_all               = 1 << 1; 
-        proposition have_some_but_not_all  = 1 << 2;
+        knowledge impossible             = 0;
+        knowledge have_none              = 1 << 0;
+        knowledge have_all               = 1 << 1;
+        knowledge have_some_but_not_all  = 1 << 2;
             
         // you can look into the output script, so hypothetically 
         // there could be qualitative categories here. 
@@ -153,7 +153,7 @@ namespace abstractions
             // alone because the proof of the proprosition may
             // involve both public and private knowledge which
             // we want to stay private. 
-            proposition what
+            knowledge what
         );
         
         // When we are redeeming a tx, we have a goal and we want
@@ -162,7 +162,7 @@ namespace abstractions
         // for later. 
         
         // Thus, what we really want is the would() function. 
-        constexpr const proposition would(
+        constexpr const knowledge would(
             const accomplishment what
         );
         
@@ -173,14 +173,14 @@ namespace abstractions
         // tells us if we want to remember a given observation.
         
         constexpr const bool remember(
-            proposition observation, 
+            knowledge observation, 
             const accomplishment what
         );
         
         // if we had the remember() function, we could define the 
         // would() function like so. 
         
-        constexpr const proposition would(
+        constexpr const knowledge would(
             const accomplishment what
         ) {            
             return 
@@ -197,7 +197,7 @@ namespace abstractions
         
         // That would be the can() function. 
         constexpr const bool can(
-            proposition observation, 
+            knowledge observation, 
             action how,
             accomplishment what
         );
@@ -208,7 +208,7 @@ namespace abstractions
         // remember the given observation. 
         
         constexpr const bool remember(
-            proposition observation, 
+            knowledge observation, 
             accomplishment what
         ) {
             // We do not worry about recurse because we don't know
@@ -222,7 +222,7 @@ namespace abstractions
         // but we can define the can function! It is
         // simply an iteration over the conceptual categories.
         constexpr const bool can(
-            proposition observation, 
+            knowledge observation, 
             action how,
             accomplishment what
         ) {
@@ -241,7 +241,7 @@ namespace abstractions
             essence nature,         // formal cause
             accomplishment why,     // final cause
             action how,             // efficient cause
-            proposition what        // material cause
+            knowledge what          // material cause
         ) {            
             return
                 // You are always allowed to do nothing if you don't want

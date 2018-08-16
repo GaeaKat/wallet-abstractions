@@ -6,57 +6,34 @@
 namespace abstractions 
 {
     namespace redeem
-    {        
-        template<typename truth>
-        struct knowledge {
-            ℕ Category;
-            truth Observed;
+    {
+        template<typename input_script, typename outpoint, typename will>
+        struct association {
+            word<input_script, outpoint>* operator()(outpoint, will, knowledge) const = 0;
         };
         
         template<
             typename input_script,   // means of redemption. 
             typename outpoint,       // way if indexing a previous output. 
             typename output_script,  // an amount of funds locked behind a puzzle. 
-            typename truth,          // cases that we know how to redeem. 
             typename will>           // a desired outcome. 
-        struct mind : public redeemer<input_script, outpoint, output_script, knowledge<truth>, will> {
-            using logos = redeemer<input_script, outpoint, output_script, knowledge<truth>, will>;
-            using action = typename logos::thought;
-                
-            vector<ℕ> moves;
-                
-            mind(vector<ℕ> m) : moves(m) {}
-                
-            virtual action act(ℕ essence, ℕ act) const = 0;
-            
-            virtual bool could(ℕ form, will outcome, truth matter, ℕ motion) const = 0;
+        struct mind : public redeemer<input_script, outpoint, output_script, will> {
+            using word = word<input_script, outpoint>;
+            using association = association<input_script, outpoint, will>;
 
-            action how(will outcome, truth known) const final override {
-                for (ℕ move : moves) 
-                    if (could(known.Category, outcome, known.Observed, move)) 
-                        return act(known.Category, move);
-                return nullptr;
-            }
-        };
-        
-        template<typename power, typename function, typename knowledge>
-        using satisfies = bool (*)(function, power, knowledge);
-        
-        template<typename power, typename function, typename knowledge>
-        struct deed : posession<function, knowledge> {
-            // A power exists that will cause this function to return true.
-            const satisfies<function, power, knowledge> Existence;
+            map<essence, association&> brain;
+
+            mind(map<essence, association*> theory) : brain(theory) {}
+
+            virtual essence nature(outpoint o) const = 0;
             
-            bool valid() const {
-                return Existence != nullptr;
+            // conditions which must be satisfied hypothetically in order for
+            // such a combination of 
+            virtual knowledge would(essence, will) const = 0;
+
+            word* how(outpoint o, will outcome) const final override {
+                return brain[nature(o)](o, outcome, would(nature(o), outcome));
             }
-            
-            deed(function output, knowledge claim) : Existence(nullptr), posession<function, knowledge>(output, claim) {}
-            deed(
-                satisfies<function, power, knowledge> existence, 
-                power magic, 
-                function output,
-                knowledge claim) : Existence(existence(magic, output, claim) ? existence : nullptr), posession<function, knowledge>(output, claim) {}
         };
     
     } // redeem

@@ -1,39 +1,56 @@
-#ifndef ABSTRACTIONS_REDEEM_DEFAULT_HPP
-#define ABSTRACTIONS_REDEEM_DEFAULT_HPP
+#ifndef ABSTRACTIONS_REDEEM_STANDARD_HPP
+#define ABSTRACTIONS_REDEEM_STANDARD_HPP
 
 #include "mind.hpp"
-
-#include "could.hpp"
+#include "logos.hpp"
 
 namespace abstractions 
 {
     namespace redeem
-    {        
+    {
+        template<typename power, typename truth, typename will, typename input_script, typename outpoint>
+        struct memory : public association<truth, will, input_script, outpoint> {
+            
+            
+            word<will, input_script, outpoint>& operator()(truth) const {
+                return w;
+            }
+        };
+        
+        template<typename truth, typename will, typename input_script, typename outpoint>
+        theory<truth, will, input_script, outpoint> g(bool (*could)(essence, will, proposition, action), vector<essence>, vector<will>);
+        
         template<
             typename input_script,   
             typename outpoint,       
-            typename output_script>   
-        struct standard : public mind<input_script, outpoint, output_script, ℕ, ℕ> {
-            using soul = mind<input_script, outpoint, output_script, ℕ, ℕ>;
-            using action = typename soul::thought;
+            typename output_script, 
+            typename secret>   
+        struct standard : public brain<input_script, outpoint, output_script, proposition, accomplishment> {
+            using brain = brain<input_script, outpoint, output_script, proposition, accomplishment>;
+            using association = association<proposition, accomplishment, input_script, outpoint>;
+            using individual = const logos<secret, output_script, proposition, accomplishment, input_script, outpoint> &;
+            using multisig = const logos<vector<secret>, output_script, proposition, accomplishment, input_script, outpoint> &;
             
             // conceptually what are we doing to the bitcoin script?
-            motion none = identity;
-            motion replace = constant;
-            motion append = successor;
+            action none = identity;
+            action replace = constant;
+            action append = successor;
             
-            action pay_to_address_redeem;
-            action pay_to_address_p2sh_redeem;
-            action pay_to_public_key_redeem;
-            action pay_to_public_key_p2sh_redeem;
-            action multisig_attach_signature;
-            action multisig_p2sh_attach_signature;
+            individual pay_to_address_redeem;
+            individual pay_to_address_p2sh_redeem;
+            individual pay_to_public_key_redeem;
+            individual pay_to_public_key_p2sh_redeem;
+            multisig multisig_attach_signature;
+            multisig multisig_p2sh_attach_signature;
             
-            standard(                     // constructor containing
-                action pa, action pah,    // the six basic functions
-                action pp, action pph,    // that we actually use. 
-                action ma, action mah)
-            : soul({replace, append, none}),
+            standard(                     
+                individual pay_to_address_redeem,
+                individual pay_to_address_p2sh_redeem,
+                individual pay_to_public_key_redeem,
+                individual pay_to_public_key_p2sh_redeem,
+                multisig multisig_attach_signature,
+                multisig multisig_p2sh_attach_signature
+            ) : brain({replace, append}, ),
                 pay_to_address_redeem(pa), 
                 pay_to_address_p2sh_redeem(pah), 
                 pay_to_public_key_redeem(pp), 
@@ -72,7 +89,7 @@ namespace abstractions
                             return nullptr;
                     }
             }
-        };
+        };*/
     }
 }
 
