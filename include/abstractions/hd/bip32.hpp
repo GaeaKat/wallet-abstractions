@@ -72,7 +72,7 @@ struct public_node {
         const std::array<byte, chain_code_size> c) : Pubkey(p), ChainCode(c) {}
 };
 
-struct private_node : public_node {
+struct private_node : virtual public public_node {
     private_key Secret;
     
     virtual bool valid() const override {
