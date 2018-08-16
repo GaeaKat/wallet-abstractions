@@ -16,12 +16,6 @@ using map = const std::map<X, Y>;
 
 using string = const std::string;
 
-// A function which transforms objects of type K to type P
-// representing a public-key schema. I haven't really needed
-// this one for anything yet. 
-template<typename K, typename P>
-using to_public = P (*)(K);
-
 using ℕ = const unsigned long long int;
 
 ℕ zero = 0;

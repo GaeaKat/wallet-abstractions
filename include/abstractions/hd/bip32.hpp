@@ -2,10 +2,15 @@
 #define ABSTRACTIONS_HD_BIP32_HPP
 
 #include <array>
-#include <abstractions/abstractions.hpp>
 
 namespace abstractions
 {
+
+// A function which transforms objects of type K to type P
+// representing a public-key schema. I haven't really needed
+// this one for anything yet. 
+template<typename K, typename P>
+using to_public = P (*)(K);
 
 namespace hd
 {
@@ -24,70 +29,63 @@ const uint chain_code_size = 32;
 const byte point_sign_even = 0x02;
 const byte point_sign_odd = 0x03;
 
-struct public_key : public std::array<byte, public_key_size> {
-    bool valid() const;
-    
-    public_key();
-    public_key(const public_key& p) : std::array<byte, public_key_size>(p) {}
-    public_key(const public_key&& p) : std::array<byte, public_key_size>(p) {}
-    public_key(const std::array<byte, public_key_size> p) : std::array<byte, public_key_size>(p) {}
-};
+using public_key = std::array<byte, public_key_size>;
+using private_key = std::array<byte, private_key_size>;
+using chain_code = std::array<byte, chain_code_size>;
 
-struct private_key: public std::array<byte, private_key_size> {
-    bool valid() const;
-    
-    private_key();
-    private_key(const private_key& p) : std::array<byte, private_key_size>(p) {}
-    private_key(const private_key&& p) : std::array<byte, private_key_size>(p) {}
-    private_key(const std::array<byte, private_key_size> p) : std::array<byte, private_key_size>(p) {}
-};
+bool valid_public_key(const public_key&);
 
-struct chain_code : public std::array<byte, chain_code_size> {
-    bool valid() const;
-    
-    chain_code();
-    chain_code(const chain_code& p) : std::array<byte, chain_code_size>(p) {}
-    chain_code(const chain_code&& p) : std::array<byte, chain_code_size>(p) {}
-    chain_code(const std::array<byte, chain_code_size> p) : std::array<byte, chain_code_size>(p) {}
-};
+bool valid_private_key(const private_key&);
+
+bool valid_chain_code(const chain_code&);
 
 const public_key zero_public_key({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
 const private_key zero_private_key({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
 const chain_code zero_chain_code(zero_private_key);
 
 struct public_node {
-    public_key Pubkey;
+    public_key Point;
     chain_code ChainCode;
     
-    virtual bool valid() const {
-        return Pubkey.valid() && ChainCode.valid();
+    bool valid() const {
+        return valid_public_key(Point) && valid_chain_code(ChainCode);
     }
     
-    public_node() : Pubkey(), ChainCode() {}
+    bool operator==(const public_node& n) const {
+        return Point == n.Point && ChainCode == n.ChainCode;
+    }
+    
+    bool operator!=(const public_node& n) const {
+        return Point != n.Point || ChainCode != n.ChainCode;
+    }
+    
+    public_node() : Point(zero_public_key), ChainCode(zero_chain_code) {}
     public_node(
         const public_key p,
-        const chain_code c) : Pubkey(p), ChainCode(c) {}
-    public_node(
-        const std::array<byte, public_key_size> p, 
-        const std::array<byte, chain_code_size> c) : Pubkey(p), ChainCode(c) {}
+        const chain_code c) : Point(p), ChainCode(c) {}
 };
 
-struct private_node : virtual public public_node {
+struct private_node {
+    public_node Pubkey;
     private_key Secret;
     
-    virtual bool valid() const override {
-        return Secret.valid() && public_node::valid();
+    bool valid() const {
+        return valid_private_key(Secret) && Pubkey.valid();
     }
     
-    private_node() : public_node(), Secret() {}
+    bool operator==(const private_node& n) const {
+        return Pubkey == n.Pubkey && Secret == n.Secret;
+    }
+    
+    bool operator!=(const private_node& n) const {
+        return Pubkey != n.Pubkey || Secret != n.Secret;
+    }
+    
+    private_node() : Secret(zero_private_key), Pubkey() {}
     private_node(
         const private_key s,
         const public_key p,
-        const chain_code c) : public_node(p, c), Secret(s) {}
-    private_node(
-        const std::array<byte, private_key_size> s,
-        const std::array<byte, public_key_size> p,
-        const std::array<byte, chain_code_size> c) : public_node(p, c), Secret(s) {}
+        const chain_code c) : Pubkey(p, c), Secret(s) {}
         
     private_node(
         to_public<private_key, public_key> tp,
@@ -99,41 +97,10 @@ const std::array<byte, public_key_size - 1> max_public_key({0xFF, 0xFF, 0xFF, 0x
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFC, 0x2F});
 
-public_key::public_key() : std::array<byte, public_key_size>(zero_public_key) {}
-private_key::private_key() : std::array<byte, private_key_size>(zero_private_key) {}
-chain_code::chain_code() : std::array<byte, chain_code_size>(zero_chain_code) {}
-
-bool public_key::valid() const {
-    if (!(at(0) == point_sign_even || at(0) == point_sign_odd)) return false;
-    
-    for (int i = 1; i < public_key_size; i++) {
-        if (at(i) < max_public_key[i - 1]) break;
-        if (at(i) > max_public_key[i - 1]) return false;
-    }
-    
-    for (int i = 1; i < public_key_size; i++) {
-        if (at(i) != 0) return true;
-    }
-    
-    return false;
-}
-
-bool private_key::valid() const {
-    return (*this) != zero_private_key;
-}
-
-bool chain_code::valid() const {
-    return (*this) != zero_chain_code;
-}
-
 // in bip32, there are two kinds of derivations. Hardened and unhardened.
 // A transformation which is hardened is denoted by having the hardened_flag
 // set. In otherwords if it is larger than 2^31. 
 const child_index hardened_flag = 0x80000000;
-
-inline bool hardened(child_index x) {
-    return (x & hardened_flag) == hardened_flag;
-}
 
 }
 
