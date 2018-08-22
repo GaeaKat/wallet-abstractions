@@ -1,28 +1,52 @@
 #ifndef ABSTRACTIONS_REDEEM_STANDARD_HPP
 #define ABSTRACTIONS_REDEEM_STANDARD_HPP
 
-#include "stuff.hpp"
+#include "rights.hpp"
 
 namespace abstractions 
 {
     namespace redeem
-    {
+    {        
+        template <typename secret, typename script, typename outpoint>
+        struct right_pay_to_address : public single<secret, script, outpoint, bytestring, accomplishment> {
+            right_pay_to_address(sign<secret, script, outpoint> add_signature_and_pubkey) : {}
+        };
+        
+        template <typename secret, typename script, typename outpoint>
+        struct right_pay_to_pubkey : public single<secret, script, outpoint, bytestring, accomplishment> {
+            right_pay_to_pubkey(sign<secret, script, outpoint> add_signature) : {}
+        };
+        
+        template <typename secret, typename script, typename outpoint>
+        struct right_script_pay_to_address : public single<secret, script, outpoint, bytestring, accomplishment> {
+            right_script_pay_to_address(sign<secret, script, outpoint> add_signature_and_pubkey) : {}
+        };
+        
+        template <typename secret, typename script, typename outpoint>
+        struct right_script_pay_to_pubkey : public single<secret, script, outpoint, bytestring, accomplishment> {
+            right_script_pay_to_pubkey(sign<secret, script, outpoint> add_signature) : {}
+        };
+        
+        template <typename secret, typename script, typename outpoint>
+        struct right_multisig : public multiple<secret, script, outpoint, bytestring, accomplishment> {
+            right_multisig(sign<secret, script, outpoint> add_signature) : {}
+        };
+        
+        template <typename secret, typename script, typename outpoint>
+        struct right_script_multisig : public multiple<secret, script, outpoint, bytestring, accomplishment> {
+            right_script_multisig(sign<secret, script, outpoint> add_signature) : {}
+        };
+
         template<
-            typename input_script,   
-            typename outpoint,       
-            typename output_script, 
-            typename secret, 
-            typename address>   
-        struct standard : public mind<input_script, outpoint, output_script, accomplishment> {
-            using mind = mind<input_script, outpoint, output_script, accomplishment>;
-            using brain = brain<input_script, outpoint, accomplishment>;
-            using association = association<accomplishment, input_script, outpoint>;
-            using individual = individual<secret, output_script, input_script, outpoint> &;
-            using multi = multi<secret, output_script, input_script, outpoint> &;
+            typename script,   
+            typename outpoint,
+            typename secret>   
+        struct standard : public mind<script, outpoint, bytestring, accomplishment> {
+            using mind = mind<script, outpoint, bytestring, accomplishment>;
             
             standard(
-                sign<secret, input_script, outpoint> add_signature,
-                sign<secret, input_script, outpoint> add_signature_and_address, 
+                sign<secret, script, outpoint> add_signature,
+                sign<secret, script, outpoint> add_signature_and_pubkey, 
             ) : mind(
                 {
                     {pay_to_public_key, ppk}, 
@@ -31,7 +55,7 @@ namespace abstractions
                     {public_key_pay_to_script, ppksh}, 
                     {address_pay_to_script, pash}, 
                     {multisig_pay_to_script, msh}
-                }) {}
+                }, db) {}
         };
     }
 }

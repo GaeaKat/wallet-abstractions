@@ -15,8 +15,8 @@ namespace abstractions
             bool operator()(function, argument, knowledge) const = 0;
         };
         
-        template <typename secret, typename input_script, typename outpoint>
-        using sign = thought<input_script, outpoint> (*)(secret);
+        template <typename secret, typename script, typename outpoint>
+        using sign = thought<script, outpoint> (*)(secret);
         
         template<typename function, typename secret, typename script, typename outpoint>
         struct right {
@@ -42,35 +42,61 @@ namespace abstractions
             bool valid() const {
                 return Existence != nullptr;
             }
-            
-            thought alienate(accomplishment outcome, knowledge truth) const {
-                if (truth != (truth | Claim[outcome])) return nullptr;
-                
-                return Power(right::Secret);
-            };
         
             right(
-                satisfies<function, secret>& existence, 
                 sign<secret, script, outpoint> power, 
+                satisfies<function, secret>& existence, 
                 secret magic, 
-                function output,
+                function f,
                 knowledge claim)
-                : Existence(existence(magic, output, claim) ? existence : nullptr),
-                    Power(power), Secret(magic), Function(output), Claim(claim) {}
+                : Existence(existence(magic, f, claim) ? existence : nullptr),
+                    Power(power), Secret(magic), Function(f), Claim(claim) {}
         };
         
-        template<typename function, typename secret, typename script, typename outpoint, typename tag, typename will>
-        struct memory : association<script, outpoint, tag, will> {
-            using posession = right<function, secret, script, outpoint>;
+        template<typename function, typename secret, typename script, typename outpoint>
+        struct individual : public right<function, secret, script, outpoint> {
+            using right = right<function, secret, script, outpoint>;
+            using thought = thought<script, outpoint>;
             
-            const pointer<posession> mine(outpoint) const = 0;
-            
-            thought<script, outpoint> realize(outpoint o, will w, knowledge k) const final override {
-                pointer<posession> p = mine(o);
-                if (p == nullptr) return nullptr;
-                return p->alienate(w, k);
-            };
+            individual(
+                sign<secret, script, outpoint> power, 
+                satisfies<secret, script>& existence, 
+                secret magic, 
+                function f,
+                knowledge claim) : right(existence, power, magic, f, claim) {}
         };
+        
+        template<typename function, typename secret, typename script, typename outpoint>
+        struct collective : public right<function, vector<secret>, script, outpoint> {
+            using right = right<function, vector<secret>, script, outpoint>;
+            using thought = thought<script, outpoint>;
+            
+            const pointer<right> mine(vector<tag> tags, knowledge truth) const {
+                throw 0;
+            };
+            
+            collective(
+                satisfies<vector<secret>, script>& existence, 
+                sign<vector<secret>, script, outpoint> power, 
+                secret magic, 
+                function f,
+                knowledge claim) : right(existence, power, magic, f, claim) {}
+        };
+        
+        /*template<typename function, typename secret, typename script, typename outpoint, typename tag, typename will>
+        struct memory : association<script, outpoint, tag, will> {
+            using right = right<function, secret, script, outpoint>;
+            
+            const pointer<right> mine(vector<tag> tags, knowledge truth) const {
+                throw 0;
+            };
+            
+            thought<script, outpoint> realize(vector<tag> tags, knowledge truth) const final override {
+                pointer<right> p = mine(tags, truth);
+                if (p == nullptr) return nullptr;
+                return p->Power(p->Secret);
+            };
+        };*/
     }
 }
 

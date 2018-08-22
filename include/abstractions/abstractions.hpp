@@ -12,6 +12,9 @@ namespace abstractions
 template<typename X>
 using vector = const std::vector<X>;
 
+typedef uint8_t byte;
+typedef const vector<byte> bytestring;
+
 template<typename X, typename Y>
 using map = const std::map<X, Y>;
 

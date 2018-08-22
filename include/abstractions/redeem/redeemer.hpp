@@ -43,7 +43,7 @@ namespace abstractions
             const prepend<script> Prepend;
             const blockchain<script, outpoint> Prior;
             
-            virtual thought what(script, will) const = 0;
+            virtual thought how(script, will) const = 0;
             
         public:
             redeemer(prepend<script> p, blockchain<script, outpoint>& b) : Prepend(p), Prior(b) {}
@@ -52,10 +52,10 @@ namespace abstractions
                 pointer<script> output = Prior(o);
                 if (output == nullptr) return script();
                 
-                thought logos = what(Prepend(*output, in), w);
-                if (logos == nullptr) return script();
+                thought hypothetical = how(Prepend(*output, in), w);
+                if (hypothetical == nullptr) return script();
                 
-                return p(in, logos->speak(v));
+                return p(in, hypothetical->speak(v));
             }
             
             script redeem(vertex<outpoint> v, outpoint o, will w) {
@@ -93,9 +93,9 @@ namespace abstractions
                 }
             };
 
-            map<outpoint, input_script> spend(
+            map<outpoint, script> spend(
                 const transaction& t, 
-                map<outpoint, input_script> inputs,
+                map<outpoint, script> inputs,
                 will w) const
             {
                 std::map<outpoint, script> m;
