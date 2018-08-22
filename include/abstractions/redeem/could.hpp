@@ -81,8 +81,6 @@ namespace abstractions
         // How much data do we have in relation to how much we want?
         // should be disjoint because we will want to be able to
         // form sums and products of them with ^ and |
-        typedef const uint64_t knowledge; 
-        
         knowledge impossible             = 0;
         knowledge have_none              = 1 << 0;
         knowledge have_all               = 1 << 1;

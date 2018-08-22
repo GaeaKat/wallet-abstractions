@@ -2,7 +2,6 @@
 #define ABSTRACTIONS_REDEEM_REDEEMER_HPP
 
 #include <abstractions/abstractions.hpp>
-#include "could.hpp"
 
 namespace abstractions 
 {
@@ -18,48 +17,63 @@ namespace abstractions
             vector<index> Outpoints;
         };
         
-        template <typename input_script, typename outpoint>
+        template <typename script>
+        using prepend = script (*)(script, script);
+        
+        template <typename script, typename outpoint>
         struct word {
-            virtual input_script speak(vertex<outpoint>, input_script) const = 0;
+            virtual script speak(vertex<outpoint>) const = 0;
+        };
+        
+        template <typename script, typename outpoint>
+        using thought = pointer<const word<script, outpoint>>;
+        
+        template <typename script, typename outpoint>
+        struct blockchain {
+            pointer<script> operator()(outpoint) const = 0;
         };
 
         template <
-            typename input_script,   // means of redemption. 
+            typename script,   // means of redemption. 
             typename outpoint,       // way if indexing a previous output. 
-            typename output_script,  // an amount of funds locked behind a puzzle. 
             typename will>           // a desired outcome. 
-        struct redeemer {
-            using word = word<input_script, outpoint>;
+        class redeemer {
+            using thought = thought<script, outpoint>;
             
-            input_script redeem(vertex<outpoint> v, outpoint o, will w, input_script in)
-            {
-                word const* logos = how(o, w);
-                if (logos == nullptr) return input_script();                
-                return logos->speak(v, in);
+            const prepend<script> Prepend;
+            const blockchain<script, outpoint> Prior;
+            
+            virtual thought what(script, will) const = 0;
+            
+        public:
+            redeemer(prepend<script> p, blockchain<script, outpoint>& b) : Prepend(p), Prior(b) {}
+            
+            script redeem(vertex<outpoint> v, outpoint o, will w, script in) {
+                pointer<script> output = Prior(o);
+                if (output == nullptr) return script();
+                
+                thought logos = what(Prepend(*output, in), w);
+                if (logos == nullptr) return script();
+                
+                return p(in, logos->speak(v));
             }
             
-            input_script redeem(vertex<outpoint> v, outpoint o, will w) {
-                return redeem(v, o, w, input_script());
+            script redeem(vertex<outpoint> v, outpoint o, will w) {
+                return redeem(v, o, w, script());
             }
-            
-        private: 
-            virtual word const* how(outpoint, will) const = 0;
         };
         
         // I don't know what this one should be called. 
         template <
-            typename input_script,   // means of redemption. 
+            typename script,         // means of redemption. 
             typename outpoint,       // way if indexing a previous output. 
-            typename output_script,  // an amount of funds locked behind a puzzle. 
             typename will>           // a desired outcome. 
-        struct spender : redeemer<input_script, outpoint, output_script, will> {
-            using redeemer = redeemer<input_script, outpoint, output_script, will>;
+        struct spender : public redeemer<script, outpoint, will> {
+            using redeemer = redeemer<script, outpoint, will>;
 
             ℕ value(outpoint o) const = 0;
 
-            struct transaction
-            {
-                
+            struct transaction{
                 vertex<outpoint>& Vertex;
                 vector<outpoint> Incoming;
 
@@ -84,10 +98,10 @@ namespace abstractions
                 map<outpoint, input_script> inputs,
                 will w) const
             {
-                std::map<outpoint, input_script> m;
+                std::map<outpoint, script> m;
                 for (outpoint o : t.Incoming) {
-                    input_script i = redeemer::redeem(t.Vertex(), t.Incoming[o], w, inputs[o]);
-                    if (i == input_script()) return {};
+                    script i = redeemer::redeem(t.Vertex(), t.Incoming[o], w, inputs[o]);
+                    if (i == script()) return {};
                     m[o] = i;
                 }
 

@@ -1,8 +1,9 @@
-#ifndef ABSTRACTIONS_HPP
-#define ABSTRACTIONS_HPP
+#ifndef ABSTRACTIONS_ABSTRACTIONS_HPP
+#define ABSTRACTIONS_ABSTRACTIONS_HPP
 
 #include<vector>
 #include<map>
+#include<memory>
 #include<string>
 
 namespace abstractions 
@@ -14,7 +15,12 @@ using vector = const std::vector<X>;
 template<typename X, typename Y>
 using map = const std::map<X, Y>;
 
+template<typename X>
+using pointer = const std::shared_ptr<X>;
+
 using string = const std::string;
+
+typedef const uint64_t knowledge; 
 
 using ℕ = const unsigned long long int;
 
