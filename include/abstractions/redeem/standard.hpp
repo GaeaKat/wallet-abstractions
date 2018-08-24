@@ -6,7 +6,12 @@
 namespace abstractions 
 {
     namespace redeem
-    {        
+    {
+        template<typename secret, typename tag>
+        struct database : memory<tag> {
+            secret retrieve(const pattern<script> Match);
+        };
+        
         template <typename secret, typename script, typename outpoint>
         struct right_pay_to_address : public single<secret, script, outpoint, bytestring, accomplishment> {
             right_pay_to_address(sign<secret, script, outpoint> add_signature_and_pubkey) : {}
@@ -34,7 +39,7 @@ namespace abstractions
         
         template <typename secret, typename script, typename outpoint>
         struct right_script_multisig : public multiple<secret, script, outpoint, bytestring, accomplishment> {
-            right_script_multisig(sign<secret, script, outpoint> add_signature) : {}
+            right_script_multisig(sign<secret, script, outpoint> add_signature, ) : {}
         };
 
         template<
