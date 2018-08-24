@@ -26,28 +26,28 @@ namespace abstractions
         template <typename color_type>
         const colored_value<color_type> zero();
 
-        template <typename outpoint, typename transaction, typename output, typename color_type>
+        template <typename outpoint, typename tx, typename output, typename color_type>
         struct blockchain;
 
-        template <typename outpoint, typename transaction, typename output, typename color_type>
+        template <typename outpoint, typename tx, typename output, typename color_type>
         struct colored_output {
             N Index;
-            transaction Transaction;
+            tx Transaction;
             
-            const colored_value<color_type> value(blockchain<outpoint, transaction, output, color_type>&);
+            const colored_value<color_type> value(blockchain<outpoint, tx, output, color_type>&);
             
             bool valid() {
                 return Index != aleph_0;
             }
             
             colored_output() : Index(aleph_0), Transaction() {}
-            colored_output(N i, transaction t) : Index(i), Transaction(t) {}
+            colored_output(N i, tx t) : Index(i), Transaction(t) {}
         };
 
         // Implementations of this library must provide a blockchain implementation. 
-        template <typename outpoint, typename transaction, typename output, typename color_type>
+        template <typename outpoint, typename tx, typename output, typename color_type>
         struct blockchain {
-            virtual colored_output<outpoint, transaction, output, color_type> get_output(outpoint) const = 0;
+            virtual colored_output<outpoint, tx, output, color_type> get_output(outpoint) const = 0;
             
             // Can be overridden if you want to cache values. 
             // Otherwise you'd have to run down the blockchain every 
@@ -57,70 +57,78 @@ namespace abstractions
             };
         };
 
-        template <typename output, typename transaction, typename outpoint, typename color_type> 
-        inline const colored_value<color_type> value(outpoint p, const blockchain<outpoint, transaction, output, color_type>& b) {
+        template <typename output, typename tx, typename outpoint, typename color_type> 
+        inline const colored_value<color_type> value(outpoint p, const blockchain<outpoint, tx, output, color_type>& b) {
             return b.colored_output(p).value(b);
         }
 
-        template<typename outpoint, typename transaction, typename output, typename color_type>
-        colored_value<color_type> value(transaction, N index, blockchain<outpoint, transaction, output, color_type>& b);
+        template<typename outpoint, typename tx, typename output, typename color_type>
+        colored_value<color_type> value(tx, N index, blockchain<outpoint, tx, output, color_type>& b);
 
-        template <typename outpoint, typename transaction, typename output, typename color_type>
-        inline const colored_value<color_type> colored_output<outpoint, transaction, output, color_type>::value(
-            blockchain<outpoint, transaction, output, color_type>& b) {
+        template <typename outpoint, typename tx, typename output, typename color_type>
+        inline const colored_value<color_type> colored_output<outpoint, tx, output, color_type>::value(
+            blockchain<outpoint, tx, output, color_type>& b) {
             if (!valid()) return zero;
-            return colored::value<outpoint, transaction, output, color_type>(Transaction, Index, b);
+            return colored::value<outpoint, tx, output, color_type>(Transaction, Index, b);
         }
 
-        typedef uint32_t n_sequence_value;
+        typedef uint32_t n_sequence;
 
-        const n_sequence_value epobc_transfer = 0x33;
-        const n_sequence_value epobc_genesis = 0x25;
+        const n_sequence epobc_transfer = 0x33;
+        const n_sequence epobc_genesis = 0x25;
 
-        const n_sequence_value epobc_transaction_type_mask = 0b111111;
-        const n_sequence_value epobc_padding_mask = (0 - 1) - epobc_transaction_type_mask;
-
-        // Implementations of this library must implement these next 5 functions. 
-        template <typename transaction>
-        n_sequence_value n_sequence(transaction);
-
-        template <typename transaction, typename color_type>
-        color_type hash(transaction);
+        const n_sequence epobc_transaction_type_mask = 0b111111;
+        const n_sequence epobc_padding_mask = (0 - 1) - epobc_transaction_type_mask;
         
-        template <typename output, typename transaction>
-        vector<output> outputs(transaction);
-        
-        template <typename outpoint, typename transaction>
-        vector<outpoint> inputs(transaction);
+        namespace low {
 
-        template <typename output>
-        N bitcoin_value(output);
+            // Implementations of this library must implement these next 5 functions. 
+            template <typename tx>
+            n_sequence first_n_sequence(tx);
 
-        template <typename transaction>
-        inline n_sequence_value transaction_type(transaction t) {
-            return n_sequence(t) & epobc_transaction_type_mask;
+            template <typename tx, typename color_type>
+            color_type hash(tx);
+            
+            template <typename output, typename tx>
+            vector<output> outputs(tx);
+            
+            template <typename outpoint, typename tx>
+            vector<outpoint> inputs(tx);
+
+            template <typename output>
+            N bitcoin_value(output);
+
+            template <typename tx>
+            inline n_sequence transaction_type(tx t) {
+                return first_n_sequence(t) & epobc_transaction_type_mask;
+            }
+
+            template <typename tx>
+            inline N padding(tx t) {
+                n_sequence x = (n_sequence(t) & epobc_padding_mask) >> 6;
+                if (x == 0) return 0;
+                return 1 << x;
+            }
+            
         }
 
-        template <typename transaction>
-        inline N padding(transaction t) {
-            n_sequence_value x = (n_sequence(t) & epobc_padding_mask) >> 6;
-            if (x == 0) return 0;
-            return 1 << x;
-        }
-
-        template<typename outpoint, typename transaction, typename output, typename color_type>
-        colored_value<color_type> value(transaction t, N index, blockchain<outpoint, transaction, output, color_type>& b) {
+        template<typename outpoint, typename tx, typename output, typename color_type>
+        colored_value<color_type> value(tx t, N index, blockchain<outpoint, tx, output, color_type>& b) {
             switch (transaction_type(t)) {
             default : 
                 return zero;
+
             case epobc_genesis : 
                 if (index != 0) return zero;
-                return colored_value<color_type>(bitcoin_value(outputs(t)[0]) - padding<transaction>(t), hash<transaction, color_type>(t));
+                return colored_value<color_type>(
+                    bitcoin_value(outputs(t)[0]) - low::padding<tx>(t),
+                    low::hash<tx, color_type>(t));
+
             case epobc_transfer : 
                 vector<output> outs = outputs(t);
                 if (outs.size() <= index) return zero;
 
-                N p = padding<transaction>(t);
+                N p = low::padding<tx>(t);
                 std::vector<int64_t> output_values_minus_padding(index + 1);
                 for (int i = 0; i <= index; i++) {
                     output_values_minus_padding[i] = outs[i] - p;
