@@ -12,8 +12,9 @@ namespace abstractions
 template<typename X>
 using vector = const std::vector<X>;
 
-typedef uint8_t byte;
-typedef const vector<byte> bytestring;
+using byte = uint8_t;
+
+using bytestring = const vector<byte>;
 
 template<typename X, typename Y>
 using map = const std::map<X, Y>;
@@ -23,7 +24,7 @@ using pointer = const std::shared_ptr<X>;
 
 using string = const std::string;
 
-typedef const uint64_t knowledge; 
+using knowledge = const uint64_t; 
 
 using N = const unsigned long long int;
 
@@ -34,7 +35,9 @@ N all = N(zero - 1);
 N aleph_0 = all / 2 + 1;
 
 // In this library, we believe that ℵ0 is the
-// first infinite cardinal, so don't misuse it. 
+// first infinite cardinal. That means you
+// shouldn't use type N in a way that could refute
+// this idea. 
 
 // The number which I have called ℵ0 is the best
 // number for tricking someone into thinking he

@@ -13,16 +13,27 @@ namespace abstractions
         // a list of links to other locations in the blockchain. 
         template <typename index>
         struct vertex {
-            virtual ℕ Value() const = 0;
-            vector<index> Outpoints;
+            vector<index>& Outpoints;
+            virtual N Value() const = 0;
+            virtual bytestring serialize() const = 0;
+            
+            vertex(vector<index>& o) : Outpoints(o) {}
         };
         
         template <typename script>
         using prepend = script (*)(script, script);
         
+        template <typename script>
+        struct output {
+            N Value;
+            script Pubkey;
+            
+            output(N v, script p) : Value(v), Pubkey(p) {}
+        };
+        
         template <typename script, typename outpoint>
         struct word {
-            virtual script speak(vertex<outpoint>) const = 0;
+            virtual script speak(output<script> prev, vertex<outpoint> tx, uint32_t input_index) const = 0;
         };
         
         template <typename script, typename outpoint>
@@ -30,7 +41,7 @@ namespace abstractions
         
         template <typename script, typename outpoint>
         struct blockchain {
-            pointer<script> operator()(outpoint) const = 0;
+            pointer<output<script>> operator()(outpoint) const = 0;
         };
 
         template <
@@ -44,18 +55,26 @@ namespace abstractions
             const blockchain<script, outpoint> Prior;
             
             virtual thought how(script, will) const = 0;
+            virtual N value(outpoint o) const = 0;
             
         public:
             redeemer(prepend<script> p, blockchain<script, outpoint>& b) : Prepend(p), Prior(b) {}
             
             script redeem(vertex<outpoint> v, outpoint o, will w, script in) {
-                pointer<script> output = Prior(o);
-                if (output == nullptr) return script();
+                // What is the index of the outpoint we want to redeem?
+                uint32_t index = 0;
+                for (; index < v.size(); index++) if (v[index] == o) break;
                 
-                thought hypothetical = how(Prepend(*output, in), w);
+                // What's the previous output?
+                pointer<output<script>> prevout = Prior(o);
+                if (prevout == nullptr) return script();
+                
+                // Can we really do this? 
+                thought hypothetical = how(Prepend(prevout->Pubkey, in), w);
                 if (hypothetical == nullptr) return script();
                 
-                return p(in, hypothetical->speak(v));
+                // Speak the magic word! 
+                return Prepend(in, hypothetical->speak(*prevout, v, index));
             }
             
             script redeem(vertex<outpoint> v, outpoint o, will w) {
@@ -64,25 +83,25 @@ namespace abstractions
         };
         
         // I don't know what this one should be called. 
-        template <
+        /*template <
             typename script,         // means of redemption. 
             typename outpoint,       // way if indexing a previous output. 
             typename will>           // a desired outcome. 
         struct spender : public redeemer<script, outpoint, will> {
             using redeemer = redeemer<script, outpoint, will>;
 
-            ℕ value(outpoint o) const = 0;
+            N value(outpoint o) const = 0;
 
             struct transaction{
                 vertex<outpoint>& Vertex;
-                vector<outpoint> Incoming;
+                vector<script> Incoming;
 
-                ℕ amount_transferred() const {
+                N amount_transferred() const {
                     int r = 0;
                     for (outpoint o : Incoming)
                     {
-                        ℕ v = value(o);
-                        if (v == ℵ0) return ℵ0;
+                        N v = value(o);
+                        if (v == aleph_0) return aleph_0;
                         r += v;
                     }
                     return r;
@@ -107,7 +126,7 @@ namespace abstractions
 
                 return m;
             }
-        };
+        };*/
     
     } // redeem
     

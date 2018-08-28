@@ -13,8 +13,8 @@ namespace abstractions
         using pattern = bool (*)(script);
 
         template<typename script, typename tag, typename secret>
-        ℕ recognize(map<ℕ, pattern<script>> m, script o) {
-            for (ℕ n : m) if (m[n](o)) return n;
+        N recognize(map<N, pattern<script>> m, script o) {
+            for (N n : m) if (m[n](o)) return n;
         }
 
         template<typename tag, typename script>
@@ -34,12 +34,12 @@ namespace abstractions
         template<typename truth, typename tag, typename secret, typename script>
         truth observe(
             observation<truth, pattern<script>, tag> ob,
-            map<ℕ, pattern<script>> m,
+            map<N, pattern<script>> m,
             map<pattern<script>, vector<tags<tag, script>>> t,
             memory<tag> d, 
             script out)
         {
-            ℕ n = recognize(m, out);
+            N n = recognize(m, out);
             pattern<script> p = m[n];
             std::vector<tags<tag, script>> have;
             for (tags<tag, script> c : t[p]) {

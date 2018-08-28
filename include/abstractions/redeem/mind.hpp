@@ -8,11 +8,6 @@ namespace abstractions
 {
     namespace redeem
     {
-        /*template<typename script, typename tag>
-        struct database : memory<tag> {
-            thought<script, outpoint> retrieve(const pattern<script> Match);
-        };*/
-        
         template <typename script, typename outpoint, typename tag, typename will>
         struct association {
             const pattern<script> Match;
@@ -20,14 +15,14 @@ namespace abstractions
             // What tags are associated with this pattern? 
             const tags<tag, script> Tags;
             
-            // Could we achieve the given outcome if we have the 
-            // secret information used to produce the given tags? 
-            //knowledge how(script, will, vector<tag>) const = 0;
-            
             // possibly nullptr, as not every mental state is associated with a word. , 
             thought<script, outpoint> imagine(vector<tag>, will) const = 0;
+            
+            association(pattern<script> match, tags<tag, script> tags) : Match(match), Tags(tags) {}
         };
 
+        // mind is concerned with matching the correct rules to 
+        // a given output pattern. 
         template<
             typename script,         // means of redemption. 
             typename outpoint,       // way if indexing a previous output. 
@@ -43,47 +38,12 @@ namespace abstractions
             mind(theory b) : brain(b) {}
 
             thought what(script output, will outcome) const final override {
-                for (association concept : brain) if (concept.Match(output)) {
-                    //vector<tag> tags = concept.Tags(output);
-                    
-                    //std::vector<tag> have;
-                    //for (tag t : tags) if (db.exists(t)) have.push_back(t);
-                    
-                    return concept.imagine(concept.Tags(output), outcome);
-                }
+                for (association concept : brain)
+                    if (concept.Match(output)) 
+                        return concept.imagine(concept.Tags(output), outcome);
                 
                 return nullptr;
             }
-        };
-        
-        template <typename secret, typename script, typename outpoint, typename tag, typename will>
-        struct single : public association<script, outpoint, tag, will> {
-            const pattern<script> Match;
-            
-            // What tags are associated with this pattern? 
-            const tags<tag, script> Tags;
-            
-            // Could we achieve the given outcome if we have the 
-            // secret information used to produce the given tags? 
-            //knowledge how(script, will, vector<tag>) const = 0;
-            
-            // possibly nullptr, as not every mental state is associated with a word. , 
-            thought<script, outpoint> imagine(vector<tag>, will) const = 0;
-        };
-        
-        template <typename secret, typename script, typename outpoint, typename tag, typename will>
-        struct multiple : public association<script, outpoint, tag, will> {
-            const pattern<script> Match;
-            
-            // What tags are associated with this pattern? 
-            const tags<tag, script> Tags;
-            
-            // Could we achieve the given outcome if we have the 
-            // secret information used to produce the given tags? 
-            //knowledge how(script, will, vector<tag>) const = 0;
-            
-            // possibly nullptr, as not every mental state is associated with a word. , 
-            thought<script, outpoint> imagine(vector<tag>, will) const = 0;
         };
     
     } // redeem
