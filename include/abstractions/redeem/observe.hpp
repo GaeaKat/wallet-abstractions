@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_REDEEM_OBSERVE_HPP
 
 #include<abstractions/abstractions.hpp>
+#include<abstractions/database.hpp>
 
 namespace abstractions
 {
@@ -20,11 +21,6 @@ namespace abstractions
         template<typename tag, typename script>
         using tags = vector<tag> (*)(script);
 
-        template<typename tag>
-        struct memory {
-            bool exists(tag);
-        };
-
         // What is true of an output that has a given pattern and for which
         // we can produce the given set of tags which are found in it? 
         template<typename truth, typename pattern, typename tag>
@@ -36,7 +32,7 @@ namespace abstractions
             observation<truth, pattern<script>, tag> ob,
             map<N, pattern<script>> m,
             map<pattern<script>, vector<tags<tag, script>>> t,
-            memory<tag> d, 
+            memory<tag>& d, 
             script out)
         {
             N n = recognize(m, out);

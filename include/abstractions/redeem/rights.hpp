@@ -2,28 +2,30 @@
 #define ABSTRACTIONS_REDEEM_RIGHTS_HPP
 
 #include "mind.hpp"
-#include "observe.hpp"
+#include <abstractions/database.hpp>
+#include <abstractions/claim.hpp>
 #include "could.hpp"
 
 namespace abstractions 
 {
     namespace redeem
     {
+        
         // satisfies says whether a give
         template<typename function, typename argument>
         struct satisfies {
             bool operator()(function, argument, knowledge) const = 0;
         };
         
-        template <typename secret, typename script, typename outpoint>
-        using sign = thought<script, outpoint> (*)(secret);
+        template <typename secret, typename script, typename outpoint, typename output>
+        using sign = thought<script, outpoint, output> (*)(secret);
         
-        template<typename function, typename secret, typename script, typename outpoint>
+        template<typename function, typename secret, typename script, typename outpoint, typename output>
         struct right {
-            using thought = thought<script, outpoint>;
+            using thought = thought<script, outpoint, output>;
             
             // The power used to alienate this right. 
-            sign<secret, script, outpoint> Power;
+            sign<secret, script, outpoint, output> Power;
             
             // A function which must return a particular value in order
             // for the right to be alienated. 

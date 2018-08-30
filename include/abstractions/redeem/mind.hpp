@@ -16,7 +16,7 @@ namespace abstractions
             const tags<tag, script> Tags;
             
             // possibly nullptr, as not every mental state is associated with a word. , 
-            thought<script, outpoint, output> imagine(vector<tag>, will) const = 0;
+            virtual thought<script, outpoint, output> imagine(vector<tag>, will) const = 0;
             
             association(pattern<script> match, tags<tag, script> tags) : Match(match), Tags(tags) {}
         };
@@ -42,7 +42,7 @@ namespace abstractions
                 for (association concept : brain)
                     if (concept.Match(pubkey)) 
                         return concept.imagine(concept.Tags(pubkey), outcome);
-                
+
                 return nullptr;
             }
         };
