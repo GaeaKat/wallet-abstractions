@@ -2,32 +2,10 @@
 #define ABSTRACTIONS_LINK_HPP
 
 #include "observe.hpp"
-#include "keypair.hpp"
+#include "one_way.hpp"
 
 namespace abstractions
 {
-    template <typename S, typename P>
-    struct claim {
-        P Right;
-        satisfies<S, P> Satisfies;
-        
-        bool verify(S s, knowledge property) const {
-            return property == (property | Satisfies(s, Right));
-        }
-        
-        claim(P r, satisfies<S, P> s) : Right(r), Satisfies(s) {}
-    };
-    
-    template <typename S, typename P>
-    struct asset : public claim<S, P> {        
-        S Proof;
-        
-        bool valid(knowledge property) const {
-            return verify(Proof, property);
-        }
-        
-        asset(S p, P r, satisfies<S, P> s) : asset<S, P>(r, s), Proof(p) {}
-    };
 
     template<typename key, typename script, typename tag> 
     struct concept {
@@ -36,15 +14,29 @@ namespace abstractions
         // What tags are associated with this pattern? 
         tags<tag, script> GetTags;
         
-        to_public<key, tag> Tag;
+        one_way<key, tag> Tag;
+        
+        bool verify(key k, script s) const {
+            if (!Match(s)) return false;
+            
+            tag ad = Tag(k);
+            for (tag t : GetTags(s)) if (t == ad) return true;
+            
+            return false;
+        }
     };
 
-    template<typename key, typename out, typename script, typename tag> 
+    template<typename key, typename script, typename tag> 
     struct link {
-        out Output;
+        script ScriptPubKey;
         
         concept<key, script, tag> Concept;
     };
+    
+    template <typename key, typename out, typename script, typename tag>
+    knowledge is_mine(key k, link<key, script, tag> l) {
+        l.Concept.verify(k, l.ScriptPubKey);
+    }
 
 }
 

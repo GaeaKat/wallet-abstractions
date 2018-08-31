@@ -4,9 +4,9 @@
 namespace abstractions 
 {
         
-    template <typename outpoint, typename output>
+    template <typename point, typename out>
     struct blockchain {
-        virtual output operator()(outpoint) const = 0;
+        virtual out operator()(point) const = 0;
     };
     
 } 

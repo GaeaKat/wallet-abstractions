@@ -16,6 +16,12 @@ namespace abstractions
         virtual set<X> operator|(set<X>) const;
         virtual set<X> operator/(set<X>) const;
         
+        virtual set<X> operator+=(X) const;
+        virtual set<X> operator-=(X) const;
+        virtual set<X> operator&=(set<X>) const;
+        virtual set<X> operator|=(set<X>) const;
+        virtual set<X> operator/=(set<X>) const;
+        
         bool operator==(pointer<node<X>> p) {
             return pointer<node<X>>::operator==(p);
         }

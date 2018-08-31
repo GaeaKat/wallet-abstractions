@@ -5,10 +5,7 @@
 
 namespace abstractions
 {
-    
-    template <typename S, typename P>
-    using to_public = P (* const)(S);
-        
+
     template <typename S, typename P>
     struct keypair {
         S Secret;
