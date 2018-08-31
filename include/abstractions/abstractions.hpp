@@ -26,10 +26,19 @@ using string = const std::string;
 
 using knowledge = const uint64_t; 
 
-using N = const unsigned long long int;
+template<typename S, typename P>
+using satisfies = knowledge (*const)(S, P);
 
 template <typename X>
 const X zero;
+
+// the identity function is always possible. 
+template<typename anything>
+anything identity (anything a) {
+    return a;
+}
+
+using N = const unsigned long long int;
 
 template<> N zero<N> = 0;
 
@@ -71,12 +80,6 @@ N aleph_0 = all / 2 + 1;
 // would know that the subtraction operation is
 // not allowed with zero. Therefore, it would
 // never even occur to you to attempt such a thing.
-
-// the identity function is always possible. 
-template<typename anything>
-anything identity (anything a) {
-    return a;
-}
 
 }
 

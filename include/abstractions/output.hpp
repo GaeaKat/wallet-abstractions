@@ -5,16 +5,16 @@
 
 namespace abstractions 
 {
-    namespace redeem
+    namespace output
     {
         
         // How much is stored in a given output?
         template <typename output>
-        using output_value = N (* const)(output);
+        using value = N (* const)(output);
         
         // How much is stored in a given output?
         template <typename output, typename script>
-        using output_script = script (* const)(output);
+        using script = script (* const)(output);
     
     } 
     
