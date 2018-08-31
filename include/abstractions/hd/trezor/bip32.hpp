@@ -1,8 +1,8 @@
-#ifndef HD_TREZOR_BIP32_HPP
-#define HD_TREZOR_BIP32_HPP
+#ifndef ABSTRACTIONS_HD_TREZOR_BIP32_HPP
+#define ABSTRACTIONS_HD_TREZOR_BIP32_HPP
 
-#include <hd/bip32.hpp>
-#include <hd/heap.hpp>
+#include <abstractions/hd/bip32.hpp>
+#include <abstractions/hd/heap.hpp>
 
 extern "C" {
 #include <trezor-crypto/bip32.h>
@@ -17,11 +17,6 @@ namespace hd
 namespace bip32
 {
 
-namespace trezor
-{
-    
-typedef bip32::child_index index;
-
 struct node {
     HDNode trezor_node;
     
@@ -32,7 +27,7 @@ struct node {
     
     node();
     node(HDNode n);
-    node(uint32_t depth, index child_num, bip32::chain_code, bip32::private_key, bip32::public_key, const curve_info* curve);
+    node(uint32_t depth, child_index child_num, secp256k1::chain_code, secp256k1::private_key, secp256k1::public_key, const curve_info* curve);
 };
 
 const node public_derive(const node, uint32_t);
@@ -47,12 +42,12 @@ algebra<const node, child_index> private_algebra = &private_derive;
 
 // return theories initialized on the heap that the user has to delete
 // when he's done with them. 
-const error_theory<const node, index>* const public_hd_tree(node n) {
-    return new heap<const node, uint32_t>(public_algebra, n);
+const error_theory<const node, child_index>* const public_hd_tree(node n) {
+    return new heap<const node, child_index>(public_algebra, n);
 }
 
-const error_theory<const node, index>* const private_hd_tree(node n) {
-    return new heap<const node, uint32_t>(private_algebra, n);
+const error_theory<const node, child_index>* const private_hd_tree(node n) {
+    return new heap<const node, child_index>(private_algebra, n);
 }
 
 // I'm not sure how to make these ones work correctly. 
@@ -63,8 +58,6 @@ const error_theory<const node, index>* const private_hd_tree(node n) {
 const heap<const node, uint32_t> private_tree_heap(node n) {
     return heap<const node, uint32_t>(private_algebra, n);
 }*/
-
-}
 
 }
 
