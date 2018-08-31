@@ -18,7 +18,7 @@ namespace abstractions
         entry(K k) : Exists(true), Value(k) {}
     };
 
-    template<typename K, typename tag>
+    template<typename tag, typename K>
     struct database : public memory<tag> {
         virtual entry<K> get(tag) const = 0;
             

@@ -67,23 +67,27 @@ namespace abstractions
         };
         
         template <typename script>
-        using prepend_script = script (*)(script, script);
+        using prepend_script = script (*const)(script, script);
 
         template <
             typename script,   // means of redemption. 
             typename outpoint,       // way if indexing a previous output. 
             typename output, 
             typename will>           // a desired outcome. 
-        class redeemer {            
+        class redeemer {
+            output_value<output> get_value;
+            output_script<output, script> get_script;
             prepend_script<script> prepend;
             const blockchain<script, outpoint>& prior;
-            const output_value<output> get_value;
-            const output_script<output, script> get_script;
             
             virtual thought<script, outpoint, output> how(script, will) const = 0;
             
         public:
-            redeemer(prepend_script<script> p, blockchain<script, outpoint>& b) : prepend(p), prior(b) {}
+            redeemer(
+                output_value<output> ov,
+                output_script<output, script> os,
+                prepend_script<script> p,
+                blockchain<script, outpoint>& b) : get_value(ov), get_script(os), prepend(p), prior(b) {}
             
             script redeem(vertex<outpoint, output> v, outpoint o, script in, will w) {
                 // What is the index of the outpoint we want to redeem?
