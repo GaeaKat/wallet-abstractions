@@ -43,7 +43,7 @@ class heap final : public error_theory<K, M> {
             delete Child;
         }
         
-        list<K> children(const child_node* const k);
+        set<K> children(const child_node* const k);
     };
     
     struct key final : public ideal_key {
@@ -64,7 +64,7 @@ class heap final : public error_theory<K, M> {
             k.Children = nullptr;
         }
         
-        list<K> children() {
+        set<K> children() {
             return new node<K>(theory<K, M>::key::Key, children(Children));
         }
     };
@@ -74,7 +74,7 @@ class heap final : public error_theory<K, M> {
         return Master;
     };
     
-    list<K> children(const child_node* const k) {
+    set<K> children(const child_node* const k) {
         if (k == nullptr) return nullptr;
         
         return k->children();
@@ -84,13 +84,13 @@ public:
     heap(algebra<K, M> a, K master) : Master(a, master, nullptr) {}
     
     // can get a list of all keys generated. 
-    list<K> keys() {
+    set<K> keys() {
         return Master.children();
     }
 };
 
 template<typename K, typename M>
-list<K> heap<K, M>::child_node::children(const child_node* const k) {
+set<K> heap<K, M>::child_node::children(const child_node* const k) {
     if (Child == nullptr) return nullptr;
             
     return Child->children();

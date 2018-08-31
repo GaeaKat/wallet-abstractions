@@ -1,6 +1,7 @@
 #ifndef ABSTRACTIONS_HD_DERIVATION_HPP
 #define ABSTRACTIONS_HD_DERIVATION_HPP
 
+#include <abstractions/set.hpp>
 #include "algebra.hpp"
 
 namespace abstractions
@@ -8,25 +9,11 @@ namespace abstractions
 
 namespace hd
 {
- 
-template<typename M>
-struct node {
-    M First;
-    const node* const Rest;
-    
-    node(M m, const node* const r) : First(m), Rest(r) {}
-    virtual ~node() {
-        delete Rest;
-    }
-};
-
-template<typename M>
-using list = const node<M>* const;
 
 // A representation of a chain of operations which create a
 // particular key. 
 template<typename M>
-using derivation = list<M>;
+using derivation = set<M>;
 
 // We have to use recursion because we don't know if we can
 // create an object of type K. 
@@ -37,15 +24,6 @@ K derive(algebra<K, M> a, K k, derivation<M> d) {
     }
     
     return derive(a, a(k, d->First), d->Rest);
-}
-
-template<typename K, typename R>
-R reduce(R zero, R (*const value)(K), R (*const plus)(K, R), list<K> z) {
-    if (z == nullptr) {
-        return zero;
-    }
-    
-    return plus(value(z->First), reduce(zero, value, plus, z->Rest));
 }
 
 }

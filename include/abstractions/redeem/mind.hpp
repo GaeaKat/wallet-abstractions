@@ -2,7 +2,7 @@
 #define ABSTRACTIONS_REDEEM_MIND_HPP
 
 #include "redeemer.hpp"
-#include "observe.hpp"
+#include <abstractions/observe.hpp>
 
 namespace abstractions 
 {

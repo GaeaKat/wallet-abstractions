@@ -43,11 +43,11 @@ struct address {
 };
 
 derivation<child_index> to_derivation(address address) {
-    return new node<child_index>(purpose,
-        new node<child_index>(address.CoinType,
-            new node<child_index>(address.Account + hardened_flag,
-                new node<child_index>(address.SequenceType, 
-                    new node<child_index>(address.Index, nullptr)))));
+    return pointer<node<child_index>>(new node<child_index>(purpose,
+        pointer<node<child_index>>(new node<child_index>(address.CoinType,
+            pointer<node<child_index>>(new node<child_index>(address.Account + hardened_flag,
+                pointer<node<child_index>>(new node<child_index>(address.SequenceType, 
+                    pointer<node<child_index>>(new node<child_index>(address.Index))))))))));
 }
 
 //inherets from hd_tools theory and adds a function for finding bip44 addresses. 
@@ -58,7 +58,6 @@ struct theory : public hd::theory<K, child_index> {
     const key& derive(address address) {
         derivation<child_index> d = to_derivation(address);
         key& k = derive(d);
-        delete d;
         return k;
     }
 };
@@ -72,7 +71,7 @@ void generate(const theory<K>& b44, const wallet<K, U>& w, std::vector<coin_type
         while (true) {
             uint32_t account = 0;
             uint32_t index = 0;
-            typename ::hd_tools::theory<K, child_index>::key& first = b44.derive(address(c, account, External, index));
+            typename theory<K>::key& first = b44.derive(address(c, account, External, index));
             
             // We've found all accounts when we find an account whose first key has never received anything.
             if (!w.has_balance(first.Key)) break;
@@ -86,7 +85,7 @@ void generate(const theory<K>& b44, const wallet<K, U>& w, std::vector<coin_type
             for (sequence_type t : {External, Internal}) {
                 int last_with_balance = 0;
                 while (last_with_balance < max_future_addresses) {
-                    typename ::hd::theory<K, child_index>::key& k = b44.derive(address(c, account, t, index));
+                    typename theory<K>::key& k = b44.derive(address(c, account, t, index));
                     
                     if (w.has_balance(k.Key)) {
                         last_with_balance = 0;
