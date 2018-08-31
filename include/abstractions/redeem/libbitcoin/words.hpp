@@ -3,7 +3,7 @@
 
 #include <abstractions/redeem/individual.hpp>
 
-#include <abstractions/libbitcoin/key.hpp>
+#include <abstractions/libbitcoin/secp256k1.hpp>
 
 #include <bitcoin/bitcoin/chain/transaction.hpp>
 #include <bitcoin/bitcoin/chain/output.hpp>
@@ -37,16 +37,16 @@ namespace abstractions
         
         tx tx_from_vertex(vertex<outpoint, output>);
         
-        script libbitcoin_sign_pay_to_public_key_hash(key<ec_secret, ec_compressed> k, N value, script prevout, vertex<outpoint, output> x, uint32_t input_index) {
+        script libbitcoin_sign_pay_to_public_key_hash(secp256k1::key k, N value, script prevout, vertex<outpoint, output> x, uint32_t input_index) {
             libbitcoin::endorsement out;
             libbitcoin::chain::script::create_endorsement(out, k.Secret, prevout, tx_from_vertex(x), input_index, all, script_version, value);
             return {out, libbitcoin::to_chunk(k.Pubkey)};
         }
         
-        inline const individual<key<ec_secret, ec_compressed>, script, outpoint, output, hash> libbitcoin_pay_to_public_key_hash(
-            const database<key<ec_secret, ec_compressed>, hash>& d
+        inline const individual<secp256k1::key, script, outpoint, output, hash> libbitcoin_pay_to_public_key_hash(
+            const database<secp256k1::key, hash>& d
         ) {
-            return individual<key<ec_secret, ec_compressed>, script, outpoint, output, hash>(
+            return individual<secp256k1::key, script, outpoint, output, hash>(
                 libbitcoin::chain::script::is_pay_key_hash_pattern,
                 get_address_from_p2pksh,
                 d,

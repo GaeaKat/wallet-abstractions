@@ -28,9 +28,12 @@ using knowledge = const uint64_t;
 
 using N = const unsigned long long int;
 
-N zero = 0;
+template <typename X>
+const X zero;
 
-N all = N(zero - 1);
+template<> N zero<N> = 0;
+
+N all = N(zero<N> - 1);
 
 N aleph_0 = all / 2 + 1;
 

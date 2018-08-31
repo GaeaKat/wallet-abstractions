@@ -16,7 +16,7 @@ namespace abstractions
         
         const mind<script, outpoint, output, hash, accomplishment> libbitcoin_basic_redeemer(
             blockchain<script, outpoint>& bcx,
-            const database<key<ec_secret, ec_compressed>, hash>& d
+            const database<secp256k1::key, hash>& d
         ) {
             return mind<script, outpoint, output, hash, accomplishment>(
                 {libbitcoin_pay_to_public_key_hash(d)}, 
