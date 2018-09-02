@@ -4,7 +4,6 @@
 #include "claim.hpp"
 #include "one_way.hpp"
 #include "observe.hpp"
-#include "output.hpp"
 #include "set.hpp"
 #include <tuple>
 
@@ -69,14 +68,14 @@ namespace abstractions
             : keybook<K, tag>(t), keys(k), Addresses(a) {}
     };
     
-    template <typename out, typename key, typename script, typename tag>
-    key get_key(
-        map<pattern<script>, tags<tag, script>> patterns,
-        output::script<out, script> get_script, 
-        out o, const keybook<key, tag> n) {
-        script s = get_script(o);
-        for (pattern<script> match : patterns) if (match(s)) return n.get_key(patterns[match](s)); 
-        return key{};
+    template <typename K, typename tag, typename script>
+    K get_key(script s,
+        const keybook<K, tag> n, 
+        map<pattern<script>, tags<tag, script>> patterns) {
+        for (pattern<script> match : patterns) if (match(s)) return n.get(patterns[match](s)); 
+        return K{};
     }
 
 }
+
+#endif

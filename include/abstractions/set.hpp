@@ -18,39 +18,49 @@ namespace abstractions
         virtual set<X> operator|(set<X>) const;
         virtual set<X> operator/(set<X>) const;
         
-        bool operator==(pointer<node<X>> p) {
-            return pointer<node<X>>::operator==(p);
-        }
-        
         set(pointer<node<X>> p) : pointer<node<X>>(p) {}
         set() : pointer<node<X>>(nullptr) {}
     };
     
     template <typename X>
     struct node {
+        virtual X first() const = 0;
+        virtual const set<X>& rest() const = 0;
+    };
+    
+    template <typename X>
+    struct list_node : public node<X> {
         X First;
-        set<X> Rest;
+        const set<X> Rest;
         
-        node(X x, set<X> r) : First(x), Rest(r) {}
-        node(X x) : First(x), Rest(nullptr) {}
+        X first() const final override {
+            return First;
+        };
+        
+        const set<X>& rest() const final override {
+            return Rest;
+        };
+        
+        list_node(X x, set<X> r) : First(x), Rest(r) {}
+        list_node(X x) : First(x), Rest(nullptr) {}
     };
     
     template <typename X>
     bool set<X>::contains(X x) const {
         if (this == nullptr) return false;
         
-        if (this->First == x) return true;
+        if (this->first() == x) return true;
         
-        return this->Rest.contains(x);
+        return this->rest().contains(x);
     }
     
     template <typename X>
     bool set<X>::contains(set<X> s) const {
         if (s == nullptr) return true;
             
-        if (!contains(s->First)) return false;
+        if (!contains(s->first())) return false;
             
-        return contains(s->Rest);
+        return contains(s->rest());
     }
 
     template<typename K, typename R>
@@ -59,7 +69,7 @@ namespace abstractions
             return zero;
         }
         
-        return plus(value(z->First), reduce(zero, value, plus, z->Rest));
+        return plus(value(z->first()), reduce(zero, value, plus, z->rest()));
     }
     
     template <typename X>

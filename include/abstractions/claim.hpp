@@ -1,31 +1,32 @@
 #ifndef ABSTRACTIONS_CLAIM_HPP
 #define ABSTRACTIONS_CLAIM_HPP
 
-#include "abstractions.hpp"
+#include "one_way.hpp"
 
 namespace abstractions
 {
+    
     template <typename S, typename P>
     struct claim {
-        P Right;
-        satisfies<S, P> Satisfies;
+        P SuchThat;
+        one_way<S, P> Exists;
         
-        bool verify(S s, knowledge property) const {
-            return property == (property | Satisfies(s, Right));
+        bool verify(S proof) const {
+            return satisfies(Exists, s, SuchThat);
         }
         
-        claim(P r, satisfies<S, P> s) : Right(r), Satisfies(s) {}
+        claim(P r, one_way<S, P> f) : SuchThat(r), Exists(s) {}
     };
     
     template <typename S, typename P>
-    struct asset : public claim<S, P> {        
+    struct stake : public claim<S, P> {        
         S Proof;
         
-        bool valid(knowledge property) const {
-            return verify(Proof, property);
+        bool valid() const {
+            return verify(Proof);
         }
         
-        asset(S p, P r, satisfies<S, P> s) : asset<S, P>(r, s), Proof(p) {}
+        stake(S p, P r, one_way<S, P> f) : claim<S, P>(r, f), Proof(p) {}
     };
 
 }

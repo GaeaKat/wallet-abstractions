@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_SECP256K1_HPP
 #define ABSTRACTIONS_SECP256K1_HPP
 
-#include "keypair.hpp"
+#include "abstractions.hpp"
 
 namespace abstractions
 {
@@ -17,8 +17,16 @@ namespace abstractions
         const byte point_sign_even = 0x02;
         const byte point_sign_odd = 0x03;
 
+        const std::array<byte, pubkey_size - 1> max_public_key({0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFC, 0x2F});
+
         struct pubkey : public std::array<byte, pubkey_size> {
             bool valid() const;
+            
+            byte operator[](N n) const {
+                return static_cast<std::array<byte, pubkey_size>>(*this)[n];
+            }
             
             pubkey();
             pubkey(std::array<byte, pubkey_size> a) : std::array<byte, pubkey_size>(a) {}
@@ -27,30 +35,34 @@ namespace abstractions
         struct secret : std::array<byte, secret_size> {
             bool valid() const;
             
+            byte operator[](N n) const {
+                return static_cast<std::array<byte, secret_size>>(*this)[n];
+            }
+            
             pubkey to_public() const;
             
             secret();
             secret(std::array<byte, secret_size> a) : std::array<byte, secret_size>(a) {}
         };
         
-        using key = keypair<secret, pubkey>;
-
-        bool valid(const pubkey&);
-
-        bool valid(const secret&);
-        
-        inline bool pubkey::valid() const {
-            return secp256k1::valid(*this);
-        }
-        
-        inline bool secret::valid() const {
-            return secp256k1::valid(*this);
-        }
-
-        const std::array<byte, pubkey_size - 1> max_public_key({0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFC, 0x2F});
+        const pubkey to_public(const secret&);
     
+    }
+
+    bool valid(const secp256k1::pubkey&);
+
+    bool valid(const secp256k1::secret&);
+        
+    inline bool secp256k1::pubkey::valid() const {
+        return abstractions::valid(*this);
+    }
+        
+    inline secp256k1::pubkey secp256k1::secret::to_public() const {
+        return secp256k1::to_public(*this);
+    }
+
+    inline bool secp256k1::secret::valid() const {
+        return abstractions::valid(*this);
     }
     
     template<> const secp256k1::pubkey zero<secp256k1::pubkey> = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};

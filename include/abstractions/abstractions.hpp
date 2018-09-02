@@ -26,11 +26,11 @@ using string = const std::string;
 
 using knowledge = const uint64_t; 
 
-template<typename S, typename P>
-using satisfies = knowledge (*const)(S, P);
-
 template <typename X>
 const X zero;
+
+template <typename X>
+const X* zero<X*> = nullptr;
 
 // the identity function is always possible. 
 template<typename anything>
