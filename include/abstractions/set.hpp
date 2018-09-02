@@ -10,17 +10,13 @@ namespace abstractions
     template <typename X>
     struct set : public pointer<node<X>> {
         virtual bool contains(X) const;
+        bool contains(set<X> s) const;
+        
         virtual set<X> operator+(X) const;
         virtual set<X> operator-(X) const;
         virtual set<X> operator&(set<X>) const;
         virtual set<X> operator|(set<X>) const;
         virtual set<X> operator/(set<X>) const;
-        
-        virtual set<X> operator+=(X) const;
-        virtual set<X> operator-=(X) const;
-        virtual set<X> operator&=(set<X>) const;
-        virtual set<X> operator|=(set<X>) const;
-        virtual set<X> operator/=(set<X>) const;
         
         bool operator==(pointer<node<X>> p) {
             return pointer<node<X>>::operator==(p);
@@ -47,6 +43,15 @@ namespace abstractions
         
         return this->Rest.contains(x);
     }
+    
+    template <typename X>
+    bool set<X>::contains(set<X> s) const {
+        if (s == nullptr) return true;
+            
+        if (!contains(s->First)) return false;
+            
+        return contains(s->Rest);
+    }
 
     template<typename K, typename R>
     R reduce(R zero, R (*const value)(K), R (*const plus)(K, R), set<K> z) {
@@ -69,7 +74,7 @@ namespace abstractions
             if (Next == nullptr) return nullptr;
             if (Last == nullptr) return nullptr;
             
-            return chain(Next, Last+(Next(Last->First)));
+            return chain(Next, Last + Next(Last->First));
         }
         
         chain(next<X> n, set<X> s) : Next(n), Last(s) {}
