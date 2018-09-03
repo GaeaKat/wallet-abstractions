@@ -36,7 +36,7 @@ namespace abstractions
             };
             
         }
-            
+
         template <typename X>
         tree<X, trees::node<X>> insert(const tree<X, trees::node<X>> t, X x) {
             if (t == nullptr) return std::shared_ptr<trees::node<X>>(std::make_shared(trees::node<X>(x)));
@@ -50,10 +50,6 @@ namespace abstractions
 
         template <typename X, typename Y>
         struct tree : public pointer<Y> {
-            static X invalid() {
-                return abstractions::invalid<X>;
-            }
-            
             tree<X, Y> operator+(X x) const {
                 return insert(this, x);
             }

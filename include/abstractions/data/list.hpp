@@ -10,7 +10,7 @@ namespace abstractions
     {
 
         template <typename X, typename Y> struct list;
-            
+        
         template <typename X, typename Y>
         inline X first(list<X, Y> l) {
             if (l == nullptr) return invalid<X>;
@@ -29,11 +29,11 @@ namespace abstractions
         inline list<X, Y> append(const list<X, Y> l, X x) {
             return std::shared_ptr<Y>(std::make_shared(Y(x, l)));
         };
-            
+        
         template <typename X, typename Y>
         inline bool contains(const list<X, Y> l, X x) {
             if (l == nullptr) return false;
-                
+            
             return l->contains(x);
         }
         
@@ -52,12 +52,14 @@ namespace abstractions
                     if (x == First) return true;
                     
                     return contains(Rest, x);
-                }
+                } 
                 
             };
             
         }
-            
+        
+        // Now we say that a list containing elements of
+        // type X is also a pointer to something of type Y. 
         template <typename X, typename Y>
         struct list : pointer<Y> {                
             X first() const {
@@ -72,14 +74,17 @@ namespace abstractions
                 return append(this, x);
             }
                 
-            bool contains(X x) const {
+            bool contains(X x) const {                
                 return contains(this, x);
             }
                 
         };
     
+        // a set of list types that can be instantiated
+        // using lists::node. But you could use all kinds of 
+        // nodes. 
         template <typename X>
-        using linked_list = list<X, data::lists::node<X>>;
+        using linked_list = list<X, lists::node<X>>;
         
     }
     

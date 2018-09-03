@@ -1,4 +1,4 @@
-#include <abstractions/data/avl.hpp>
+#include <abstractions/data/avl/avl.hpp>
 #include <tuple>
 
 namespace abstractions
@@ -101,11 +101,11 @@ namespace abstractions
                         std::shared_ptr<node<X>>(std::make_shared(node<X>(x, 0))),
                         none};
 
-                    if (k == t->Key) return {
+                    if (x == t->Data) return {
                         std::shared_ptr<node<X>>(std::make_shared(node<X>(x, t->Meta, t->Left, t->Right))), 
                         none};
 
-                    direction last = k < t->Key ? left : right;
+                    direction last = x < t->Data ? left : right;
                     insert_return<X> previous = last == left ? insert(t->Left, x) : insert(t->Right, x);
                     bool deeper = (last == left ? t->Left == nullptr : t->Right == nullptr) ||
                         (0 == (last == left ? t->Left->Meta : t->Right->Meta) && 0 != previous.Tree->Meta);
@@ -122,6 +122,11 @@ namespace abstractions
             }
 
         }
+
+        template <typename X>
+        avl_tree<X> insert(const avl_tree<X> t, X x) {
+            return trees::avl::insert(t, x).Tree;
+        };
     
     }
 

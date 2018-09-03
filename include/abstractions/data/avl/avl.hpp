@@ -39,6 +39,9 @@ namespace abstractions
         
         template <typename X>
         using avl_tree = tree<X, trees::avl::node<X>>;
+
+        template <typename X>
+        avl_tree<X> insert(const avl_tree<X> t, X x);
         
     }
         
