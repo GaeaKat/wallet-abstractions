@@ -17,8 +17,8 @@ namespace abstractions
         return e;
     }
     
-    inline secp256k1::pubkey secp256k1::secret::to_public() const {
-        return libbitcoin_to_public(static_cast<std::array<uint8_t, secp256k1::secret_size>>(*this));
+    inline const secp256k1::pubkey secp256k1::to_public(const secret& s) {
+        return libbitcoin_to_public(static_cast<std::array<uint8_t, secp256k1::secret_size>>(s));
     };
 
 }

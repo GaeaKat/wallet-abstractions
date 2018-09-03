@@ -20,6 +20,14 @@ namespace abstractions
             return contains(Tags, f) && f(k) == t ? k : K{};
         }
         
+        K get(vector<tag> tags, one_way<K, tag> f) const {
+            for (tag t : tags) {
+                K k = get(t, f);
+                if (k != K{}) return k;
+            }
+            return K{};
+        }
+        
         keybook(vector<one_way<K, tag>> t) : Tags(t) {}
     };
     
@@ -68,10 +76,19 @@ namespace abstractions
     };
     
     template <typename K, typename tag, typename script>
+    struct tag_functions {
+        tags<tag, script> ReadTags;
+        one_way<K, tag> MakeTag;
+    };
+    
+    template <typename K, typename tag, typename script>
+    using schema = map<pattern<script>, tag_functions<K, tag, script>>;
+    
+    template <typename K, typename tag, typename script>
     K get_key(script s,
         const keybook<K, tag> n, 
-        map<pattern<script>, tags<tag, script>> patterns) {
-        for (pattern<script> match : patterns) if (match(s)) return n.get(patterns[match](s)); 
+        schema<K, tag, script> patterns) {
+        for (pattern<script> match : patterns) if (match(s)) return n.get(patterns[match].ReadTags(s)); 
         return K{};
     }
 

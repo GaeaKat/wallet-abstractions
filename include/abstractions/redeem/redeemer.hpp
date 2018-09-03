@@ -3,11 +3,15 @@
 
 #include <abstractions/blockchain/output.hpp>
 #include <abstractions/blockchain/blockchain.hpp>
+#include <map>
 
 namespace abstractions 
 {
     namespace redeem
     {
+        
+        template <typename X, typename Y>
+        using map = const std::map<X, Y>;
         
         // a vertex represents the flow of bitcoins in the blockchain.
         // We don't need to know about the outputs, so there's just
