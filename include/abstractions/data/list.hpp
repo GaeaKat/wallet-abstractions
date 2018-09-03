@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_DATA_LIST_HPP
 #define ABSTRACTIONS_DATA_LIST_HPP
 
-#include <abstractions/invalid.hpp>
+#include <abstractions/abstractions.hpp>
 
 namespace abstractions
 {
@@ -77,7 +77,7 @@ namespace abstractions
             bool contains(X x) const {                
                 return contains(this, x);
             }
-                
+
         };
     
         // a set of list types that can be instantiated
@@ -88,6 +88,8 @@ namespace abstractions
         
     }
     
+    template <typename X, typename Y>
+    const data::list<X, Y> zero<data::list<X, Y>> = nullptr;
 }
 
 #endif

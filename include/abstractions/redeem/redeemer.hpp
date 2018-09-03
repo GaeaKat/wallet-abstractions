@@ -1,8 +1,8 @@
 #ifndef ABSTRACTIONS_REDEEM_REDEEMER_HPP
 #define ABSTRACTIONS_REDEEM_REDEEMER_HPP
 
-#include <abstractions/output.hpp>
-#include <abstractions/blockchain.hpp>
+#include <abstractions/blockchain/output.hpp>
+#include <abstractions/blockchain/blockchain.hpp>
 
 namespace abstractions 
 {

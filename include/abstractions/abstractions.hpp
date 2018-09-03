@@ -7,6 +7,9 @@ namespace abstractions
 {
 
 template <typename X>
+extern const X zero;
+
+template <typename X>
 const X zero = X(0);
 
 // the identity function is always possible. 

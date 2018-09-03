@@ -3,6 +3,7 @@
 
 #include<abstractions/abstractions.hpp>
 #include<abstractions/database.hpp>
+#include<abstractions/data.hpp>
 
 namespace abstractions
 {

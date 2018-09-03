@@ -12,7 +12,7 @@ namespace abstractions
         one_way<S, P> Exists;
         
         bool verify(S proof) const {
-            return satisfies(Exists, s, SuchThat);
+            return satisfies(Exists, proof, SuchThat);
         }
         
         claim(P r, one_way<S, P> f) : SuchThat(r), Exists(s) {}

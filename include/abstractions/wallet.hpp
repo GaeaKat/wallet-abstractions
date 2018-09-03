@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_WALLET_HPP
 #define ABSTRACTIONS_WALLET_HPP
 
-#include "output.hpp"
+#include <abstractions/blockchain/output.hpp>
 #include "chain.hpp"
 #include "link.hpp"
 

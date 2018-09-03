@@ -1,8 +1,6 @@
 #ifndef ABSTRACTIONS_ONE_WAY_HPP
 #define ABSTRACTIONS_ONE_WAY_HPP
 
-#include "abstractions.hpp"
-
 namespace abstractions
 {
     

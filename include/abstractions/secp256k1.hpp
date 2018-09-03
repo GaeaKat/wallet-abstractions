@@ -16,6 +16,9 @@ namespace abstractions
 
         const byte point_sign_even = 0x02;
         const byte point_sign_odd = 0x03;
+    
+        const std::array<byte, pubkey_size> zero_pubkey = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        const std::array<byte, secret_size> zero_secret = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
         const std::array<byte, pubkey_size - 1> max_public_key({0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -64,12 +67,9 @@ namespace abstractions
     inline bool secp256k1::secret::valid() const {
         return abstractions::valid(*this);
     }
-    
-    template<> const secp256k1::pubkey zero<secp256k1::pubkey> = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-    template<> const secp256k1::secret zero<secp256k1::secret> = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-    inline secp256k1::pubkey::pubkey() : pubkey(zero<secp256k1::pubkey>) {}
-    inline secp256k1::secret::secret() : secret(zero<secp256k1::secret>) {}
+    inline secp256k1::pubkey::pubkey() : pubkey(secp256k1::zero_pubkey) {}
+    inline secp256k1::secret::secret() : secret(secp256k1::zero_secret) {}
 
 }
 

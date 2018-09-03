@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_HD_SECP256K1_HPP
 
 #include <abstractions/secp256k1.hpp>
+#include <abstractions/one_way.hpp>
 
 namespace abstractions
 {
@@ -16,6 +17,8 @@ namespace abstractions
             
             using public_key = abstractions::secp256k1::pubkey;
             using private_key = abstractions::secp256k1::secret;
+            
+            const std::array<byte, chain_code_size> zero_chain_code = abstractions::secp256k1::zero_secret;
 
             struct chain_code : public std::array<byte, chain_code_size> {
                 bool valid() const;
@@ -68,14 +71,14 @@ namespace abstractions
                     return Pubkey != n.Pubkey || Secret != n.Secret;
                 }
                 
-                private_node() : Secret(zero<private_key>), Pubkey() {}
+                private_node() : Secret(abstractions::secp256k1::zero_secret), Pubkey() {}
                 private_node(
                     const private_key s,
                     const public_key p,
                     const chain_code c) : Pubkey(p, c), Secret(s) {}
                     
                 private_node(
-                    to_public<private_key, public_key> tp,
+                    one_way<private_key, public_key> tp,
                     const private_key s,
                     const chain_code c) : private_node(s, tp(s), c) {}
             };
@@ -83,16 +86,14 @@ namespace abstractions
         }
     
     }
-    
-    template<> hd::secp256k1::chain_code zero<hd::secp256k1::chain_code> = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
     inline bool hd::secp256k1::valid(const chain_code& cc) {
-        return cc != zero<hd::secp256k1::chain_code>;
+        return cc != hd::secp256k1::zero_chain_code;
     }
     
-    inline hd::secp256k1::chain_code::chain_code() : std::array<byte, chain_code_size>(zero<hd::secp256k1::chain_code>) {}
+    inline hd::secp256k1::public_node::public_node() : Point(abstractions::secp256k1::zero_pubkey), ChainCode(hd::secp256k1::zero_chain_code) {}
     
-    inline hd::secp256k1::public_node::public_node() : Point(zero<public_key>), ChainCode(zero<chain_code>) {}
+    inline hd::secp256k1::chain_code::chain_code() : std::array<byte, chain_code_size>(hd::secp256k1::zero_chain_code) {}
 
 }
 
