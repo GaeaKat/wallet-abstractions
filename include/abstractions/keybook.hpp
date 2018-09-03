@@ -1,11 +1,10 @@
 #ifndef ABSTRACTIONS_KEYBOOK_HPP
 #define ABSTRACTIONS_KEYBOOK_HPP
 
+#include "data.hpp"
 #include "claim.hpp"
 #include "one_way.hpp"
 #include "observe.hpp"
-#include "set.hpp"
-#include <tuple>
 
 namespace abstractions
 {
@@ -41,7 +40,7 @@ namespace abstractions
     // This implementation of keybook caches results. 
     template <typename K, typename tag>
     class cached : public keybook<K, tag> {
-        mutable std::map<std::tuple<tag, one_way<K, tag>>, K> keys;
+        mutable map<std::tuple<tag, one_way<K, tag>>, K> keys;
     public:
         map<tag, K> Addresses;
         
@@ -64,7 +63,7 @@ namespace abstractions
         
         cached(vector<one_way<K, tag>> t, map<tag, K> a) : keybook<K, tag>(t), Addresses(a) {}
         
-        cached(vector<one_way<K, tag>> t, map<tag, K> a, std::map<std::tuple<tag, one_way<K, tag>>, K> k)
+        cached(vector<one_way<K, tag>> t, map<tag, K> a, map<std::tuple<tag, one_way<K, tag>>, K> k)
             : keybook<K, tag>(t), keys(k), Addresses(a) {}
     };
     

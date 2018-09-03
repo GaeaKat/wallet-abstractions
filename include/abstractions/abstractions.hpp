@@ -1,50 +1,27 @@
 #ifndef ABSTRACTIONS_ABSTRACTIONS_HPP
 #define ABSTRACTIONS_ABSTRACTIONS_HPP
 
-#include<vector>
-#include<map>
-#include<memory>
-#include<string>
+#include "invalid.hpp"
 
 namespace abstractions 
 {
 
-template<typename X>
-using vector = const std::vector<X>;
-
-using byte = uint8_t;
-
-using bytestring = const vector<byte>;
-
-template<typename X, typename Y>
-using map = const std::map<X, Y>;
-
-template<typename X>
-using pointer = const std::shared_ptr<X>;
-
-using string = const std::string;
-
-using knowledge = const uint64_t; 
-
 template <typename X>
-const X zero;
-
-template <typename X>
-const X* zero<X*> = nullptr;
+const X zero = X(0);
 
 // the identity function is always possible. 
-template<typename anything>
+template <typename anything>
 anything identity (anything a) {
     return a;
 }
 
 using N = const unsigned long long int;
 
-template<> N zero<N> = 0;
-
 N all = N(zero<N> - 1);
 
 N aleph_0 = all / 2 + 1;
+
+template<> N invalid<N> = aleph_0;
 
 // In this library, we believe that ℵ0 is the
 // first infinite cardinal. That means you

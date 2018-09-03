@@ -2,7 +2,7 @@
 #define ABSTRACTIONS_WALLET_HPP
 
 #include "output.hpp"
-#include "list.hpp"
+#include "chain.hpp"
 #include "link.hpp"
 
 namespace abstractions
