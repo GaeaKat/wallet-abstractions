@@ -27,25 +27,29 @@ namespace abstractions
         // mind is concerned with matching the correct rules to 
         // a given output pattern. 
         template<
+            typename tx, 
             typename script,         // means of redemption. 
-            typename outpoint,       // way if indexing a previous output. 
+            typename point,       // way if indexing a previous output. 
             typename out,
             typename tag, 
             typename will>           // a desired outcome. 
-        struct mind : public redeemer<script, outpoint, out, will> {
-            using brain = theory<script, outpoint, out, tag, will>;
-            using idea = association<script, outpoint, out, tag, will>;
+        struct mind : public redeemer<tx, script, point, out, will> {
+            using brain = theory<script, point, out, tag, will>;
+            using idea = association<script, point, out, tag, will>;
             
             brain Brain;
 
             mind(
-                brain b, 
                 output::value<out> ov,
                 output::script<out, script> os,
+                transaction::outputs<tx, out> gou, 
+                transaction::outpoints<tx, point> goi, 
+                transaction::input_scripts<tx, point, script> gs, 
                 prepend_script<script> p,
-                blockchain<script, outpoint>& bcx) : redeemer<script, outpoint, out, will>(ov, os, p, bcx), Brain(b) {}
+                blockchain<script, point>& bcx, 
+                brain b) : redeemer<tx, script, point, out, will>(ov, os, gou, goi, gs, p, bcx), Brain(b) {}
 
-            thought<script, outpoint, out> how(script pubkey, will outcome) const final override {
+            thought<script, point, out> how(script pubkey, will outcome) const final override {
                 for (idea concept : Brain)
                     if (concept.Match(pubkey)) 
                         return concept.imagine(concept.Tags(pubkey), outcome);

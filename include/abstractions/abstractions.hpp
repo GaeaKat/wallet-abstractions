@@ -61,6 +61,10 @@ template<> N invalid<N> = aleph_0;
 // not allowed with zero. Therefore, it would
 // never even occur to you to attempt such a thing.
 
+using Z = const long long int;
+
+template<> Z invalid<Z> = aleph_0;
+
 }
 
 #endif

@@ -2,127 +2,84 @@
 #define ABSTRACTIONS_REDEEM_REDEEMER_HPP
 
 #include <abstractions/blockchain/output.hpp>
-#include <abstractions/blockchain/blockchain.hpp>
-#include <map>
+#include <abstractions/blockchain/transaction.hpp>
 
 namespace abstractions 
 {
     namespace redeem
     {
         
-        template <typename X, typename Y>
-        using map = const std::map<X, Y>;
-        
-        // a vertex represents the flow of bitcoins in the blockchain.
-        // We don't need to know about the outputs, so there's just
-        // one value that represents all outputs together. There's also
-        // a list of links to other locations in the blockchain. 
-        template <typename index, typename out>
-        struct vertex {
-            vector<index> Outpoints;
-            vector<out> Outputs;
-            
-            vertex(vector<index> in, vector<out> o) : Outpoints(in), Outputs(o) {}
-            
-            N value(output::value<out> v) {
-                int so_far = 0;
-                for(out o : Outputs) so_far += v(o);
-                return so_far;
-            }
-        };
-        
         template <typename script, typename outpoint, typename out>
         struct word {
-            virtual script speak(N value, script prev, vertex<outpoint, out> tx, uint32_t input_index) const = 0;
+            virtual script speak(N value, script prev, const transaction::vertex<outpoint, out> tx, uint32_t input_index) const = 0;
         };
         
         template <typename script, typename outpoint, typename out>
         using thought = pointer<const word<script, outpoint, out>>;
-
-        template <typename script, typename outpoint, typename out>
-        struct transaction{
-            const vertex<outpoint, out> Vertex;
-            map<outpoint, script> Incoming;
-
-            N amount_transferred(blockchain<outpoint, out>& b, output::value<out> v) const {
-                int r = 0;
-                for (outpoint o : Vertex.Outpoints)
-                {
-                    out prevout = b(o);
-                    
-                    if (prevout == out()) return aleph_0;
-                    
-                    r += v(prevout);
-                }
-                return r;
-            }
-            
-            N fee(blockchain<outpoint, out>& b, output::value<out> v) const {
-                N transferred = amount_transferred(b);
-                if (transferred == aleph_0) return aleph_0;
-                return transferred - Vertex.value(v);
-            }
-
-            bool positive(blockchain<outpoint, out>& b, output::value<out> v) const {
-                return fee(b, v) > 0;
-            }
-            
-            transaction(const vertex<outpoint, out> x, map<outpoint, script> m) : Vertex(x), Incoming(m) {}
-        };
         
         template <typename script>
         using prepend_script = script (*const)(script, script);
 
         template <
+            typename tx,
             typename script,   // means of redemption. 
-            typename outpoint,       // way if indexing a previous output. 
+            typename point,       // way if indexing a previous output. 
             typename out, 
             typename will>           // a desired outcome. 
         class redeemer {
             output::value<out> get_value;
             output::script<out, script> get_script;
-            prepend_script<script> prepend;
-            const blockchain<script, outpoint>& prior;
+            transaction::outputs<tx, out> get_outputs;
+            transaction::outpoints<tx, point> get_outpoints;
+            transaction::input_scripts<tx, point, script> get_input_scripts;
             
-            virtual thought<script, outpoint, out> how(script, will) const = 0;
+            prepend_script<script> prepend;
+            
+            const blockchain<script, point>& prior;
+            
+            virtual thought<script,  point, out> how(script, will) const = 0;
             
         public:
             redeemer(
                 output::value<out> ov,
                 output::script<out, script> os,
+                transaction::outputs<tx, out> gou, 
+                transaction::outpoints<tx, point> goi, 
+                transaction::input_scripts<tx, point, script> gs, 
                 prepend_script<script> p,
-                blockchain<script, outpoint>& b) : get_value(ov), get_script(os), prepend(p), prior(b) {}
+                blockchain<script, point>& b) 
+            : get_value(ov), get_script(os), 
+                get_outputs(gou), 
+                get_outpoints(goi), 
+                get_input_scripts(gs), prepend(p), prior(b) {}
             
-            script redeem(vertex<outpoint, out> v, outpoint o, script in, will w) {
+            script redeem(tx t, point o, script in, will w) {
                 // What is the index of the outpoint we want to redeem?
+                vector<point> outpoints = get_outpoints(t);
                 uint32_t index = 0;
-                for (; index < v.size(); index++) if (v[index] == o) break;
+                for (; index < outpoints.size(); index++) if (outpoints[index] == o) break;
+                if (index == outpoints.size()) return script();
                 
                 // What's the previous output?
                 out prevout = prior(o);
                 if (prevout == out()) return script();
                 
                 // Can we really do this? 
-                thought<script, outpoint, out> hypothetical = how(Prepend(prevout->Pubkey, in), w);
+                thought<script, point, out> hypothetical = how(Prepend(prevout->Pubkey, in), w);
                 if (hypothetical == nullptr) return script();
                 
                 // Speak the magic word! 
-                return Prepend(in, hypothetical->speak(get_value(*prevout), get_script(*prevout), v, index));
+                return Prepend(in, hypothetical->speak(get_value(*prevout), get_script(*prevout), transaction::to_vertex(get_outputs, get_outpoints, t), index));
             }
             
-            script redeem(vertex<outpoint, out> v, outpoint o, will w) {
-                return redeem(v, o, w, script());
+            script redeem(tx t, point o, will w) {
+                return redeem(t, o, w, script());
             }
 
-            const transaction<script, outpoint, out> spend(
-                const transaction<script, outpoint, out> t, 
-                will w
-            ) const {
-                std::map<outpoint, script> m;
-                for (outpoint o : t.Vertex.Outpoints) 
-                    m.insert(std::make_pair(o, redeem(t.Vertex, o, t.Incoming[o], w)));
-
-                return transaction<script, outpoint, out>(t.Vertex, m);
+            const map<point, script> spend(tx t, point o, will w) const {
+                map<point, script> m;
+                for (point o : t.Vertex.Outpoints) m = add(m, o, redeem(t, o, get_input_scripts(t)[o], w));
+                return m;
             }
         };
     
