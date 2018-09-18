@@ -1,9 +1,9 @@
 # Wallet Abstractions
 
-Ideas about wallets and transactions. 
+Experimental project containing ideas about wallets.  
 
 contents: 
- - abstractions/abstractions.hpp
+ - abstractions/
    basic types and functions used by the library. 
  - abstractions/hd/
    representation of hd wallet concepts, including bip32 and bip44. 
