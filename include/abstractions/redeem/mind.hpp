@@ -6,8 +6,10 @@
 
 namespace abstractions 
 {
+    
     namespace redeem
     {
+        
         template <typename script, typename outpoint, typename out, typename tag, typename will>
         struct association {
             const pattern<script> Match;

@@ -48,8 +48,7 @@ namespace abstractions
         ) {
             return individual<secp256k1::secret, script, outpoint, output, hash>(
                 libbitcoin::chain::script::is_pay_key_hash_pattern,
-                get_address_from_p2pksh,
-                d,
+                get_address_from_p2pksh, d,
                 libbitcoin_sign_pay_to_public_key_hash);
         }
     

@@ -10,21 +10,21 @@ namespace abstractions
     namespace merkle
     {
             
-        template <typename tag>
-        using combine = tag (*const)(tag, tag);
+        template <typename digest>
+        using combine = digest (*const)(digest, digest);
             
-        template <typename tag>
+        template <typename digest>
         struct node {
-            pointer<node> Next;
-            tag Left;
-            tag Right;
+            pointer<node> Parent;
+            digest Left;
+            digest Right;
         };
             
-        template <typename tag>
-        using proof = list<node<tag>>;
+        template <typename digest>
+        using proof = list<node<digest>>;
             
-        template <typename tag>
-        bool verify(combine<tag> combine, proof<tag> next, tag i, tag f) {
+        template <typename digest>
+        bool verify(combine<digest> combine, proof<digest> next, digest i, digest f) {
             if (next == nullptr) return i == f;
                 
             if (i != next->Left && i != next->Right) return false;

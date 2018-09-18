@@ -14,8 +14,6 @@ namespace abstractions
         template <typename tag, typename m>
         using hash = one_way<m, tag>;
         
-        
-        
     }
 
 }

@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_TREES_MAP_HPP
-#define ABSTRACTIONS_TREES_MAP_HPP
+#ifndef ABSTRACTIONS_DATA_MAP_HPP
+#define ABSTRACTIONS_DATA_MAP_HPP
 
 #include "tree.hpp"
 
@@ -34,8 +34,8 @@ namespace abstractions
             };
         
             template <typename X, typename Y, typename Z>
-            struct map : public tree<maps::entry<X, Y>, Z> {
-                Y operator[](X x){
+            struct map : public tree<entry<X, Y>, Z> {
+                Y operator[](X x) {
                     // type Y must have an invalid value. 
                     if (this == nullptr) return invalid<Y>;
                     
@@ -45,6 +45,10 @@ namespace abstractions
                     
                     return this->Right[x];
                 }
+                
+                bool contains(X x) {
+                    return this->operator[](x) == invalid<Y>;
+                } 
                 
             };
             
