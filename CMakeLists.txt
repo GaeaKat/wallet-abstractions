@@ -90,11 +90,11 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../abstractions/include")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 add_library(abstractions SHARED 
-    include/abstractions/libbitcoin/secp256k1.hpp
+    include/libbitcoin/secp256k1.hpp
     include/abstractions/redeem/libbitcoin/words.hpp
+    include/abstractions/colored/libbitcoin/epboc.hpp
     src/abstractions/secp256k1.cpp
     src/abstractions/hd/secp256k1.cpp
-    include/abstractions/colored/libbitcoin/epboc.hpp
 )
 
 # Locate libraries
