@@ -15,15 +15,15 @@ namespace abstractions
             
         // How much is stored in a given output?
         template <typename tx, typename out>
-        using outputs = vector<out> (* const)(tx);
+        using outputs = vector<out> (*)(tx);
             
         // How much is stored in a given output?
         template <typename tx, typename point>
-        using outpoints = vector<point> (* const)(tx);
+        using outpoints = vector<point> (*)(tx);
             
         // How much is stored in a given output?
         template <typename tx, typename point, typename script>
-        using input_scripts = map<point, script> (* const)(tx);
+        using inputs = map<point, script> (*)(tx);
         
         // a vertex represents the flow of bitcoins in the blockchain.
         // it is a transaction without input scripts. When a tx is

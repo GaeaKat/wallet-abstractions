@@ -7,17 +7,17 @@
 namespace abstractions 
 {
     
-    namespace headers
+    namespace header
     {
         
-        template <typename header, typename tag>
-        using merkle_root = tag (*const)(header);
+        template <typename hdr, typename tag>
+        using merkle_root = tag (*const)(hdr);
         
-        template <typename header, typename tag>
-        using hash = one_way<header, tag>;
+        template <typename hdr, typename tag>
+        using hash = one_way<hdr, tag>;
             
-        template <typename header, typename tag>
-        using parent = tag (*const)(header);
+        template <typename hdr, typename tag>
+        using parent = tag (*const)(hdr);
         
     }
     

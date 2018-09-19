@@ -10,7 +10,7 @@ namespace abstractions
     {
     
         template <typename X, typename Y>
-        struct set : public tree<X, Y>{
+        struct set : public tree<X, Y> {
             virtual bool contains(X) const = 0;
             
             bool contains(set<X, Y> s) const;

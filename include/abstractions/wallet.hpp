@@ -2,8 +2,7 @@
 #define ABSTRACTIONS_WALLET_HPP
 
 #include <abstractions/blockchain/output.hpp>
-#include "chain.hpp"
-#include "link.hpp"
+#include "data.hpp"
 
 namespace abstractions
 {
