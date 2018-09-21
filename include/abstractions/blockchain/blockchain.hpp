@@ -6,7 +6,7 @@ namespace abstractions
         
     template <typename point, typename out>
     struct blockchain {
-        virtual out operator()(point) const = 0;
+        virtual out operator[](point) const = 0;
     };
     
 } 
