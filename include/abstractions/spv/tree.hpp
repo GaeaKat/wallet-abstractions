@@ -8,20 +8,20 @@ namespace abstractions  {
     
     namespace block {
 
-        template <typename digest, typename header>
+        template <typename digest, typename hdr>
         struct tree {
-            headers::parent<header, digest> Parent;
-            headers::hash<header, digest> Hash;
+            header::parent<hdr, digest> Parent;
+            header::hash<hdr, digest> Hash;
 
             // set of known headers referenced by digest. 
-            map<digest, header> Headers;
+            map<digest, hdr> Headers;
             
             // set of digests for which no know children exist. 
             set<digest> Leaves;
             
             // map from hashes to list of headers referencing that hash as its parent
             // for which no known header exists having that hash. 
-            map<digest, list<header>> Roots;
+            map<digest, list<hdr>> Roots;
             
             bool valid() const {
                 // Every digest in Leaves must be in Headers. 
@@ -31,7 +31,7 @@ namespace abstractions  {
                 for (digest d : Roots) if (Headers.contains(d)) return false;
                 
                 for (digest d : Headers) {
-                    header h = Headers[d];
+                    hdr h = Headers[d];
                     digest p = Parent(h);
                     
                     // No header in Headers can have any digest in Leaves as its parent. 
@@ -51,10 +51,10 @@ namespace abstractions  {
             tree() {}
             
             tree(
-                headers::parent<digest, header> p,
-                headers::hash<header, digest> sh) : Parent(p), Hash(sh) {}
+                header::parent<digest, hdr> p,
+                header::hash<hdr, digest> sh) : Parent(p), Hash(sh) {}
             
-            const tree connect(header h) const {
+            const tree connect(hdr h) const {
                 // Do we already know about this header? 
                 if (Headers.contains(h)) return this;
                 
@@ -62,7 +62,7 @@ namespace abstractions  {
                 auto headers = Headers.insert(sh, h);
                 
                 // is this header the parant of some root header? 
-                map<digest, list<header>> roots;
+                map<digest, list<hdr>> roots;
                 set<digest> leaves;
                 if (Roots.contains(sh)) {
                     roots = Roots.remove(sh);
@@ -81,11 +81,11 @@ namespace abstractions  {
             
         private:
             tree(
-                headers::parent<digest, header> p,
-                headers::hash<header, digest> sh,
-                map<digest, header> h,
-                set<header> l, 
-                map<digest, list<header>> r) : Parent(p), Hash(sh), Headers(h), Leaves(l), Roots(r) {}
+                header::parent<digest, hdr> p,
+                header::hash<hdr, digest> sh,
+                map<digest, hdr> h,
+                set<hdr> l, 
+                map<digest, list<hdr>> r) : Parent(p), Hash(sh), Headers(h), Leaves(l), Roots(r) {}
         };
     
     }
