@@ -13,7 +13,7 @@ namespace abstractions {
         
         using digest = std::array<byte, digest_size>;
         
-        list<proof<digest>> parse_partial(N size, bytestring b);
+        partial_tree<digest> parse_partial(N size, bytestring b);
         
     }
     

@@ -79,6 +79,12 @@ namespace abstractions  {
                 return blocktree(Parent, Hash, roots, leaves.remove(p));
             }
             
+            list<hdr> chain(digest viewpoint) {
+                list<hdr> l{};
+                for (hdr h = Headers[viewpoint]; h != hdr{}; h = Headers[Parent(h)]) l = l + h;
+                return l;
+            }
+            
         private:
             tree(
                 header::parent<digest, hdr> p,

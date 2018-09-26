@@ -2,18 +2,20 @@
 #define ABSTRACTIONS_WALLET_HPP
 
 #include <abstractions/blockchain/output.hpp>
+#include <tuple>
 #include "data.hpp"
 
 namespace abstractions
 {
     
-    template <typename out>
-    using wallet = set<out>;
+    template <typename point, typename out>
+    using wallet = map<point, out>;
     
-    template <typename out>
-    N balance(output::value<out> v, wallet<out> w) {
-        if (w == nullptr) return 0;
-        return v(w->First) + balance(v, w->Rest);
+    template <typename point, typename out>
+    N balance(output::value<out> v, wallet<point, out> w) {
+        int b = 0;
+        for (std::tuple<point, out> pointout : w) b += v(std::get<1>(pointout)); 
+        return b;
     }
     
 }
