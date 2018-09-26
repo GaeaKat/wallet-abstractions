@@ -6,19 +6,14 @@
 #include <abstractions/blockchain/merkle.hpp>
 
 namespace abstractions {
-
-    namespace spv {
-        
-        using digest = const std::array<byte, 32>;
-        
-        
-    }
     
     namespace merkle {
         
-        using digest = spv::digest;
+        const int digest_size = 32;
         
-        list<node<digest>> parse_partial(bytestring b);
+        using digest = std::array<byte, digest_size>;
+        
+        list<proof<digest>> parse_partial(N size, bytestring b);
         
     }
     
