@@ -77,7 +77,7 @@ namespace abstractions
     
     template <typename K, typename tag, typename script>
     struct tag_functions {
-        tags<tag, script> ReadTags;
+        tags<script, tag> ReadTags;
         one_way<K, tag> MakeTag;
     };
     

@@ -12,7 +12,7 @@ namespace abstractions
         pattern<script> Match;
             
         // What tags are associated with this pattern? 
-        tags<tag, script> GetTags;
+        tags<script, tag> GetTags;
         
         one_way<key, tag> Tag;
         

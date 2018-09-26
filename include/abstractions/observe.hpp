@@ -8,24 +8,27 @@
 namespace abstractions
 {
 
-    template<typename script>
+    template <typename script>
     using pattern = bool (*)(script);
 
-    template<typename script, typename tag, typename secret>
+    template <typename script, typename tag, typename secret>
     N recognize(map<N, pattern<script>> m, script o) {
         for (N n : m) if (m[n](o)) return n;
     }
 
-    template<typename tag, typename script>
+    template <typename script, typename tag>
     using tags = vector<tag> (*)(script);
+    
+    template <typename script, typename tag>
+    using theory = map<pattern<script>, tags<tag, script>>;
 
     // What is true of an output that has a given pattern and for which
     // we can produce the given set of tags which are found in it? 
-    template<typename truth, typename pattern, typename tag>
+    template <typename pattern, typename tag, typename truth>
     using observation = truth (*)(pattern, vector<tag>);
 
     // whether to observe a given output.
-    template<typename truth, typename tag, typename secret, typename script>
+    template <typename truth, typename tag, typename secret, typename script>
     truth observe(
         observation<truth, pattern<script>, tag> ob,
         map<N, pattern<script>> m,
