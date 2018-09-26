@@ -9,7 +9,7 @@ namespace abstractions
 {
 
     template <typename X>
-    using list = data::linked_list<X>;
+    using list = data::linked_list<X, pointer<X>>;
 
     template <typename X>
     using set = data::set<X, data::trees::avl::node<X>>;

@@ -8,88 +8,118 @@ namespace abstractions
     
     namespace data
     {
-
-        template <typename X, typename Y> struct list;
         
-        template <typename X, typename Y>
-        inline X first(list<X, Y> l) {
-            if (l == nullptr) return invalid<X>;
-                
-            return l->First;
-        }
-            
-        template <typename X, typename Y>
-        inline list<X, Y> rest(list<X, Y> l) {
-            if (l == nullptr) return nullptr;
-                    
-            return l->Rest;
-        }
-            
-        template <typename X, typename Y>
-        inline list<X, Y> append(const list<X, Y> l, X x) {
-            return std::shared_ptr<Y>(std::make_shared(Y(x, l)));
-        };
+        namespace list {
         
-        template <typename X, typename Y>
-        inline bool contains(const list<X, Y> l, X x) {
-            if (l == nullptr) return false;
+            template <typename L, typename E>
+            inline E first(const L l) {
+                return l.first();
+            }
+                
+            template <typename L>
+            inline L rest(const L l) {
+                return l.rest();
+            }
             
-            return l->contains(x);
-        }
-        
-        namespace lists
-        {
+            template <typename L>
+            inline L append(const L l, const E elem) {
+                return l.append(elem);
+            }
             
-            template <typename X>
-            struct node {
-                X First;
-                const list<X, node<X>> Rest;
+            template <typename L, typename E>
+            struct iterator {
+                L List;
                 
-                node(X x, list<X, node<X>> r) : First(x), Rest(r) {}
-                node(X x) : First(x), Rest(nullptr) {}
+                iterator<L, E> operator++() {
+                    return iterator{rest(List)};
+                }
                 
-                bool contains(X x) {
-                    if (x == First) return true;
-                    
-                    return contains(Rest, x);
-                } 
+                E operator*() {
+                    return first(List);
+                }
                 
+                L* operator->() {
+                    return &List;
+                }
+                
+                // Operators == and != are required
+                // but are implemented automatically. 
             };
             
         }
+        
+        template <typename X, typename Y> struct linked_list;
+            
+        template <typename X>
+        struct node {
+            X First;
+            const linked_list<X, node<X>> Rest;
+                
+            node(X x, linked_list<X, node<X>> r) : First(x), Rest(r) {}
+            node(X x) : First(x), Rest(nullptr) {}
+                
+            bool contains(X x) {
+                if (x == First) return true;
+                    
+                return contains(Rest, x);
+            }
+                
+        };
         
         // Now we say that a list containing elements of
         // type X is also a pointer to something of type Y. 
         template <typename X, typename Y>
-        struct list : pointer<Y> {                
+        struct linked_list : pointer<Y> {                
             X first() const {
-                return first(this);
+                if (*this == nullptr) return invalid<X>;
+                    
+                return this->First;
             };
                 
-            list<X, Y> rest() const {
-                return rest(this);
+            linked_list<X, Y> rest() const {
+                if (*this == nullptr) return nullptr;
+                        
+                return this->Rest;
             };
-                
-            list<X, Y> operator+(X x) const {
-                return append(this, x);
+            
+            linked_list<X, Y> append(X x) const {
+                return std::shared_ptr<Y>(std::make_shared(Y{x}));
             }
                 
-            bool contains(X x) const {                
-                return contains(this, x);
+            linked_list<X, Y> operator+(X x) const {
+                return append(x);
             }
+                
+            bool contains(X x) const {
+                if (*this == nullptr) return false;
+                
+                if (this->First == x) return true;
 
+                return this->Rest.contains(x);
+            }
+            
+            bool operator==(linked_list<X, Y> l) {
+                return first() == l.first() && rest() == l.rest();
+            }
+            
+            linked_list(pointer<Y> py) : pointer<Y>(py) {}
+            linked_list(Y* py) : pointer<Y>(py) {}
+            linked_list() : pointer<Y>(nullptr) {}
+            
+            list::iterator<linked_list<X, Y>, X> begin() {
+                return {*this};
+            }
+            
+            list::iterator<linked_list<X, Y>, X> end() {
+                return {};
+            }
+            
         };
-    
-        // a set of list types that can be instantiated
-        // using lists::node. But you could use all kinds of 
-        // nodes. 
-        template <typename X>
-        using linked_list = list<X, lists::node<X>>;
         
     }
     
     template <typename X, typename Y>
-    const data::list<X, Y> zero<data::list<X, Y>> = nullptr;
+    const data::linked_list<X, Y> zero<data::linked_list<X, Y>> = nullptr;
 }
 
 #endif
