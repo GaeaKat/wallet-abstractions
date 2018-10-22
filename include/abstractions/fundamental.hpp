@@ -13,8 +13,6 @@ namespace abstractions
 
     using byte = uint8_t;
 
-    using bytestring = const vector<byte>;
-
     template<typename X>
     using pointer = const std::shared_ptr<X>;
 
