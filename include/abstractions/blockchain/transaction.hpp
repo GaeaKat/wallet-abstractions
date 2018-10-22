@@ -3,6 +3,7 @@
 
 #include <abstractions/abstractions.hpp>
 #include <abstractions/data.hpp>
+#include <abstractions/slice.hpp>
 
 #include "blockchain.hpp"
 #include "output.hpp"
@@ -12,16 +13,16 @@ namespace abstractions
         
     namespace transaction
     {
-            
-        // How much is stored in a given output?
+
+        // outputs of a transaction. 
         template <typename tx, typename out>
-        using outputs = vector<out> (*)(tx);
+        using outputs = slice<out> (*)(tx);
             
-        // How much is stored in a given output?
+        // inputs of a transaction.
         template <typename tx, typename point>
-        using outpoints = vector<point> (*)(tx);
+        using outpoints = slice<point> (*)(tx);
             
-        // How much is stored in a given output?
+        // how much is stored in a given input?
         template <typename tx, typename point, typename script>
         using inputs = map<point, script> (*)(tx);
         
@@ -31,10 +32,10 @@ namespace abstractions
         // is an intermediate stage in that process. 
         template <typename index, typename out>
         struct vertex {
-            vector<index> Outpoints;
-            vector<out> Outputs;
+            slice<index> Outpoints;
+            slice<out> Outputs;
             
-            vertex(vector<index> in, vector<out> o) : Outpoints(in), Outputs(o) {}
+            vertex(slice<index> in, slice<out> o) : Outpoints(in), Outputs(o) {}
         };
         
         template <typename tx, typename point, typename out>
