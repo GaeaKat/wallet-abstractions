@@ -25,6 +25,10 @@ namespace abstractions
     N aleph_0 = all / 2 + 1;
 
     template<> N invalid<N> = aleph_0;
+    
+    inline const N plus(const N n, const N m) {
+        return n + m;
+    }
 
     // In this library, we believe that ℵ0 is the
     // first infinite cardinal. That means you

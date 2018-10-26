@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_COLORED_COLORED_HPP
 #define ABSTRACTIONS_COLORED_COLORED_HPP
 
-#include <abstractions/abstractions.hpp>
+#include <abstractions/reduce.hpp>
 
 namespace abstractions
 {
@@ -12,66 +12,119 @@ namespace abstractions
         template <typename T, typename C>
         using color = C (*) (T tx);
         
-        enum tx_type {none, genesis, mint, send};
+        enum transaction_type {none, genesis, mint, send};
         
         template <typename T, typename C>
-        using get_type = tx_type (*)(T);
+        using get_type = transaction_type (*)(T);
         
-        template <typename color_type>
-        struct colored_value {
-            N Value;
-            color_type Color;
+        template <typename C>
+        struct value {
+            N Quantity;
+            C Color;
             
-            colored_value() : Value(0), Color({}) {}
+            value() : Quantity(0), Color({}) {}
             
             // You're not allowed to have colored value with zero in it. 
-            colored_value(N v, color_type c) : Value(c == 0 ? 0 : v), Color(v == 0 ? 0 : c) {}
-        };
-
-        template <typename outpoint, typename tx, typename output, typename color_type>
-        struct blockchain;
-
-        template <typename outpoint, typename tx, typename output, typename color_type>
-        struct colored_output {
-            N Index;
-            tx Transaction;
+            value(N v, C c) : Quantity(c == C{} ? 0 : v), Color(v == 0 ? 0 : c) {}
             
-            const colored_value<color_type> value(blockchain<outpoint, tx, output, color_type>&);
-            
-            bool valid() {
-                return Index != aleph_0;
+            value<C> operator+(value<C> x) const {
+                if (Color != x.Color) return value();
+                
+                return value(Quantity + x.Quantity, Color);
             }
             
-            colored_output() : Index(aleph_0), Transaction() {}
-            colored_output(N i, tx t) : Index(i), Transaction(t) {}
+            bool valid() const {
+                Color != C{};
+            }
         };
-
-        // Implementations of this library must provide a blockchain implementation. 
-        template <typename outpoint, typename tx, typename output, typename color_type>
-        struct blockchain {
-            virtual colored_output<outpoint, tx, output, color_type> get_output(outpoint) const = 0;
+        
+        template <typename point, typename C>
+        struct meta {
+            transaction_type Type;
             
-            // Can be overridden if you want to cache values. 
-            // Otherwise you'd have to run down the blockchain every 
-            // time you wanted to compute values. 
-            virtual colored_value<color_type> value(outpoint o) const {
-                return get_output(o).value(*this);
-            };
+            C Color;
+            
+            vector<point> Inputs;
+            
+            map<N, value<C>> Outputs;
+            
+            bool valid() const {
+                return Type != none && Color != C{};
+            }
+            
+        private:
+            meta() : Type(none) {}
+        };
+        
+        template <typename tx, typename point, typename C>
+        using interpret = meta<point, C> (*) (tx, C);
+        
+        template <typename tx, typename point, typename C> struct blockchain;
+        
+        template <typename tx, typename point, typename C>
+        struct transaction {
+            // The original Bitcoin transaction. 
+            tx Bitcoin;
+            
+            map<C, meta<point, C>> Meta;
+            
+            interpret<tx, point, C> Interpret;
+            
+            bool valid() const {
+                for (data::maps::entry<C, meta<point, C>> entry : Meta)
+                    if (!(entry.value().valid() && entry.Value == Interpret(Bitcoin, entry.Key))) return false;
+                return true;
+            }
+            
+            bool verify(blockchain<tx, point, C>& b) const;
         };
 
-        template <typename output, typename tx, typename outpoint, typename color_type> 
-        inline const colored_value<color_type> value(outpoint p, const blockchain<outpoint, tx, output, color_type>& b) {
-            return b.colored_output(p).value(b);
+        template <typename tx, typename point, typename C>
+        struct output {
+            // The original Bitcoin transaction. 
+            transaction<tx, point, C> Transaction;
+            
+            // the index of this output in the original transaction. 
+            N Index;
+            
+            const value<C> value() const {
+                return Transaction.Meta.Outputs[Index];
+            };
+            
+            bool valid() const {
+                return Transaction.valid() && Index != aleph_0 && value().valid();
+            }
+            
+            bool verify(blockchain<tx, point, C>& b) {
+                return Transaction.verify(b);
+            }
+            
+            output() : Index(aleph_0) {}
+        };
+        
+        template <typename tx, typename point, typename C> struct blockchain {
+            virtual output<tx, point, C> retrieve(point) const = 0;
+            
+            // Can be overridden so as to support caching. 
+            virtual value<C> value(point p) const {
+                return retrieve(p).value();
+            }
+        };
+        
+        template <typename tx, typename point, typename C> 
+        inline bool verify(blockchain<tx, point, C>& b, point p) {
+            return b.retrieve(p).verify(b);
         }
-
-        template<typename outpoint, typename tx, typename output, typename color_type>
-        colored_value<color_type> value(tx, N index, blockchain<outpoint, tx, output, color_type>& b);
-
-        template <typename outpoint, typename tx, typename output, typename color_type>
-        inline const colored_value<color_type> colored_output<outpoint, tx, output, color_type>::value(
-            blockchain<outpoint, tx, output, color_type>& b) {
-            if (!valid()) return 0;
-            return colored::value<outpoint, tx, output, color_type>(Transaction, Index, b);
+        
+        template <typename tx, typename point, typename C> 
+        bool verify(const blockchain<tx, point, C>& b, meta<point, C> m);
+        
+        template <typename tx, typename point, typename C>
+        bool transaction<tx, point, C>::verify(blockchain<tx, point, C>& b) const {
+            if (!valid()) return false;
+            
+            // What is the total C value redeemed by this transaction?
+            return verify(b, Meta);
         }
         
     }

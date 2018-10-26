@@ -7,13 +7,13 @@
 namespace abstractions 
 {
 
-    template<typename K, typename R, typename L>
-    R reduce(R (*const value)(K), R (*const plus)(K, R), L list) {
-        if (list == nullptr) {
-            return zero<R>;
+    template<typename V, typename K, typename R, typename L>
+    R reduce(V value, R (*const plus)(K, R), L list) {
+        if (list == L{}) {
+            return R{};
         }
         
-        return plus(value(data::first(list)), reduce(invalid<R>, value, plus, data::rest(list)));
+        return plus(value(data::list::first(list)), reduce(R{}, value, plus, data::list::rest(list)));
     }
 
 }
