@@ -41,6 +41,8 @@ namespace abstractions
                 
             iterator(slice<X> s, N n) : Slice(s), Index(n) {}
             
+            friend class slice;
+            
         public:
             
             X& operator*() const {
@@ -80,11 +82,11 @@ namespace abstractions
         };
 
         iterator begin() const {
-            return iterator(this, 0);
+            return iterator(*this, 0);
         }
             
         iterator end() const {
-            return iterator(this, size());
+            return iterator(*this, size());
         }
             
     };
