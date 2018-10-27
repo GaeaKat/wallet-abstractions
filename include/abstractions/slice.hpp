@@ -10,7 +10,7 @@ namespace abstractions
     class slice {
         mutable X invalid;
         const X* data;
-        const N len; 
+        uint64_t len; 
             
     public:
         const N size() const {
@@ -32,13 +32,20 @@ namespace abstractions
             return slice(data[begin], end - begin);
         };
         
+        slice& operator=(slice<X> s) {
+            invalid = s.invalid;
+            data = s.data;
+            len = s.len;
+            return *this;
+        }
+        
         class iterator {
             using iterator_category = std::input_iterator_tag;
             using value_type = X&;
                 
-            const slice<X> Slice;
-            N Index;
-                
+            slice<X> Slice;
+            uint64_t Index;
+            
             iterator(slice<X> s, N n) : Slice(s), Index(n) {}
             
             friend class slice;
@@ -75,6 +82,12 @@ namespace abstractions
                 this->operator*() != *i;
             }
             
+            iterator& operator=(iterator i) {
+                Slice = i.Slice;
+                Index = i.Index;
+                return *this;
+            }
+            
             slice<X> next(N n) {
                 if (n == 0) return slice<X>();
                 slice<X> s = Slice.range(Index, Index += n);
@@ -82,7 +95,7 @@ namespace abstractions
         };
 
         iterator begin() const {
-            return iterator(*this, 0);
+            return iterator(*this, N(0));
         }
             
         iterator end() const {

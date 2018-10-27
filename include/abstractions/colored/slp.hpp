@@ -98,25 +98,6 @@ namespace abstractions
             
             }
             
-            // Some constants which will be important. 
-            const byte op_return = 0x6a;
-            
-            const byte min_push = 0x01;
-            const byte max_push = 0x4b;
-            
-            // A thing that has to go in every script. 
-            const uint32_t lokad = 0x534c5000;
-            
-            const byte push_data1 = 0x4c;
-            const byte push_data2 = 0x4d;
-            const byte push_data4 = 0x4e;
-            
-            const string genesis_string = "GENESIS";
-            const string mint_string = "MINT";
-            const string send_string = "SEND";
-            
-            const N max_outputs = 19;
-            
             namespace type_1 {
                 
                 script genesis(
@@ -138,6 +119,27 @@ namespace abstractions
                     vector<quantity> output_quantities);
                 
             }
+            
+            // Some constants which will be important. 
+            const byte op_return = 0x6a;
+            
+            const byte min_push = 0x01;
+            const byte max_push = 0x4b;
+            
+            // A thing that has to go in every script. 
+            const uint32_t lokad = 0x534c5000;
+            
+            const endian::ness endian = endian::big;
+            
+            const byte push_data_1 = 0x4c;
+            const byte push_data_2 = 0x4d;
+            const byte push_data_4 = 0x4e;
+            
+            const encoding::ascii::string genesis_string = std::string("GENESIS");
+            const encoding::ascii::string mint_string = std::string("MINT");
+            const encoding::ascii::string send_string = std::string("SEND");
+            
+            const N max_outputs = 19;
             
             namespace low {
                 
@@ -208,6 +210,98 @@ namespace abstractions
             
             }
             
+            const byte max_byte = 0xff;
+            const uint32_t max_uint32 = 0xffff;
+            const quantity max_quantity = 0xffffffff;
+            
+            inline N push_size(uint32_t size) {
+                if (size == 0) return 2;
+                if (size <= max_push) return size + 1;
+                if (size <= max_byte) return size + 2;
+                if (size <= max_uint32) return size + 3;
+                if (size <= max_quantity) return size + 5;
+                return 0;
+            }
+            
+            inline writer write_empty_push(writer w) {
+                return w.write(push_data_1).write(byte(0));
+            }
+            
+            writer write_push(writer w, uint32_t size) {
+                if (size == 0) return write_empty_push(w);
+                if (size <= max_push) return w.write(byte(size));
+                if (size <= max_push) return w.write(push_data_1).write(byte(size));
+                if (size <= max_uint32) return w.write(push_data_2).write(endian, uint16_t(size));
+                if (size <= max_quantity) return w.write(push_data_4).write(endian, uint32_t(size));
+            }
+                
+            inline writer write_op_return(writer w) {
+                return w.write(slp::op_return);
+            }
+            
+            inline writer write(writer w, byte b) {
+                return write_push(w, 1).write(b);
+            }
+                
+            inline writer write(writer w, uint16_t i) {
+                return write_push(w, 2).write(endian, i);
+            }
+                
+            inline writer write(writer w, uint32_t i) {
+                return write_push(w, 4).write(endian, i);
+            }
+                
+            inline writer write(writer w, uint64_t i) {
+                return write_push(w, 8).write(endian, i);
+            }
+                
+            inline writer write(writer w, encoding::ascii::string s) {
+                return write_push(w, s.size()).write(s);
+            }
+                
+            inline writer write(writer w, byte* b) {
+                if (b == nullptr) return w;
+                return write(w, *b);
+            }
+            
+            inline writer write_hash(writer w, hash h) {
+                writer x = write_push(w, 32);
+                for (byte b : h) {
+                    x = x.write(b);
+                }
+                return x;
+            }
+            
+            inline writer write_hash(writer w, hash* h) {
+                if (h == nullptr) return w;
+                return write_hash(w, *h);
+            }
+            
+            inline writer write_token_type(writer w, uint16_t t) {
+                if (t <= max_byte) return write_push(w, 1).write(byte(t));
+                return write_push(w, 2).write(t);
+            }
+            
+            inline writer write_lokad_id(writer w) {
+                return write(w, lokad);
+            }
+            
+            inline writer write_transaction_type(writer w, transaction_type t) {
+                switch (t) {
+                    default:
+                    case none:
+                        return w;
+                    case genesis:
+                        write(w, genesis_string);
+                        return w;
+                    case mint:
+                        write(w, mint_string);
+                        return w;
+                    case send:
+                        write(w, send_string);
+                        return w;
+                }
+            }
         }
     
     }
