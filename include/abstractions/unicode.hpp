@@ -8,7 +8,9 @@ namespace abstractions {
     struct unicode : public vector<uint32_t> {
         unicode();
         
-        unicode(string);
+        unicode(string s): vector<uint32_t>(s.size()) {
+            for (int i = 0; i < s.size(); i++) this->at(i) = s[i];
+        }
     };
 }
 
