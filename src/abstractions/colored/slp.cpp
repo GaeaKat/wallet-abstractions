@@ -9,19 +9,6 @@ namespace abstractions
         namespace slp {
             
             namespace low {
-            
-                const byte max_byte = 0xff;
-                const uint32_t max_uint32 = 0xffff;
-                const quantity max_quantity = 0xffffffff;
-                
-                inline N push_size(uint32_t size) {
-                    if (size == 0) return 2;
-                    if (size <= max_push) return size + 1;
-                    if (size <= max_byte) return size + 2;
-                    if (size <= max_uint32) return size + 3;
-                    if (size <= max_quantity) return size + 5;
-                    return 0;
-                }
                 
                 // only token type 1 is currently defined. 
                 inline bool valid_token_type(token_type t) {
@@ -238,25 +225,65 @@ namespace abstractions
                     
                 return scr;
             }
-                
+
             script send(
                 hash id, 
                 vector<quantity> output_quantities) {
-                
+
                 if (!low::valid_send_input(id, output_quantities)) return {};
-                
+
                 N outputs = output_quantities.size();
                 N size = 1 + 5 + 2 + 5 + 33 + outputs * 9;
-                
+
                 std::vector<byte> scr(size); 
                 auto s = bytestring(scr);
-        
+
                 writer w = initial_script(s);
                 w = write_transaction_type(w, colored::send);
                 w = write_hash(w, id);
                 for (quantity q : output_quantities) w = write(w, q);
 
                 return scr;
+            }
+                
+            reader reader::operator<<(push_script_pattern<uint32_t> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator<<(push_script_pattern<token_type> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator<<(push_script_pattern<encoding::ascii::string> sc) {
+                return sc.apply(r);
+            }
+
+            reader reader::operator>>(push_script_pattern<byte&> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator>>(push_script_pattern<color&> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator>>(push_script_pattern<quantity&> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator>>(push_script_pattern<encoding::ascii::string&> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator>>(push_script_pattern<encoding::utf8::string&> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator>>(push_script_pattern<optional<byte>&> sc) {
+                return sc.apply(r);
+            }
+                
+            reader reader::operator>>(push_script_pattern<optional<hash>&> sc) {
+                return sc.apply(r);
             }
                 
         }

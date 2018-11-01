@@ -163,33 +163,122 @@ namespace abstractions
             
             const N max_outputs = 19;
             
-            template <typename X>
-            struct push_script {
-                X Value;
-                bool Optional;
+            namespace low {
                 
-                push_script(X x) : Value(x), Optional(false) {}
-                push_script(X x, bool o) : Value(x), Optional(o) {}
+                using reader = const abstractions::reader;
+            
+                const byte max_byte = 0xff;
+                const uint32_t max_uint32 = 0xffff;
+                const quantity max_quantity = 0xffffffff;
+                
+                inline N push_size(uint32_t size) {
+                    if (size == 0) return 2;
+                    if (size <= max_push) return size + 1;
+                    if (size <= max_byte) return size + 2;
+                    if (size <= max_uint32) return size + 3;
+                    if (size <= max_quantity) return size + 5;
+                    return 0;
+                }
+                
+                reader read_empty_push(reader r);
+                
+                reader read_push_size(reader r, uint64_t&);
+                
+                reader read_value(reader, byte& b, N size);
+                
+                reader read_value(reader, uint32_t& b, N size);
+                
+                reader read_value(reader, token_type& b, N size);
+                
+                reader read_value(reader, color& b, N size);
+                
+                reader read_value(reader, hash& b, N size);
+                
+                reader read_value(reader, quantity& b, N size);
+                
+                reader read_value(reader, encoding::ascii::string& b, N size);
+                
+                reader read_value(reader, encoding::utf8::string& b, N size);
+                
+                template <typename X>
+                inline reader read_push(reader r, X& x) {
+                    uint64_t size;
+                    return read_value(read_push_size(r, size), x, size);
+                }
+                
+                template <typename X>
+                reader read_push_optional(reader r, optional<X>& x) {
+                    uint64_t size;
+                    reader rr = read_push_size(r, size);
+                    
+                    if (size == 0) {
+                        x.Exists = false;
+                        return read_empty_push(r);
+                    }
+                    
+                    x.Exists = true;
+                    return read_value(rr, x.Value, size);
+                }
+                
+            }
+            
+            template <typename X>
+            struct push_script_pattern {
+                X Value;
+                
+                push_script_pattern(X x) : Value(x) {}
+                
+                low::reader apply(low::reader r) {
+                    X x;
+                    reader rr = low::read_push(r, x);
+                    return Value == x ? rr : rr.invalidate(); 
+                }
             };
             
             template <typename X>
-            push_script<X> push(X x) {
-                return push_script<X>{x};
+            struct push_script_pattern<X&> {
+                X& Value;
+                
+                push_script_pattern(X& x) : Value(x) {}
+                
+                low::reader apply(low::reader r) {
+                    return low::read_push(r, Value);
+                }
+            };
+            
+            template <typename X>
+            struct push_script_pattern<optional<X>&> {
+                optional<X>& Value;
+                
+                push_script_pattern(optional<X>& x) : Value(x) {}
+                
+                low::reader apply(low::reader r) {
+                    return low::read_push_optional(r, Value);
+                };
+            };
+            
+            template <typename X>
+            push_script_pattern<X> push(X x) {
+                return push_script_pattern<X>{x};
             }
             
             template <typename X>
-            push_script<X&> read_push(X& x) {
-                return push_script<X&>(x);
+            push_script_pattern<X&> read_push(X& x) {
+                return push_script_pattern<X&>(x);
             }
             
             class reader {
-                abstractions::reader r;
-                reader(abstractions::reader x) : r(x) {}
+                low::reader r;
+                reader(low::reader x) : r(x) {}
                 
             public:
                 
                 static reader make(script& s) {
                     return reader(abstractions::reader(slice<byte>(s)));
+                }
+                
+                bool end() const {
+                    return r.end();
                 }
                 
                 bool valid() const {
@@ -204,26 +293,28 @@ namespace abstractions
                     return reader{r.read(b)};
                 }
                 
-                reader operator>>(push_script<byte&>);
+                reader operator>>(push_script_pattern<byte&> sc);
                 
-                reader operator<<(push_script<uint32_t>); 
+                reader operator<<(push_script_pattern<uint32_t> sc);
                 
-                reader operator<<(push_script<token_type>);
+                reader operator<<(push_script_pattern<token_type>);
                 
-                reader operator<<(push_script<encoding::ascii::string>);
+                reader operator<<(push_script_pattern<encoding::ascii::string>);
                 
-                reader operator>>(push_script<color&>);
+                reader operator>>(push_script_pattern<color&>);
                 
-                reader operator>>(push_script<quantity&>);
+                reader operator>>(push_script_pattern<quantity&>);
                 
-                reader operator>>(push_script<encoding::ascii::string&>);
+                reader operator>>(push_script_pattern<encoding::ascii::string&>);
                 
-                reader operator>>(push_script<encoding::utf8::string&>);
+                reader operator>>(push_script_pattern<encoding::utf8::string&>);
                 
-                reader operator>>(push_script<optional<byte>&>);
+                reader operator>>(push_script_pattern<optional<byte>&>);
                 
-                reader operator>>(push_script<optional<hash>&>);
+                reader operator>>(push_script_pattern<optional<hash>&>);
             };
+                
+            template <typename X> reader read_all(reader r, vector<X>& l);
                     
             namespace scripts {
                 
@@ -246,13 +337,8 @@ namespace abstractions
                 const send send::read(script s) {
                     send x{};
                     x.Token = permissionless;
-                    reader r = reader::make(s) << op_return << push(lokad) << push(permissionless) << push(send_string)
-                        >> read_push(x.Color) ;
-                    do {
-                        quantity q;
-                        r = r >> read_push(q);
-                    } while(!r.end());
-                    return r.valid() ? x : send{};
+                    return read_all(reader::make(s) << op_return << push(lokad) << push(permissionless) << push(send_string)
+                        >> read_push(x.Color), x.OutputQuantities).valid() ? x : send{};
                 }
             
             }
