@@ -38,13 +38,14 @@ namespace abstractions
             }
         };
         
-        template <typename point, typename C>
+        // Data that says how to interpret a TX as a colored tx. 
+        template <typename C>
         struct meta {
             transaction_type Type;
             
             C Color;
             
-            vector<point> Inputs;
+            vector<N> Inputs;
             
             map<N, value<C>> Outputs;
             
@@ -56,8 +57,8 @@ namespace abstractions
             meta() : Type(none) {}
         };
         
-        template <typename tx, typename point, typename C>
-        using interpret = meta<point, C> (*) (tx, C);
+        template <typename tx, typename C>
+        using interpret = meta<C> (*) (tx, C);
         
         template <typename tx, typename point, typename C> struct blockchain;
         
@@ -66,12 +67,12 @@ namespace abstractions
             // The original Bitcoin transaction. 
             tx Bitcoin;
             
-            map<C, meta<point, C>> Meta;
+            map<C, meta<C>> Meta;
             
-            interpret<tx, point, C> Interpret;
+            interpret<tx, C> Interpret;
             
             bool valid() const {
-                for (data::maps::entry<C, meta<point, C>> entry : Meta)
+                for (data::maps::entry<C, meta<C>> entry : Meta)
                     if (!(entry.value().valid() && entry.Value == Interpret(Bitcoin, entry.Key))) return false;
                 return true;
             }
@@ -117,7 +118,7 @@ namespace abstractions
         }
         
         template <typename tx, typename point, typename C> 
-        bool verify(const blockchain<tx, point, C>& b, meta<point, C> m);
+        bool verify(const blockchain<tx, point, C>& b, meta<C> m);
         
         template <typename tx, typename point, typename C>
         bool transaction<tx, point, C>::verify(blockchain<tx, point, C>& b) const {

@@ -14,19 +14,29 @@ namespace abstractions {
         
     public: 
         bool Valid;
+        reader(bytestring b) : i(b.begin()), e(b.end()), Valid(true) {}
         
     private:
-        reader(bytestring b) : i(b.begin()), e(b.end()), Valid(true) {}
         reader(bytestring::iterator ee) : i(ee), e(ee), Valid(false) {}
 
     public:
-        static reader make(bytestring b) {
-            return reader(b);
+        bool end() const {
+            return i == e;
+        }
+
+        reader invalidate() const {
+            return reader(e);
         }
         
         reader read(byte&) const;
         
-        reader read(bytestring&) const;
+        reader check(byte b) const {
+            byte x;
+            reader r = read(x);
+            return b == x ? r : r.invalidate();
+        }
+        
+        reader read(std::vector<byte>& v) const;
         
         reader read(uint16_t&) const;
         

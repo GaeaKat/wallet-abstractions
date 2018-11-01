@@ -22,7 +22,7 @@ namespace abstractions
         }
         
         template <typename tx, typename point, typename C> 
-        bool verify(const blockchain<tx, point, C>& b, meta<point, C> m) {
+        bool verify(const blockchain<tx, point, C>& b, meta<C> m) {
             switch (m.Type) {
                 default:
                 case none:

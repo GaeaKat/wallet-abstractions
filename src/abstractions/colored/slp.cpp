@@ -8,28 +8,20 @@ namespace abstractions
         
         namespace slp {
             
-            // Some constants which will be important. 
-            const byte op_return = 0x6a;
-            
-            const byte min_push = 0x01;
-            const byte max_push = 0x4b;
-            
-            // A thing that has to go in every script. 
-            const uint32_t lokad = 0x534c5000;
-            
-            const endian::ness endian = endian::big;
-            
-            const byte push_data_1 = 0x4c;
-            const byte push_data_2 = 0x4d;
-            const byte push_data_4 = 0x4e;
-            
-            const encoding::ascii::string genesis_string = std::string("GENESIS");
-            const encoding::ascii::string mint_string = std::string("MINT");
-            const encoding::ascii::string send_string = std::string("SEND");
-            
-            const N max_outputs = 19;
-            
             namespace low {
+            
+                const byte max_byte = 0xff;
+                const uint32_t max_uint32 = 0xffff;
+                const quantity max_quantity = 0xffffffff;
+                
+                inline N push_size(uint32_t size) {
+                    if (size == 0) return 2;
+                    if (size <= max_push) return size + 1;
+                    if (size <= max_byte) return size + 2;
+                    if (size <= max_uint32) return size + 3;
+                    if (size <= max_quantity) return size + 5;
+                    return 0;
+                }
                 
                 // only token type 1 is currently defined. 
                 inline bool valid_token_type(token_type t) {
@@ -54,16 +46,16 @@ namespace abstractions
                 }
             
                 inline bool valid_genesis_input(
-                    unicode ticker,
-                    unicode name, 
+                    encoding::utf8::string ticker,
+                    encoding::utf8::string name, 
                     byte decimals,
-                    byte* mint_baton_vout) {
-                    return ticker != unicode{} && name != unicode{} && valid_decimals(decimals)
-                        && (mint_baton_vout == nullptr ? true : valid_mint_baton_vout(*mint_baton_vout));
+                    optional<byte> mint_baton_vout) {
+                    return ticker != encoding::utf8::string{} && name != encoding::utf8::string{} && valid_decimals(decimals)
+                        && mint_baton_vout.valid(valid_mint_baton_vout);
                 }
             
-                inline bool valid_mint_input(color id, byte* mint_baton_vout) {
-                    return valid_color(id) && (mint_baton_vout == nullptr ? true : valid_mint_baton_vout(*mint_baton_vout));
+                inline bool valid_mint_input(color id, optional<byte> mint_baton_vout) {
+                    return valid_color(id) && mint_baton_vout.valid(valid_mint_baton_vout);
                 }
             
                 inline bool valid_send_input(color id, vector<quantity> outputs) {
@@ -103,19 +95,6 @@ namespace abstractions
                 
             }
             
-            const byte max_byte = 0xff;
-            const uint32_t max_uint32 = 0xffff;
-            const quantity max_quantity = 0xffffffff;
-            
-            inline N push_size(uint32_t size) {
-                if (size == 0) return 2;
-                if (size <= max_push) return size + 1;
-                if (size <= max_byte) return size + 2;
-                if (size <= max_uint32) return size + 3;
-                if (size <= max_quantity) return size + 5;
-                return 0;
-            }
-            
             inline writer write_empty_push(writer w) {
                 return w.write(push_data_1).write(byte(0));
             }
@@ -124,8 +103,8 @@ namespace abstractions
                 if (size == 0) return write_empty_push(w);
                 if (size <= max_push) return w.write(byte(size));
                 if (size <= max_push) return w.write(push_data_1).write(byte(size));
-                if (size <= max_uint32) return w.write(push_data_2).write(endian, uint16_t(size));
-                if (size <= max_quantity) return w.write(push_data_4).write(endian, uint32_t(size));
+                if (size <= low::max_uint32) return w.write(push_data_2).write(endian, uint16_t(size));
+                if (size <= low::max_quantity) return w.write(push_data_4).write(endian, uint32_t(size));
             }
                 
             inline writer write_op_return(writer w) {
@@ -134,6 +113,12 @@ namespace abstractions
             
             inline writer write(writer w, byte b) {
                 return write_push(w, 1).write(b);
+            }
+            
+            template <typename X>
+            inline writer write(writer w, optional<X> b) {
+                if (b.Exists) return write(w, b.Value);
+                return write_empty_push(w);
             }
                 
             inline writer write(writer w, uint16_t i) {
@@ -148,7 +133,7 @@ namespace abstractions
                 return write_push(w, 8).write(endian, i);
             }
                 
-            inline writer write_string(writer w, encoding::ascii::string s) {
+            inline writer write_string(writer w, ascii s) {
                 return write_push(w, s.size()).write(s);
             }
                 
@@ -169,13 +154,8 @@ namespace abstractions
                 return x;
             }
             
-            inline writer write_hash(writer w, hash* h) {
-                if (h == nullptr) return w;
-                return write_hash(w, *h);
-            }
-            
             inline writer write_token_type(writer w, uint16_t t) {
-                if (t <= max_byte) return write_push(w, 1).write(byte(t));
+                if (t <= low::max_byte) return write_push(w, 1).write(byte(t));
                 return write_push(w, 2).write(t);
             }
             
@@ -205,39 +185,32 @@ namespace abstractions
             }
                 
             script genesis(
-                unicode ticker,
-                unicode name,
+                encoding::utf8::string ticker,
+                encoding::utf8::string name,
                 encoding::ascii::string document_url,
-                hash* document_hash,
+                optional<hash> document_hash,
                 byte decimals, 
-                byte* mint_baton_vout,
+                optional<byte> mint_baton_vout,
                 quantity initial_mint_quantity) {
                     
                 if (!low::valid_genesis_input(ticker, name, decimals, mint_baton_vout)) return {};
                     
-                // Get size of encoded output. 
-                encoding::utf8::string ticker_encoded = encoding::utf8::write(ticker);
-                encoding::utf8::string name_encoded = encoding::utf8::write(name);
-                    
-                if (ticker != unicode{} && ticker_encoded == encoding::utf8::string{}) return {};
-                if (name != unicode{} && name_encoded == encoding::utf8::string{}) return {};
-                    
                 N size = 1 + 5 + 2 + 7 + 
-                    push_size(ticker_encoded.size()) + 
-                    push_size(name_encoded.size()) + 
-                    push_size(document_url.size()) +
-                    (document_hash == nullptr ? 0 : 33) + 2 +
-                    (mint_baton_vout == nullptr ? 0 : 2) + 9;
+                    low::push_size(ticker.size()) + 
+                    low::push_size(name.size()) + 
+                    low::push_size(document_url.size()) +
+                    (document_hash.Exists ? 33 : 0) + 2 +
+                    (mint_baton_vout.Exists ? 2 : 0) + 9;
                         
                 std::vector<byte> scr(size); 
                 auto s = bytestring(scr);
                 
                 writer w = initial_script(s);
                 w = write_transaction_type(w, colored::genesis);
-                w = write_string(w, ticker_encoded);
-                w = write_string(w, name_encoded);
+                w = write_string(w, ticker);
+                w = write_string(w, name);
                 w = write_string(w, document_url);
-                w = write_hash(w, document_hash);
+                w = write(w, document_hash);
                 w = write(w, decimals);
                 w = write(w, mint_baton_vout);
                 w = write(w, initial_mint_quantity);
@@ -247,12 +220,12 @@ namespace abstractions
                 
             script mint(
                 hash id, 
-                byte* mint_baton_vout,
+                optional<byte> mint_baton_vout,
                 quantity additional_token_quantity) {
                 
                 if (!low::valid_mint_input(id, mint_baton_vout)) return {};
                 
-                N size = 1 + 5 + 2 + 5 + 33 + (mint_baton_vout == nullptr ? 0 : 2) + 9;
+                N size = 1 + 5 + 2 + 5 + 33 + (mint_baton_vout.Exists ? 2 : 0) + 9;
 
                 std::vector<byte> scr(size); 
                 auto s = bytestring(scr);
@@ -284,22 +257,6 @@ namespace abstractions
                 for (quantity q : output_quantities) w = write(w, q);
 
                 return scr;
-            }
-            
-            namespace scripts {
-                
-                const genesis genesis::read(script s) {
-                    
-                }
-                
-                const mint mint::read(script s) {
-                    
-                }
-                
-                const send send::read(script s) {
-                    
-                }
-            
             }
                 
         }
