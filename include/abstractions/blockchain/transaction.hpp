@@ -26,6 +26,9 @@ namespace abstractions
         template <typename tx, typename point, typename script>
         using inputs = map<point, script> (*)(tx);
         
+        template <typename tx, typename sh>
+        using hash = sh (*)(tx);
+        
         // a vertex represents the flow of bitcoins in the blockchain.
         // it is a transaction without input scripts. When a tx is
         // being hashed, the input scripts must be removed. This type

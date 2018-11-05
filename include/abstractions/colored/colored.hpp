@@ -9,9 +9,6 @@ namespace abstractions
     namespace colored
     {
         
-        template <typename T, typename C>
-        using color = C (*) (T tx);
-        
         enum transaction_type {none, genesis, mint, send};
         
         template <typename T, typename C>

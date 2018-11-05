@@ -16,10 +16,6 @@ namespace abstractions
         
         namespace slp {
             
-            // get metadata for a tx of a given color. 
-            template <typename tx, typename C>
-            meta<C> interpret(tx, C);
-            
             // Some new types. 
             using script = vector<byte>;
             
@@ -39,70 +35,66 @@ namespace abstractions
                 voting = 3,         // Reserved for Voting Token Type
                 ticketing = 4,      // Reserved for Ticketing Token Type
             };
-            
-            namespace scripts {
                 
-                struct genesis {
-                    token_type Token;
-                    encoding::utf8::string Ticker;
-                    encoding::utf8::string Name;
-                    encoding::ascii::string DocumentUrl;
-                    optional<hash> DocumentHash;
-                    byte Decimals;
-                    optional<byte> MintBatonVout;
-                    quantity InitialTokenMintQuantity;
+            struct genesis {
+                token_type Token;
+                encoding::utf8::string Ticker;
+                encoding::utf8::string Name;
+                encoding::ascii::string DocumentUrl;
+                optional<hash> DocumentHash;
+                byte Decimals;
+                optional<byte> MintBatonVout;
+                quantity InitialTokenMintQuantity;
                     
-                    bool valid();
+                bool valid();
                         
-                    script write();
+                script write();
                     
-                    genesis() : Token(none), Ticker{}, Name{}, DocumentUrl{}, DocumentHash(), Decimals(0), MintBatonVout(), InitialTokenMintQuantity(0) {}
-                    genesis(unicode x, unicode n, encoding::ascii::string u, hash h, byte d, byte m, quantity q)
-                        : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
-                            DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
-                    genesis(token_type t, unicode x, unicode n, encoding::ascii::string u, hash h, byte d, quantity q)
-                        : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
-                            DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
-                    genesis(token_type t, unicode x, unicode n, byte d, byte m, quantity q)
-                        : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
-                            DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
-                    genesis(token_type t, unicode x, unicode n, byte d, quantity q)
-                        : Token(t), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
-                            DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
+                genesis() : Token(none), Ticker{}, Name{}, DocumentUrl{}, DocumentHash(), Decimals(0), MintBatonVout(), InitialTokenMintQuantity(0) {}
+                genesis(unicode x, unicode n, encoding::ascii::string u, hash h, byte d, byte m, quantity q)
+                    : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
+                        DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
+                genesis(token_type t, unicode x, unicode n, encoding::ascii::string u, hash h, byte d, quantity q)
+                    : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
+                        DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
+                genesis(token_type t, unicode x, unicode n, byte d, byte m, quantity q)
+                    : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
+                        DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
+                genesis(token_type t, unicode x, unicode n, byte d, quantity q)
+                    : Token(t), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
+                        DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
                     
-                    static const genesis read(script);
-                };
+                static const genesis read(script);
+            };
                     
-                struct mint {
-                    token_type Token;
-                    color Color; 
-                    optional<byte> MintBatonVout;
-                    quantity AdditionalTokenQuantity;
+            struct mint {
+                token_type Token;
+                color Color; 
+                optional<byte> MintBatonVout;
+                quantity AdditionalTokenQuantity;
                     
-                    bool valid();
+                bool valid();
                         
-                    script write();
+                script write();
                     
-                    mint() : Token(none), Color(), MintBatonVout(), AdditionalTokenQuantity(0) {};
+                mint() : Token(none), Color(), MintBatonVout(), AdditionalTokenQuantity(0) {};
                     
-                    static const mint read(script);
-                };
+                static const mint read(script);
+            };
                     
-                struct send {
-                    token_type Token;
-                    color Color; 
-                    vector<quantity> OutputQuantities;
+            struct send {
+                token_type Token;
+                color Color; 
+                vector<quantity> OutputQuantities;
                     
-                    script write();
+                script write();
                     
-                    bool valid();
+                bool valid();
                     
-                    send(): Token(none), Color(), OutputQuantities(0) {};
+                send(): Token(none), Color(), OutputQuantities(0) {};
                     
-                    static const send read(script);
-                };
-            
-            }
+                static const send read(script);
+            };
             
             using ascii = encoding::ascii::string;
             
@@ -140,6 +132,45 @@ namespace abstractions
                     color id, 
                     vector<quantity> output_quantities);
                 
+            }
+            
+            // get metadata for a tx of a given color. 
+            template <typename tx, typename out>
+            script get_slp_script(tx t,
+                abstractions::transaction::outputs<tx, out> outs, abstractions::output::script<out, script> s) {
+                return s(outs(t)[0]);
+            }
+            
+            color get_color(script x);
+            
+            transaction_type get_tx_type(script x);
+            
+            // This should go in the cpp file.
+            struct tx_data {
+                color Color;
+                transaction_type TxType;
+                
+                static tx_data read(script x) {
+                    return tx_data(get_color(x), get_tx_type(x));
+                }
+                
+            private :
+                tx_data(color c, transaction_type t) : Color(c), TxType(t) {}
+            };
+            
+            template <typename tx, typename out, typename sh>
+            color get_color(tx t, 
+                abstractions::transaction::outputs<tx, out> outs,
+                abstractions::output::script<out, script> s,
+                abstractions::transaction::hash<tx, color> hash) {
+                // get the script.
+                script x = get_slp_script(t, outs, s);
+                genesis g = genesis::read(x);
+                if (g.valid()) return hash(t);
+                mint m = mint::read(x);
+                if (m.valid()) return get_color(x);
+                send d = send::read(x);
+                if (d.valid()) return get_color(x);
             }
             
             // Some constants which will be important. 
@@ -315,32 +346,27 @@ namespace abstractions
             };
                 
             template <typename X> reader read_all(reader r, vector<X>& l);
-                    
-            namespace scripts {
                 
-                const genesis genesis::read(script s) {
-                    genesis x{};
-                    x.Token = permissionless;
-                    return (reader::make(s) << op_return << push(lokad) << push(permissionless) << push(genesis_string)
-                        >> read_push(x.Ticker) >> read_push(x.Name) >> read_push(x.DocumentHash) >> read_push(x.Decimals)
-                        >> read_push(x.MintBatonVout) >> read_push(x.InitialTokenMintQuantity)).valid() ? x : genesis{};
-                    
+            const genesis genesis::read(script s) {
+                genesis x{};
+                x.Token = permissionless;
+                return (reader::make(s) << op_return << push(lokad) << push(permissionless) << push(genesis_string)
+                    >> read_push(x.Ticker) >> read_push(x.Name) >> read_push(x.DocumentHash) >> read_push(x.Decimals)
+                    >> read_push(x.MintBatonVout) >> read_push(x.InitialTokenMintQuantity)).valid() ? x : genesis{};
                 }
                 
-                const mint mint::read(script s) {
-                    mint x{};
-                    x.Token = permissionless;
-                    return (reader::make(s) << op_return << push(lokad) << push(permissionless) << push(mint_string)
-                        >> read_push(x.Color) >> read_push(x.MintBatonVout) >> read_push(x.AdditionalTokenQuantity)).valid() ? x : mint{};
-                }
+            const mint mint::read(script s) {
+                mint x{};
+                x.Token = permissionless;
+                return (reader::make(s) << op_return << push(lokad) << push(permissionless) << push(mint_string)
+                    >> read_push(x.Color) >> read_push(x.MintBatonVout) >> read_push(x.AdditionalTokenQuantity)).valid() ? x : mint{};
+            }
                 
-                const send send::read(script s) {
-                    send x{};
-                    x.Token = permissionless;
-                    return read_all(reader::make(s) << op_return << push(lokad) << push(permissionless) << push(send_string)
-                        >> read_push(x.Color), x.OutputQuantities).valid() ? x : send{};
-                }
-            
+            const send send::read(script s) {
+                send x{};
+                x.Token = permissionless;
+                return read_all(reader::make(s) << op_return << push(lokad) << push(permissionless) << push(send_string)
+                    >> read_push(x.Color), x.OutputQuantities).valid() ? x : send{};
             }
             
         }
