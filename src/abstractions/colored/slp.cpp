@@ -51,35 +51,31 @@ namespace abstractions
             
             }
             
-            namespace scripts {
+            inline bool genesis::valid() const {
+                return low::valid_token_type(Token) && low::valid_genesis_input(Ticker, Name, Decimals, MintBatonVout);
+            }
+                
+            inline bool mint::valid() const {
+                return low::valid_token_type(Token) && low::valid_mint_input(Color, MintBatonVout);
+            }
+                
+            inline bool send::valid() const {
+                return low::valid_token_type(Token) && low::valid_send_input(Color, OutputQuantities);
+            }
             
-                inline bool genesis::valid() {
-                    return low::valid_token_type(Token) && low::valid_genesis_input(Ticker, Name, Decimals, MintBatonVout);
-                }
+            inline script genesis::write() const {
+                if (!low::valid_token_type(Token)) return {};
+                return type_1::genesis(Ticker, Name, DocumentUrl, DocumentHash, Decimals, MintBatonVout, InitialTokenMintQuantity);
+            }
                 
-                inline bool mint::valid() {
-                    return low::valid_token_type(Token) && low::valid_mint_input(Color, MintBatonVout);
-                }
+            inline script mint::write() const {
+                if (!low::valid_token_type(Token)) return {};
+                return type_1::mint(Color, MintBatonVout, AdditionalTokenQuantity);
+            }
                 
-                inline bool send::valid() {
-                    return low::valid_token_type(Token) && low::valid_send_input(Color, Outputs);
-                }
-            
-                inline script genesis::write() {
-                    if (!low::valid_token_type(Token)) return {};
-                    return type_1::genesis(Ticker, Name, DocumentUrl, DocumentHash, Decimals, MintBatonVout, InitialTokenMintQuantity);
-                }
-                
-                inline script mint::write() {
-                    if (!low::valid_token_type(Token)) return {};
-                    return type_1::mint(Color, MintBatonVout, AdditionalTokenQuantity);
-                }
-                
-                inline script send::write() {
-                    if (!low::valid_token_type(Token)) return {};
-                    return type_1::send(Color, OutputQuantities);
-                }
-                
+            inline script send::write() const {
+                if (!low::valid_token_type(Token)) return {};
+                return type_1::send(Color, OutputQuantities);
             }
             
             inline writer write_empty_push(writer w) {
@@ -100,6 +96,12 @@ namespace abstractions
             
             inline writer write(writer w, byte b) {
                 return write_push(w, 1).write(b);
+            }
+                
+            inline writer write(writer w, hash h) {
+                writer ww = write_push(w, 32);
+                for (byte b : h) ww = ww.write(b);
+                return ww;
             }
             
             template <typename X>
@@ -155,13 +157,13 @@ namespace abstractions
                     default:
                     case none:
                         return w;
-                    case genesis:
+                    case transaction_type::genesis:
                         write_string(w, genesis_string);
                         return w;
-                    case mint:
+                    case transaction_type::mint:
                         write_string(w, mint_string);
                         return w;
-                    case send:
+                    case transaction_type::send:
                         write_string(w, send_string);
                         return w;
                 }
@@ -170,80 +172,84 @@ namespace abstractions
             inline writer initial_script(bytestring b) {
                 return write_token_type(write_lokad_id(write_op_return(writer::make(b))), permissionless);
             }
+            
+            namespace type_1 {
                 
-            script genesis(
-                encoding::utf8::string ticker,
-                encoding::utf8::string name,
-                encoding::ascii::string document_url,
-                optional<hash> document_hash,
-                byte decimals, 
-                optional<byte> mint_baton_vout,
-                quantity initial_mint_quantity) {
-                    
-                if (!low::valid_genesis_input(ticker, name, decimals, mint_baton_vout)) return {};
-                    
-                N size = 1 + 5 + 2 + 7 + 
-                    low::push_size(ticker.size()) + 
-                    low::push_size(name.size()) + 
-                    low::push_size(document_url.size()) +
-                    (document_hash.Exists ? 33 : 0) + 2 +
-                    (mint_baton_vout.Exists ? 2 : 0) + 9;
+                script genesis(
+                    encoding::utf8::string ticker,
+                    encoding::utf8::string name,
+                    encoding::ascii::string document_url,
+                    optional<hash> document_hash,
+                    byte decimals, 
+                    optional<byte> mint_baton_vout,
+                    quantity initial_mint_quantity) {
                         
-                std::vector<byte> scr(size); 
-                auto s = bytestring(scr);
-                
-                writer w = initial_script(s);
-                w = write_transaction_type(w, colored::genesis);
-                w = write_string(w, ticker);
-                w = write_string(w, name);
-                w = write_string(w, document_url);
-                w = write(w, document_hash);
-                w = write(w, decimals);
-                w = write(w, mint_baton_vout);
-                w = write(w, initial_mint_quantity);
+                    if (!low::valid_genesis_input(ticker, name, decimals, mint_baton_vout)) return {};
+                        
+                    N size = 1 + 5 + 2 + 7 + 
+                        low::push_size(ticker.size()) + 
+                        low::push_size(name.size()) + 
+                        low::push_size(document_url.size()) +
+                        (document_hash.Exists ? 33 : 0) + 2 +
+                        (mint_baton_vout.Exists ? 2 : 0) + 9;
+                            
+                    std::vector<byte> scr(size); 
+                    auto s = bytestring(scr);
                     
-                return scr;
-            }
-                
-            script mint(
-                hash id, 
-                optional<byte> mint_baton_vout,
-                quantity additional_token_quantity) {
-                
-                if (!low::valid_mint_input(id, mint_baton_vout)) return {};
-                
-                N size = 1 + 5 + 2 + 5 + 33 + (mint_baton_vout.Exists ? 2 : 0) + 9;
-
-                std::vector<byte> scr(size); 
-                auto s = bytestring(scr);
-                
-                writer w = initial_script(s);
-                w = write_transaction_type(w, colored::mint);
-                w = write_hash(w, id);
-                w = write(w, mint_baton_vout);
-                w = write(w, additional_token_quantity);
+                    writer w = initial_script(s);
+                    w = write_transaction_type(w, colored::genesis);
+                    w = write_string(w, ticker);
+                    w = write_string(w, name);
+                    w = write_string(w, document_url);
+                    w = write(w, document_hash);
+                    w = write(w, decimals);
+                    w = write(w, mint_baton_vout);
+                    w = write(w, initial_mint_quantity);
+                        
+                    return scr;
+                }
                     
-                return scr;
-            }
+                script mint(
+                    hash id, 
+                    optional<byte> mint_baton_vout,
+                    quantity additional_token_quantity) {
+                    
+                    if (!low::valid_mint_input(id, mint_baton_vout)) return {};
+                    
+                    N size = 1 + 5 + 2 + 5 + 33 + (mint_baton_vout.Exists ? 2 : 0) + 9;
 
-            script send(
-                hash id, 
-                vector<quantity> output_quantities) {
+                    std::vector<byte> scr(size); 
+                    auto s = bytestring(scr);
+                    
+                    writer w = initial_script(s);
+                    w = write_transaction_type(w, colored::mint);
+                    w = write_hash(w, id);
+                    w = write(w, mint_baton_vout);
+                    w = write(w, additional_token_quantity);
+                        
+                    return scr;
+                }
 
-                if (!low::valid_send_input(id, output_quantities)) return {};
+                script send(
+                    hash id, 
+                    vector<quantity> output_quantities) {
 
-                N outputs = output_quantities.size();
-                N size = 1 + 5 + 2 + 5 + 33 + outputs * 9;
+                    if (!low::valid_send_input(id, output_quantities)) return {};
 
-                std::vector<byte> scr(size); 
-                auto s = bytestring(scr);
+                    N outputs = output_quantities.size();
+                    N size = 1 + 5 + 2 + 5 + 33 + outputs * 9;
 
-                writer w = initial_script(s);
-                w = write_transaction_type(w, colored::send);
-                w = write_hash(w, id);
-                for (quantity q : output_quantities) w = write(w, q);
+                    std::vector<byte> scr(size); 
+                    auto s = bytestring(scr);
 
-                return scr;
+                    writer w = initial_script(s);
+                    w = write_transaction_type(w, colored::send);
+                    w = write_hash(w, id);
+                    for (quantity q : output_quantities) w = write(w, q);
+
+                    return scr;
+                }
+            
             }
                 
             reader reader::operator<<(push_script_pattern<uint32_t> sc) {
@@ -284,6 +290,65 @@ namespace abstractions
                 
             reader reader::operator>>(push_script_pattern<optional<hash>&> sc) {
                 return sc.apply(r);
+            }
+            
+            struct tx_data {
+                color Color;
+                transaction_type TxType;
+                bool Valid;
+                
+                static tx_data read(script x) {
+                    color c = get_color(x);
+                    transaction_type t = get_transaction_type(x);
+                    
+                    if (c != color{} && t != transaction_type::none) return tx_data(c, t);
+                    return tx_data();
+                }
+                
+            private :
+                tx_data(color c, transaction_type t) : Color(c), TxType(t), Valid(true) {}
+                tx_data() : Color{}, Valid(false) {}
+            };
+            
+            template <typename tx, typename out, typename sh>
+            meta<color, out> get_meta(tx t, 
+                abstractions::transaction::outputs<tx, out> outs,
+                abstractions::output::script<out, script> s) {
+                script scr = get_slp_script(t, outs, s);
+                tx_data txd = tx_data::read(scr);
+                if (!txd.Valid) return meta<color, out>{};
+                auto o = outs(t);
+            
+                map<N, value<color>> sends{};
+                map<N, color> mints{};
+                
+                switch (txd.TxType) {
+                    default:
+                    case none:
+                        return meta<color, out>{};
+                    case transaction_type::genesis: {
+                        const genesis g = genesis::read(scr);
+                        sends = sends.insert(1, value<color>{g.InitialTokenMintQuantity, txd.Color}); 
+                        if (g.MintBatonVout.Exists && o.size() > g.MintBatonVout.Value) mints = mints.insert(g.MintBatonVout.Value, txd.Color);
+                        break;
+                    }
+                    case transaction_type::mint: {
+                        const mint m = mint::read(scr);
+                        if (m.MintBatonVout.Exists && o.size() > g.MintBatonVout.Value) mints = mints.insert(m.MintBatonVout.Value, txd.Color);
+                        break;
+                    }
+                    case transaction_type::send: {
+                        const send d = send::read(scr);
+                        uint n = 1;
+                        for (quantity q : d.OutputQuantities) {
+                            sends = sends.insert(n, value<color>(q, txd.Color));
+                            n ++;
+                        }
+                        break;
+                    }
+                }
+                
+                return meta<color, out>{txd.TxType, txd.Color, sends, mints};
             }
                 
         }

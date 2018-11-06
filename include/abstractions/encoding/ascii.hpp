@@ -33,6 +33,7 @@ namespace abstractions {
                 string(std::string s) : vector<character>(s.size()) {
                     for (int i = 0; i < s.size(); i++) this->at(i) = s[i];
                 }
+                string(const string& s) : vector<character>(static_cast<vector<character>>(s)) {}
             };
             
             string read(const bytestring x) {

@@ -21,7 +21,7 @@ namespace abstractions
             
             using quantity = uint64_t;
             
-            using hash = const std::array<byte, 32>;
+            using hash = std::array<byte, 32>;
             
             using color = hash;
             
@@ -46,9 +46,9 @@ namespace abstractions
                 optional<byte> MintBatonVout;
                 quantity InitialTokenMintQuantity;
                     
-                bool valid();
+                bool valid() const;
                         
-                script write();
+                script write() const;
                     
                 genesis() : Token(none), Ticker{}, Name{}, DocumentUrl{}, DocumentHash(), Decimals(0), MintBatonVout(), InitialTokenMintQuantity(0) {}
                 genesis(unicode x, unicode n, encoding::ascii::string u, hash h, byte d, byte m, quantity q)
@@ -63,6 +63,9 @@ namespace abstractions
                 genesis(token_type t, unicode x, unicode n, byte d, quantity q)
                     : Token(t), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
+                        
+                genesis(const genesis& g) : Token{g.Token}, Ticker{g.Ticker}, Name{g.Name}, DocumentUrl{g.DocumentUrl},
+                    DocumentHash{g.DocumentHash}, Decimals{g.Decimals}, MintBatonVout{g.MintBatonVout}, InitialTokenMintQuantity{g.InitialTokenMintQuantity} {}
                     
                 static const genesis read(script);
             };
@@ -73,9 +76,9 @@ namespace abstractions
                 optional<byte> MintBatonVout;
                 quantity AdditionalTokenQuantity;
                     
-                bool valid();
+                bool valid() const;
                         
-                script write();
+                script write() const;
                     
                 mint() : Token(none), Color(), MintBatonVout(), AdditionalTokenQuantity(0) {};
                     
@@ -87,9 +90,9 @@ namespace abstractions
                 color Color; 
                 vector<quantity> OutputQuantities;
                     
-                script write();
+                script write() const;
                     
-                bool valid();
+                bool valid() const;
                     
                 send(): Token(none), Color(), OutputQuantities(0) {};
                     
@@ -143,20 +146,15 @@ namespace abstractions
             
             color get_color(script x);
             
-            transaction_type get_tx_type(script x);
+            transaction_type get_transaction_type(script x);
             
-            // This should go in the cpp file.
-            struct tx_data {
-                color Color;
-                transaction_type TxType;
-                
-                static tx_data read(script x) {
-                    return tx_data(get_color(x), get_tx_type(x));
-                }
-                
-            private :
-                tx_data(color c, transaction_type t) : Color(c), TxType(t) {}
-            };
+            const optional<byte> get_mint_baton_vout(script x) {
+                const genesis g = genesis::read(x);
+                if (g.valid()) return g.MintBatonVout;
+                const mint m = mint::read(x);
+                if (m.valid()) return m.MintBatonVout;
+                return optional<byte>{};
+            }
             
             template <typename tx, typename out, typename sh>
             color get_color(tx t, 
@@ -165,13 +163,54 @@ namespace abstractions
                 abstractions::transaction::hash<tx, color> hash) {
                 // get the script.
                 script x = get_slp_script(t, outs, s);
-                genesis g = genesis::read(x);
+                const genesis g = genesis::read(x);
                 if (g.valid()) return hash(t);
-                mint m = mint::read(x);
-                if (m.valid()) return get_color(x);
-                send d = send::read(x);
-                if (d.valid()) return get_color(x);
+                const mint m = mint::read(x);
+                if (m.valid()) return m.Color;
+                const send d = send::read(x);
+                if (d.valid()) return d.Color;
             }
+            
+            template <typename tx, typename out, typename sh>
+            transaction_type get_transaction_type(tx t, 
+                abstractions::transaction::outputs<tx, out> outs,
+                abstractions::output::script<out, script> s) {
+                // get the script.
+                script x = get_slp_script(t, outs, s);
+                const genesis g = genesis::read(x);
+                if (g.valid()) return transaction_type::genesis;
+                const mint m = mint::read(x);
+                if (m.valid()) return transaction_type::mint;
+                const send d = send::read(x);
+                if (d.valid()) return transaction_type::send;
+                return transaction_type::none;
+            }
+            
+            // this checks for validity of the script and outputs.
+            // checking inputs requires tracing back through the blockchain. 
+            template <typename tx, typename out, typename sh>
+            inline bool valid(tx t, 
+                abstractions::transaction::outputs<tx, out> outs,
+                abstractions::output::script<out, script> s) {
+                transaction_type tx_type = transaction_type(t, outs, s);
+                N num_outputs = outs(t).size(); 
+                switch (tx_type) {
+                    default:
+                    case none:
+                        return false;
+                    case transaction_type::genesis:
+                        return num_outputs >= 2;
+                    case transaction_type::mint:
+                        return num_outputs >= 2;
+                    case transaction_type::send:
+                        return send::read(get_slp_script(t, outs, s)).OutputQuantities.size() < num_outputs;
+                }
+            }
+            
+            template <typename tx, typename out, typename sh>
+            meta<color, out> get_meta(tx t, 
+                abstractions::transaction::outputs<tx, out> outs,
+                abstractions::output::script<out, script> s);
             
             // Some constants which will be important. 
             const byte op_return = 0x6a;
