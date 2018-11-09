@@ -16,7 +16,7 @@ namespace abstractions
     using set = data::set<X, data::trees::node<X> >;
 
     template <typename K, typename V>
-    using map = data::binary_search_tree<data::maps::entry<K, V> >;
+    using map = data::map<K, V, data::trees::node<data::maps::entry<K, V> > >;
     
 }
 

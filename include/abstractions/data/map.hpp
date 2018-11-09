@@ -35,17 +35,17 @@ namespace abstractions
             
         } 
         
-        template <typename X, typename Y, typename Z>
-        struct map : public tree<maps::entry<X, Y>, Z> {
+        template <typename K, typename V, typename Z>
+        struct map : public tree<maps::entry<K, V>, Z> {
             map insert(K k, V v) const;
             
             map remove(K k) const;
             
             bool empty() const;
             
-            Y operator[](X x) {
-                // type Y must have an invalid value. 
-                if (this == nullptr) return invalid<Y>;
+            V operator[](K x) {
+                // type V must have an invalid value. 
+                if (this == nullptr) return invalid<V>;
                     
                 if (x == this->Data.Key) return this->Data.Value;
                     
@@ -54,8 +54,8 @@ namespace abstractions
                 return this->Right[x];
             }
                 
-            bool contains(X x) const {
-                return this->operator[](x) == invalid<Y>;
+            bool contains(K x) const {
+                return this->operator[](x) == invalid<V>;
             } 
                 
         };

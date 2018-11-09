@@ -1,4 +1,5 @@
 #include <abstractions/colored/slp.hpp>
+#include <abstractions/data.hpp>
             
 namespace abstractions
 {
@@ -251,46 +252,6 @@ namespace abstractions
                 }
             
             }
-                
-            reader reader::operator<<(push_script_pattern<uint32_t> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator<<(push_script_pattern<token_type> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator<<(push_script_pattern<encoding::ascii::string> sc) {
-                return sc.apply(r);
-            }
-
-            reader reader::operator>>(push_script_pattern<byte&> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator>>(push_script_pattern<color&> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator>>(push_script_pattern<quantity&> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator>>(push_script_pattern<encoding::ascii::string&> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator>>(push_script_pattern<encoding::utf8::string&> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator>>(push_script_pattern<optional<byte>&> sc) {
-                return sc.apply(r);
-            }
-                
-            reader reader::operator>>(push_script_pattern<optional<hash>&> sc) {
-                return sc.apply(r);
-            }
             
             struct tx_data {
                 color Color;
@@ -328,13 +289,13 @@ namespace abstractions
                         return meta<color, out>{};
                     case transaction_type::genesis: {
                         const genesis g = genesis::read(scr);
-                        sends = sends.insert(1, value<color>{g.InitialTokenMintQuantity, txd.Color}); 
+                        sends = sends.insert(1, value<color>(g.InitialTokenMintQuantity, txd.Color)); 
                         if (g.MintBatonVout.Exists && o.size() > g.MintBatonVout.Value) mints = mints.insert(g.MintBatonVout.Value, txd.Color);
                         break;
                     }
                     case transaction_type::mint: {
                         const mint m = mint::read(scr);
-                        if (m.MintBatonVout.Exists && o.size() > g.MintBatonVout.Value) mints = mints.insert(m.MintBatonVout.Value, txd.Color);
+                        if (m.MintBatonVout.Exists && o.size() > m.MintBatonVout.Value) mints = mints.insert(m.MintBatonVout.Value, txd.Color);
                         break;
                     }
                     case transaction_type::send: {

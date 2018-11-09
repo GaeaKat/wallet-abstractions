@@ -54,13 +54,13 @@ namespace abstractions
                 genesis(unicode x, unicode n, encoding::ascii::string u, hash h, byte d, byte m, quantity q)
                     : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
-                genesis(token_type t, unicode x, unicode n, encoding::ascii::string u, hash h, byte d, quantity q)
+                genesis(token_type, unicode x, unicode n, encoding::ascii::string u, hash h, byte d, quantity q)
                     : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
-                genesis(token_type t, unicode x, unicode n, byte d, byte m, quantity q)
+                genesis(token_type, unicode x, unicode n, byte d, byte m, quantity q)
                     : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
-                genesis(token_type t, unicode x, unicode n, byte d, quantity q)
+                genesis(token_type, unicode x, unicode n, byte d, quantity q)
                     : Token(t), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
                         
@@ -363,25 +363,45 @@ namespace abstractions
                     return reader{r.read(b)};
                 }
                 
-                reader operator>>(push_script_pattern<byte&> sc);
+                reader operator>>(push_script_pattern<byte&> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator<<(push_script_pattern<uint32_t> sc);
+                reader operator<<(push_script_pattern<uint32_t> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator<<(push_script_pattern<token_type>);
+                reader operator<<(push_script_pattern<token_type> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator<<(push_script_pattern<encoding::ascii::string>);
+                reader operator<<(push_script_pattern<encoding::ascii::string> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator>>(push_script_pattern<color&>);
+                reader operator>>(push_script_pattern<color&> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator>>(push_script_pattern<quantity&>);
+                reader operator>>(push_script_pattern<quantity&> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator>>(push_script_pattern<encoding::ascii::string&>);
+                reader operator>>(push_script_pattern<encoding::ascii::string&> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator>>(push_script_pattern<encoding::utf8::string&>);
+                reader operator>>(push_script_pattern<encoding::utf8::string&> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator>>(push_script_pattern<optional<byte>&>);
+                reader operator>>(push_script_pattern<optional<byte>&> p) {
+                    return p.apply(r);
+                }
                 
-                reader operator>>(push_script_pattern<optional<hash>&>);
+                reader operator>>(push_script_pattern<optional<hash>&> p) {
+                    return p.apply(r);
+                }
             };
                 
             template <typename X> reader read_all(reader r, vector<X>& l);
