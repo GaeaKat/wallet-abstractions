@@ -9,6 +9,8 @@ namespace abstractions
     namespace data
     {
         
+        template <typename X, typename Y> struct linked_list;
+        
         namespace list {
         
             template <typename L, typename E>
@@ -41,30 +43,46 @@ namespace abstractions
                 L* operator->() {
                     return &List;
                 }
+                    
+                bool operator==(const L& x) const {
+                    this->operator*() == x;
+                }
+                    
+                bool operator!=(const L& x) const {
+                    this->operator*() != x;
+                }
+                    
+                bool operator==(const iterator i) const {
+                    this->operator*() == *i;
+                }
+                    
+                bool operator!=(const iterator i) const {
+                    this->operator*() != *i;
+                }
                 
-                // Operators == and != are required
-                // but are implemented automatically. 
+                iterator& operator=(iterator i) {
+                    this->List = i.List;
+                    return this;
+                }
+            };
+            
+            template <typename X>
+            struct node {
+                X First;
+                const linked_list<X, node<X>> Rest;
+                    
+                node(X x, linked_list<X, node<X>> r) : First(x), Rest(r) {}
+                node(X x) : First(x), Rest(nullptr) {}
+                    
+                bool contains(X x) {
+                    if (x == First) return true;
+                        
+                    return contains(Rest, x);
+                }
+                    
             };
             
         }
-        
-        template <typename X, typename Y> struct linked_list;
-            
-        template <typename X>
-        struct node {
-            X First;
-            const linked_list<X, node<X>> Rest;
-                
-            node(X x, linked_list<X, node<X>> r) : First(x), Rest(r) {}
-            node(X x) : First(x), Rest(nullptr) {}
-                
-            bool contains(X x) {
-                if (x == First) return true;
-                    
-                return contains(Rest, x);
-            }
-                
-        };
         
         // Now we say that a list containing elements of
         // type X is also a pointer to something of type Y. 
@@ -118,8 +136,6 @@ namespace abstractions
         
     }
     
-    template <typename X, typename Y>
-    const data::linked_list<X, Y> zero<data::linked_list<X, Y>> = nullptr;
 }
 
 #endif
