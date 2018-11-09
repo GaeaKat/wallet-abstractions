@@ -32,27 +32,33 @@ namespace abstractions
                 }
                 
             };
-        
-            template <typename X, typename Y, typename Z>
-            struct map : public tree<entry<X, Y>, Z> {
-                Y operator[](X x) {
-                    // type Y must have an invalid value. 
-                    if (this == nullptr) return invalid<Y>;
-                    
-                    if (x == this->Data.Key) return this->Data.Value;
-                    
-                    if (x < this->Data) return this->Left[x];
-                    
-                    return this->Right[x];
-                }
-                
-                bool contains(X x) {
-                    return this->operator[](x) == invalid<Y>;
-                } 
-                
-            };
             
-        }
+        } 
+        
+        template <typename X, typename Y, typename Z>
+        struct map : public tree<maps::entry<X, Y>, Z> {
+            map insert(K k, V v) const;
+            
+            map remove(K k) const;
+            
+            bool empty() const;
+            
+            Y operator[](X x) {
+                // type Y must have an invalid value. 
+                if (this == nullptr) return invalid<Y>;
+                    
+                if (x == this->Data.Key) return this->Data.Value;
+                    
+                if (x < this->Data) return this->Left[x];
+                    
+                return this->Right[x];
+            }
+                
+            bool contains(X x) const {
+                return this->operator[](x) == invalid<Y>;
+            } 
+                
+        };
         
     }
     

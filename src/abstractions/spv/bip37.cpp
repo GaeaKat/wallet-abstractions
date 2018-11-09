@@ -1,4 +1,5 @@
 #include <abstractions/spv/bip37.hpp>
+#include <abstractions/data.hpp>
 
 namespace abstractions {
 
@@ -35,37 +36,68 @@ namespace abstractions {
         };
         
         node<digest>* make_node(
-            N size, N height, N depth, bool right,
+            // the stream we are reading from. 
             bitstream b,
+            // we have to keep track of where we are in the merkle tree. 
+            N size,
+            N height,
+            N depth,
+            // the data we're collecting from the tree.
             list<digest>& Hashes,
             list<leaf<digest>>& Leaves,
             list<branch<digest>>& Branches,
+            list<odd_branch<digest>>& OddBranches,
             list<digest&>& Transactions) {
 
+            // first read a bit. 
             bool keep_going;
             if (!b.read_bit(keep_going)) return nullptr;
             
+            // 0 means read a hash from this hash's list and return it as a leaf node
+            // of the partial tree (not necessarily of the Merkle tree that it represents)
             if (!keep_going) {
                 digest d;
                 if (!b.read_digest(d)) return nullptr;
                 Hashes = Hashes + d;
                 leaf<digest> l(Hashes.first());
                 Leaves = Leaves + l;
-                return ;
+                return &(Leaves->First);
             }
-
-            // is this a leaf node? 
-            if (height == depth) {
-                Hashes = Hashes + 
-            }
+            
+            // is this a leaf node?
+            bool leaf_node = depth == height;
+            
+            if (keep_going && !leaf_node) {
+                node<digest>* right;
+                
+                // if size is 1, then this is a node with no left side. 
+                if (size == 1) {
+                    right = make_node(b, 1, height, depth +  1, Hashes, Leaves, Branches, OddBranches, Transactions);
+                    if (right == nullptr) return nullptr;
+                    odd_branch<digest> odd(*right);
+                    OddBranches = OddBranches + odd;
+                }
+                
+                // the size of the right part of the tree is the largest power of two smaller than the given size. 
+                uint right_size = 1;
+                while (right_size << 1 < size) right_size = right_size << 1;
+                right = make_node(b, right_size, height, depth + 1, Hashes, Leaves, Branches, OddBranches, Transactions);
+                if (right == nullptr) return nullptr;
+                
+                node<digest>* left = make_node(b, size - right_size, height, depth +  1, Hashes, Leaves, Branches, OddBranches, Transactions);
+                if (left == nullptr) return nullptr;
+                
+                branch<digest> b(*right, *left);
+            } 
         }
         
         node<digest>* root(
-            N size, 
             bitstream b,
+            N size, 
             list<digest>& Hashes,
             list<leaf<digest>>& Leaves,
             list<branch<digest>>& Branches,
+            list<odd_branch<digest>> OddBranches,
             list<digest&>& Transactions) {
 
             if (size == 0) return nullptr;
@@ -78,7 +110,7 @@ namespace abstractions {
                 height++;
             }
 
-            return make_node(size, height, 1, true, b, Hashes, Leaves, Branches, Transactions);
+            return make_node(b, size, height, 1, Hashes, Leaves, Branches, OddBranches, Transactions);
         }
         
         partial_tree<digest> parse_partial(N size, bytestring b) {
@@ -88,7 +120,7 @@ namespace abstractions {
             list<odd_branch<digest>> OddBranches{};
             list<digest&> Transactions{};
 
-            node<digest>* Root = root(size, bitstream(b), Hashes, Leaves, Branches, Transactions);
+            node<digest>* Root = root(bitstream(b), size, Hashes, Leaves, Branches, OddBranches, Transactions);
 
             if (Root == nullptr) return partial_tree<digest>{};
 

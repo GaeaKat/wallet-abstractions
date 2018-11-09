@@ -5,6 +5,7 @@
 
 namespace abstractions
 {
+
     namespace data
     {
             
@@ -53,10 +54,6 @@ namespace abstractions
             tree<X, Y> operator+(X x) const {
                 return insert(this, x);
             }
-            
-            /*tree<X, Y> operator-(X x) const {
-                return remove(this, x);
-            }*/
         };
         
         template <typename X>

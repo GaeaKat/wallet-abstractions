@@ -17,7 +17,7 @@ namespace abstractions
             return len;
         }
             
-        X& operator[](N n) const {
+        const X& operator[](N n) const {
             if (n >= len) return invalid;
             return data[n];
         }

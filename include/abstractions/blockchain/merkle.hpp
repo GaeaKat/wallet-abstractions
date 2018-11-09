@@ -55,18 +55,18 @@ namespace abstractions
         
         template <typename digest>
         struct partial_tree {
-            const list<digest> Hashes;
-            const list<leaf<digest>> Leaves;
-            const list<branch<digest>> Branches;
-            const list<odd_branch<digest>> OddBranches;
-            const list<digest&> Transactions;
-            const node<digest>* Root;
+            list<digest> Hashes;
+            list<leaf<digest>> Leaves;
+            list<branch<digest>> Branches;
+            list<odd_branch<digest>> OddBranches;
+            list<digest&> Transactions;
+            node<digest>* Root;
             
             partial_tree() : Root(nullptr) {}
             partial_tree(list<digest> h, list<leaf<digest>> l, list<branch<digest>> b, list<odd_branch<digest>> ob, list<digest&> t, node<digest>* r)
                 : Hashes(h), Leaves(l), Branches(b), OddBranches(ob), Transactions(t), Root(r) {}
             
-            bool verify(digest root_hash, combine<digest> c) {
+            bool verify(digest root_hash, combine<digest> c) const {
                 if (Root == nullptr) return false;
                 return root_hash == Root->hash(c);
             }
