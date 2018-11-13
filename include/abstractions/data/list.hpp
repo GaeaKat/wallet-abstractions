@@ -91,7 +91,7 @@ namespace abstractions
             X first() const {
                 if (*this == nullptr) return invalid<X>;
                     
-                return this->First;
+                return (*this)->First;
             };
                 
             linked_list<X, Y> rest() const {
@@ -101,7 +101,7 @@ namespace abstractions
             };
             
             linked_list<X, Y> append(X x) const {
-                return std::shared_ptr<Y>(std::make_shared(Y{x}));
+                return linked_list<X, Y>(std::make_shared<Y>(Y{x, *this}));
             }
                 
             linked_list<X, Y> operator+(X x) const {
