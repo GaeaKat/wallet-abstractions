@@ -15,7 +15,7 @@ namespace abstractions {
         
         using partial_tree_encoded = bytestring;
         
-        partial_tree<digest> parse_partial(N size, partial_tree_encoded b);
+        partial<digest> parse_partial(N size, partial_tree_encoded b);
         
     }
     

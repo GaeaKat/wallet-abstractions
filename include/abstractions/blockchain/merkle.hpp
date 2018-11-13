@@ -54,7 +54,7 @@ namespace abstractions
         };
         
         template <typename digest>
-        struct partial_tree {
+        struct partial {
             list<digest> Hashes;
             list<leaf<digest>> Leaves;
             list<branch<digest>> Branches;
@@ -62,8 +62,8 @@ namespace abstractions
             list<digest&> Transactions;
             node<digest>* Root;
             
-            partial_tree() : Root(nullptr) {}
-            partial_tree(list<digest> h, list<leaf<digest>> l, list<branch<digest>> b, list<odd_branch<digest>> ob, list<digest&> t, node<digest>* r)
+            partial() : Root(nullptr) {}
+            partial(list<digest> h, list<leaf<digest>> l, list<branch<digest>> b, list<odd_branch<digest>> ob, list<digest&> t, node<digest>* r)
                 : Hashes(h), Leaves(l), Branches(b), OddBranches(ob), Transactions(t), Root(r) {}
             
             bool verify(digest root_hash, combine<digest> c) const {
@@ -71,6 +71,12 @@ namespace abstractions
                 return root_hash == Root->hash(c);
             }
         };
+        
+        // is the tx contained in the block?
+        template <typename tx, typename block, typename hash, typename root, typename digest>
+        inline bool contains(tx t, block b, hash h, root r, merkle::partial<digest> p) {
+            return p.verify(r(b), h(t));
+        }
         
     }
 

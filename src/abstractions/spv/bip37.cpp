@@ -113,7 +113,7 @@ namespace abstractions {
             return make_node(b, size, height, 1, Hashes, Leaves, Branches, OddBranches, Transactions);
         }
         
-        partial_tree<digest> parse_partial(N size, bytestring b) {
+        partial<digest> parse_partial(N size, bytestring b) {
             list<digest> Hashes{};
             list<leaf<digest>> Leaves{};
             list<branch<digest>> Branches{};
@@ -122,9 +122,9 @@ namespace abstractions {
 
             node<digest>* Root = root(bitstream(b), size, Hashes, Leaves, Branches, OddBranches, Transactions);
 
-            if (Root == nullptr) return partial_tree<digest>{};
+            if (Root == nullptr) return partial<digest>{};
 
-            return partial_tree<digest>{Hashes, Leaves, Branches, OddBranches, Transactions, Root};
+            return partial<digest>{Hashes, Leaves, Branches, OddBranches, Transactions, Root};
         }
 
     }
