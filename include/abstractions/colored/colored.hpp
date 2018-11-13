@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_COLORED_COLORED_HPP
 #define ABSTRACTIONS_COLORED_COLORED_HPP
 
-#include <abstractions/reduce.hpp>
+#include <abstractions/blockchain/merkle.hpp>
 
 namespace abstractions
 {
@@ -88,8 +88,8 @@ namespace abstractions
             
             bool valid() const {
                 if (!(Type != none && Color != C{})) return false;
-                for (map<N, value<C>>::entry e : Send) if (!send_index<C>{e.Key, e.Value}.valid()) return false;
-                for (map<N, C>::entry e : Mint) if (!mint_index<C>{e.Key, e.Value}.valid()) return false;
+                for (auto e : Send) if (!send_index<C>{e.Key, e.Value}.valid()) return false;
+                for (auto e : Mint) if (!mint_index<C>{e.Key, e.Value}.valid()) return false;
                 return true;
             }
             
@@ -112,7 +112,7 @@ namespace abstractions
             //interpret<tx, C> Interpret;
             
             bool valid() const {
-                for (data::maps::entry<C, meta<C, out>> entry : Meta)
+                for (data::map::entry<C, meta<C, out>> entry : Meta)
                     if (!(entry.value().valid() && entry.Value == Interpret(Bitcoin, entry.Key))) return false;
                 return true;
             }

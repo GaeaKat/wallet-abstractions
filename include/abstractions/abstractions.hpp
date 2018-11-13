@@ -18,7 +18,7 @@ namespace abstractions
         return a;
     }
 
-    using N = const unsigned long long int;
+    using N = unsigned long long int;
 
     N all = N(zero<N> - 1);
 

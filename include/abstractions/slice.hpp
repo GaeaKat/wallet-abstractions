@@ -1,15 +1,15 @@
 #ifndef ABSTRACTIONS_SLICE_HPP
 #define ABSTRACTIONS_SLICE_HPP
 
-#include "abstractions.hpp"
+#include <abstractions/data/list.hpp>
 
 namespace abstractions
 {
-    
+
     template <typename X>
     class slice {
         mutable X invalid;
-        const X* data;
+        X* data;
         uint64_t len; 
             
     public:
@@ -17,7 +17,7 @@ namespace abstractions
             return len;
         }
             
-        const X& operator[](N n) const {
+        X& operator[](N n) const {
             if (n >= len) return invalid;
             return data[n];
         }
@@ -39,70 +39,69 @@ namespace abstractions
             return *this;
         }
         
-        class iterator {
-            using iterator_category = std::input_iterator_tag;
-            using value_type = X&;
-                
-            slice<X> Slice;
-            uint64_t Index;
+        bool operator==(const slice<X>& s) const {
+            if (this == &s) return true;
+            if (data == s.data && len == s.len) return true;
+            return false;
+        }
+        
+        struct list {
+            slice<X>& Slice;
+            N Index;
             
-            iterator(slice<X> s, N n) : Slice(s), Index(n) {}
-            
-            friend class slice;
-            
-        public:
-            
-            X& operator*() const {
-                if (Index >= Slice.size()) return Slice.invalid;
-            }
-
-            X& operator++() {
-                Index ++;
-                return *this;
-            }
-            
-            X& operator+=(N n) {
-                Index += n;
-                return *this;
-            }
-                
-            bool operator==(const X& x) const {
-                this->operator*() == x;
-            }
-                
-            bool operator!=(const X& x) const {
-                this->operator*() != x;
-            }
-                
-            bool operator==(const iterator i) const {
-                this->operator*() == *i;
-            }
-                
-            bool operator!=(const iterator i) const {
-                this->operator*() != *i;
-            }
-            
-            iterator& operator=(iterator i) {
+            list& operator=(list i) {
                 Slice = i.Slice;
                 Index = i.Index;
                 return *this;
             }
             
-            slice<X> next(N n) {
-                if (n == 0) return slice<X>();
-                slice<X> s = Slice.range(Index, Index += n);
+            bool empty() const {
+                return Index >= Slice.size();
             }
+            
+            X& first() const {
+                if (empty()) return Slice.invalid;
+                
+                return Slice[Index];
+            }
+            
+            list rest() const {
+                if (empty()) return *this;
+                
+                return {Slice, Index + 1};
+            }
+        
+            bool operator==(const list& s) const {
+                return Slice == s.Slice && (Index == s.Index || (empty() && s.empty()));
+            }
+            
+            list(slice<X>& s, N n) : Slice(s), Index(n) {}
         };
 
-        iterator begin() const {
-            return iterator(*this, N(0));
+        data::list::iterator<list, X> begin() {
+            return data::list::iterator<list, X>{list{*this, N(0)}};
         }
             
-        iterator end() const {
-            return iterator(*this, size());
+        data::list::iterator<list, X> end() {
+            return data::list::iterator<list, X>{list{*this, size()}};
         }
             
     };
+                
+    template <typename X>
+    inline bool empty(const typename slice<X>::list l) {
+        return l.empty();
+    }
+                
+    template <typename X>
+    inline X& first(const typename slice<X>::list l) {
+        return l.first();
+    }
+                
+    template <typename X>
+    inline const typename slice<X>::list rest(const typename slice<X>::list l) {
+        return l.rest();
+    }
 
 }
 
