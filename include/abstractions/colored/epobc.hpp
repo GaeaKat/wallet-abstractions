@@ -25,8 +25,8 @@ namespace abstractions
                 template <typename tx>
                 n_sequence first_n_sequence(tx);
 
-                template <typename tx, typename color_type>
-                color_type hash(tx);
+                template <typename tx, typename C>
+                C hash(tx);
                 
                 template <typename output, typename tx>
                 vector<output> outputs(tx);
@@ -51,17 +51,17 @@ namespace abstractions
                 
             }
 
-            template<typename outpoint, typename tx, typename output, typename color_type>
-            colored_value<color_type> value(tx t, N index, blockchain<outpoint, tx, output, color_type>& b) {
+            template<typename outpoint, typename tx, typename output, typename C>
+            colored::value<C> value(tx t, N index, blockchain<outpoint, tx, output, C>& b) {
                 switch (transaction_type(t)) {
                 default : 
                     return 0;
 
                 case epobc_genesis : 
                     if (index != 0) return 0;
-                    return colored_value<color_type>(
+                    return colored::value<C>(
                         bitcoin_value(outputs(t)[0]) - low::padding<tx>(t),
-                        low::hash<tx, color_type>(t));
+                        low::hash<tx, C>(t));
 
                 case epobc_transfer : 
                     vector<output> outs = outputs(t);
@@ -83,9 +83,9 @@ namespace abstractions
                     vector<outpoint> ins = inputs(t);
                     int output_index = 0;
                     int running_input_value_total = 0;
-                    color_type last = {};
+                    C last = {};
                     for (outpoint op : ins) {
-                        colored_value<color_type> v = b.value();
+                        colored::value<C> v = b.value();
                         if (v == 0) return 0;
                         
                         if (last == 0) last = v.Color;
@@ -101,7 +101,7 @@ namespace abstractions
                         running_input_value_total -= output_values_minus_padding[output_index];
                     }
                     
-                    return colored_value<color_type>(output_values_minus_padding[index], last);
+                    return colored::value<C>(output_values_minus_padding[index], last);
                 }
                 
             }
