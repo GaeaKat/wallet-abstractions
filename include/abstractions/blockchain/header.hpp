@@ -1,8 +1,8 @@
-#ifndef ABSTRACTIONS_REDEEM_BLOCKCHAIN_HEADER_HPP
-#define ABSTRACTIONS_REDEEM_BLOCKCHAIN_HEADER_HPP
+#ifndef ABSTRACTIONS_BLOCKCHAIN_HEADER_HPP
+#define ABSTRACTIONS_BLOCKCHAIN_HEADER_HPP
 
 #include <abstractions/list.hpp>
-#include <abstractions/data.hpp>
+#include <abstractions/blockchain/merkle.hpp>
 
 namespace abstractions 
 {
@@ -26,61 +26,37 @@ namespace abstractions
             return reduce(lh, pv{0}).Value;
         }
         
-        template <typename digest, typename hdr>
-        struct header {
-            N Height;
-            hdr Header;
-            digest Digest;
-            
-            header(digest Genesis) : Digest{Genesis}, Height{0}, Header{} {}
+        template <typename tx, typename block, typename hash, typename root, typename digest>
+        inline bool contains(tx t, block b, merkle::derivation<digest> d, hash h, root r) {
+            return merkle::check(merkle::root_to_leaf<digest>{r(b), h(t)}, d);
+        }
         
-        private:
-            header(N h, hdr hh, digest d) : Height{h}, Header{hh}, Digest{d} {}
+        template <typename I, typename P>
+        inline bool check(I i, P p) {
+            return contains(i.Transaction, i.Block, p.Merkle, p.Hash, p.Root);
+        }
+        
+        // A statement that a transaction exists in a block. 
+        template <typename tx, typename block>
+        struct in {
+            tx Transaction;
+            block Block;
+            
+            in(tx t, block b) : Transaction{t}, Block{b} {}
         };
         
-        template <typename digest, typename hdr, typename hash, typename parent>
-        struct chain {
-            
-            digest Genesis;
-            
-            parent Parent;
-            
+        template <typename digest, typename hash, typename root>
+        struct derivation {
+            merkle::derivation<digest> Merkle;
             hash Hash;
-            
-            using sequence = list<header<digest, hdr> >;
-            
-            sequence Chain;
-            
-            map<digest, sequence> Header;
-            
-            map<N, sequence> Height;
-            
-            chain(digest g, parent p, hash h) : Genesis{g}, Parent{p}, Hash{h} {}
-            chain() {}
-            
-            header<digest, hdr> latest() const {
-                if (empty(Header)) return hdr{Genesis};
-                
-                return first(Header);
-            };
-            
-
-        private:
-            chain(digest g, parent p, hash h, sequence c, map<digest, sequence> hs, map<N, sequence> ht)
-                : Genesis{g}, Parent{p}, Hash{h}, Chain{c}, Header{hs}, Height{ht} {}
-            
-        public:
-            chain operator+(hdr h) const {
-                header<digest, hdr> l = latest();
-                if (l.Digest == Parent(h)) {
-                    block::header<digest, hdr> hh{l.Height + 1, h, Hash(h)};
-                    sequence next = Chain + hh;
-                    return chain(Genesis, Parent, Hash, next, Header.insert(hh.Digest, next), Height.insert(hh.Height, next));
-                }
-                return chain();
-            }
+            root Root;
         };
         
+        template <typename proposition, typename derivation>
+        proof<bool (*)(proposition, derivation), proposition, derivation> state_proof(proposition p, derivation d) {
+            return proof<bool (*)(proposition, derivation), proposition, derivation>{check<proposition, derivation>, p, d};
+        }
+
     }
     
 } 

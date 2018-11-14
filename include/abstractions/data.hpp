@@ -9,6 +9,9 @@ namespace abstractions
 
     template <typename X>
     using list = data::linked_list<X>;
+    
+    template <typename X>
+    using set = list<X>;
 
     template <typename K, typename V>
     using map = data::list_map<K, V,

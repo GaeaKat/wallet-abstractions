@@ -1,8 +1,7 @@
 #ifndef ABSTRACTIONS_BLOCKCHAIN_BLOCKCHAIN_HPP
 #define ABSTRACTIONS_BLOCKCHAIN_BLOCKCHAIN_HPP
 
-#include <abstractions/blockchain/merkle.hpp>
-#include <abstractions/blockchain/header.hpp>
+#include <abstractions/blockchain/chain.hpp>
 
 namespace abstractions 
 {

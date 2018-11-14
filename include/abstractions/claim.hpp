@@ -1,32 +1,32 @@
 #ifndef ABSTRACTIONS_CLAIM_HPP
 #define ABSTRACTIONS_CLAIM_HPP
 
-#include "one_way.hpp"
-
 namespace abstractions
 {
     
-    template <typename S, typename P>
+    template <typename quantifier, typename proposition, typename derivation>
     struct claim {
-        P SuchThat;
-        one_way<S, P> Exists;
+        quantifier Exists;
+        proposition SuchThat;
         
-        bool verify(S proof) const {
-            return satisfies(Exists, proof, SuchThat);
+        bool verify(derivation d) const {
+            return Exists(SuchThat, d);
         }
         
-        claim(P r, one_way<S, P> f) : SuchThat(r), Exists(s) {}
+        claim(quantifier f, proposition r) : SuchThat(r), Exists(f) {}
     };
     
-    template <typename S, typename P>
-    struct stake : public claim<S, P> {        
-        S Proof;
+    template <typename quantifier, typename proposition, typename derivation>
+    struct proof {
+        claim<quantifier, proposition, derivation> Claim;
+        
+        derivation Derivation;
         
         bool valid() const {
-            return verify(Proof);
+            return verify(Derivation);
         }
         
-        stake(S p, P r, one_way<S, P> f) : claim<S, P>(r, f), Proof(p) {}
+        proof(quantifier f, proposition r, derivation d) : Claim(f, r), Derivation(d) {}
     };
 
 }
