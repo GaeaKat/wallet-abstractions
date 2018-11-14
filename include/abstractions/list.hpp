@@ -7,10 +7,17 @@ namespace abstractions
 {
     
     template<typename function, typename list, typename value>
-    value reduce(function plus, list l) {
-        if (empty(l)) return value{};
+    value reduce(function plus, list l, value zero) {
+        if (empty(l)) return zero;
         
-        return plus(first(l), reduce(plus, rest(l)));
+        return plus(value{first(l)}, reduce(plus, rest(l)));
+    }
+    
+    template<typename list, typename value>
+    value reduce(list l, value zero) {
+        if (empty(l)) return zero;
+        
+        return value{first(l)} + reduce(plus, rest(l));
     }
         
     template <typename function, typename from, typename to> 
