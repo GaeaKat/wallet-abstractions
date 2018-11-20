@@ -10,8 +10,8 @@ namespace abstractions  {
 
         template <typename digest, typename hdr>
         struct tree {
-            header::parent<hdr, digest> Parent;
-            header::hash<hdr, digest> Hash;
+            //header::parent<hdr, digest> Parent;
+            //header::hash<hdr, digest> Hash;
 
             // set of known headers referenced by digest. 
             map<digest, hdr> Headers;
@@ -50,10 +50,6 @@ namespace abstractions  {
             
             tree() {}
             
-            tree(
-                header::parent<digest, hdr> p,
-                header::hash<hdr, digest> sh) : Parent(p), Hash(sh) {}
-            
             const tree connect(hdr h) const {
                 // Do we already know about this header? 
                 if (Headers.contains(h)) return this;
@@ -74,9 +70,9 @@ namespace abstractions  {
                 
                 // Do we know about this header's parent?
                 digest p = get_parent(h);
-                if (!Headers.contains(p)) return tree(Parent, Hash, roots.replace(p, roots[p] + h), leaves);
+                if (!Headers.contains(p)) return tree(roots.replace(p, roots[p] + h), leaves);
                 
-                return blocktree(Parent, Hash, roots, leaves.remove(p));
+                return blocktree(roots, leaves.remove(p));
             }
             
             list<hdr> chain(digest viewpoint) {
@@ -87,11 +83,9 @@ namespace abstractions  {
             
         private:
             tree(
-                header::parent<digest, hdr> p,
-                header::hash<hdr, digest> sh,
                 map<digest, hdr> h,
                 set<hdr> l, 
-                map<digest, list<hdr>> r) : Parent(p), Hash(sh), Headers(h), Leaves(l), Roots(r) {}
+                map<digest, list<hdr>> r) : Headers(h), Leaves(l), Roots(r) {}
         };
     
     }

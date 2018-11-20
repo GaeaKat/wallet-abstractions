@@ -8,14 +8,14 @@ namespace abstractions
     
     namespace output
     {
-            
+        
         // How much is stored in a given output?
         template <typename output>
-        using value = N (* const)(output);
+        N value(output);
             
         // What is the script defining how this output is redeemed. 
-        template <typename output, typename script>
-        using script = script (* const)(output);
+        template <typename output, typename scr>
+        scr script(output);
     
     }
     

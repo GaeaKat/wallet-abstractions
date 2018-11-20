@@ -3,6 +3,7 @@
 
 #include <abstractions/data/linked_list.hpp>
 #include <abstractions/data/list_map.hpp>
+#include <abstractions/slice.hpp>
 
 namespace abstractions
 {
@@ -12,6 +13,9 @@ namespace abstractions
     
     template <typename X>
     using set = list<X>;
+    
+    template <typename X>
+    bool subset(set<X> a, set<X> b);
 
     template <typename K, typename V>
     using map = data::list_map<K, V,

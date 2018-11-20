@@ -1,6 +1,8 @@
 #ifndef ABSTRACTIONS_DATA_MAP_HPP
 #define ABSTRACTIONS_DATA_MAP_HPP
 
+#include <abstractions/association.hpp>
+
 namespace abstractions
 {
     
@@ -35,6 +37,16 @@ namespace abstractions
                 }
                 
             };
+            
+            // association implemented as a map. 
+            template <typename K, typename V, typename map> 
+            struct association : abstractions::association<K, V> {
+                map Map;
+                
+                const V operator[](K k) const final override {
+                    return Map[k];
+                };
+            }
             
         }
         

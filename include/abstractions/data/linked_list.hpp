@@ -76,27 +76,27 @@ namespace abstractions
         };
         
     }
-                
+
     template <typename X>
     inline bool empty(const data::linked_list<X> l) {
         return l.empty();
     }
-                
+
     template <typename X>
     inline const X& first(const data::linked_list<X> l) {
         return l.first();
     }
-                
+
     template <typename X>
     inline const data::linked_list<X> rest(const data::linked_list<X> l) {
         return l.rest();
     }
-            
+
     template <typename X>
     inline const data::linked_list<X> append(const data::linked_list<X> l, const X elem) {
         return l.append(elem);
     }
-    
+
 }
 
 #endif

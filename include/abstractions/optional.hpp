@@ -13,8 +13,18 @@ namespace abstractions {
         
         optional(const optional<X>& o) : Exists(o.Exists), Value(o.Value) {}
         
-        bool valid(bool (*v)(X)) {
-            return (!Exists) || v(Value);
+        bool valid() const {
+            return (!Exists) || valid(Value);
+        }
+        
+        const bool operator==(const optional<X>& o) const {
+            return (Exists && o.Exists && Value == o.Value) || !(Exists || o.Exists);
+        }
+        
+        optional& operator=(const optional<X>& o) {
+            Exists = o.Exists;
+            Value = o.Value;
+            return *this;
         }
     };
 

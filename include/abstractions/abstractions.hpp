@@ -6,12 +6,6 @@
 namespace abstractions 
 {
 
-    template <typename X>
-    extern const X zero;
-
-    template <typename X>
-    const X zero = X(0);
-
     // the identity function is always possible. 
     template <typename anything>
     anything identity (anything a) {
@@ -20,9 +14,9 @@ namespace abstractions
 
     using N = unsigned long long int;
 
-    N all = N(zero<N> - 1);
+    const N all = N(0 - 1);
 
-    N aleph_0 = all / 2 + 1;
+    const N aleph_0 = all / 2 + 1;
 
     template<> N invalid<N> = aleph_0;
     

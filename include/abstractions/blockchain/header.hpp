@@ -3,19 +3,35 @@
 
 #include <abstractions/list.hpp>
 #include <abstractions/blockchain/merkle.hpp>
+#include <abstractions/optional.hpp>
 
 namespace abstractions 
 {
     
-    namespace block
+    namespace header
     {
         
-        template <typename hdr, typename N, typename pow>
-        N cumulative_pow(pow p, list<hdr> lh) {
+        template <typename digest>
+        const digest Genesis;
+        
+        template <typename hdr, typename N>
+        N pow(hdr);
+        
+        template <typename hdr, typename digest>
+        digest hash(hdr);
+        
+        template <typename hdr, typename digest>
+        digest root(hdr);
+        
+        template <typename hdr, typename digest>
+        digest parent(hdr);
+        
+        template <typename hdr, typename N>
+        N cumulative_pow(list<hdr> lh) {
             struct pv {
                 N Value;
                 
-                pv(hdr h) : Value{p(h)} {}
+                pv(hdr h) : Value{pow(h)} {}
                 pv(N v) : Value(v) {}
                 
                 pv operator+(pv pp) const {
@@ -26,14 +42,14 @@ namespace abstractions
             return reduce(lh, pv{0}).Value;
         }
         
-        template <typename tx, typename block, typename hash, typename root, typename digest>
-        inline bool contains(tx t, block b, merkle::derivation<digest> d, hash h, root r) {
-            return merkle::check(merkle::root_to_leaf<digest>{r(b), h(t)}, d);
+        template <typename tx, typename block, typename digest>
+        inline bool contains(tx t, block b, merkle::tree<digest> d) {
+            return merkle::check(merkle::root_to_leaf<digest>{root(b), hash(t)}, d);
         }
         
         template <typename I, typename P>
         inline bool check(I i, P p) {
-            return contains(i.Transaction, i.Block, p.Merkle, p.Hash, p.Root);
+            return contains(i.Transaction, i.Block, p);
         }
         
         // A statement that a transaction exists in a block. 
@@ -45,18 +61,15 @@ namespace abstractions
             in(tx t, block b) : Transaction{t}, Block{b} {}
         };
         
-        template <typename digest, typename hash, typename root>
-        struct derivation {
-            merkle::derivation<digest> Merkle;
-            hash Hash;
-            root Root;
-        };
-        
         template <typename proposition, typename derivation>
-        proof<bool (*)(proposition, derivation), proposition, derivation> state_proof(proposition p, derivation d) {
+        proof<bool (*)(proposition, derivation), proposition, derivation> state(proposition p, derivation d) {
             return proof<bool (*)(proposition, derivation), proposition, derivation>{check<proposition, derivation>, p, d};
         }
-
+        
+        // type representing a proof that a transaction is in a block. 
+        template <typename tx, typename hdr, typename digest>
+        using proof = abstractions::proof<bool (*)(in<tx, hdr>, merkle::tree<digest>), in<tx, hdr>, merkle::tree<digest>>;
+        
     }
     
 } 

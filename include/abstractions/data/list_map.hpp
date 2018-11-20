@@ -48,24 +48,24 @@ namespace abstractions {
         
     }
                 
-    template <typename key, typename value, typename list>
-    inline bool empty(const data::list_map<key, value, list> l) {
+    template <typename key, typename value, typename list, typename it>
+    inline bool empty(const data::list_map<key, value, list, it> l) {
         return l.empty();
     }
                 
-    template <typename key, typename value, typename list>
-    inline const data::map::entry<key, value>& first(const data::list_map<key, value, list> l) {
+    template <typename key, typename value, typename list, typename it>
+    inline const data::map::entry<key, value>& first(const data::list_map<key, value, list, it> l) {
         return l.first();
     }
                 
-    template <typename key, typename value, typename list>
-    inline const data::list_map<key, value, list> rest(const data::list_map<key, value, list> l) {
+    template <typename key, typename value, typename list, typename it>
+    inline const data::list_map<key, value, list, it> rest(const data::list_map<key, value, list, it> l) {
         return l.rest();
     }
             
-    template <typename key, typename value, typename list>
-    inline const data::list_map<key, value, list> append(const data::list_map<key, value, list> l, const data::map::entry<key, value> elem) {
-        return data::list_map<key, value, list>{append(l.List, elem)};
+    template <typename key, typename value, typename list, typename it>
+    inline const data::list_map<key, value, list, it> append(const data::list_map<key, value, list, it> l, const data::map::entry<key, value> elem) {
+        return data::list_map<key, value, list, it>{append(l.List, elem)};
     }
 
 }
