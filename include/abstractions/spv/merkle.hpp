@@ -154,42 +154,6 @@ namespace abstractions
         tree<digest> merge(tree<digest> p, tree<digest> p2);
         
         template <typename digest>
-        struct root_to_leaf {
-            digest Root;
-            digest Leaf;
-        };
-    
-        // A claim that two digests form the roof and leaf of a merkle tree is verified. 
-        template <typename digest, typename derivation>
-        inline bool check(root_to_leaf<digest> p, derivation d) {
-            return d.Tree.verify(p.Root) && member(d, p.Leaf);
-        }
-    
-        // A claim that two digests form the roof and leaf of a merkle tree is verified. 
-        template <typename digest, typename derivation>
-        inline bool check(digest p, derivation d) {
-            return d.Tree.verify(p);
-        }
-        
-        template <typename digest>
-        using root_proof = abstractions::proof<bool (*)(digest, tree<digest>), digest, tree<digest>>;
-        
-        template <typename digest>
-        using member_proof = abstractions::proof<bool (*)(root_to_leaf<digest>, tree<digest>), root_to_leaf<digest>, tree<digest>>;
-        
-        template <typename proof, typename proposition, typename derivation>
-        inline proof state_proof(proposition p, derivation d) {
-            return abstractions::proof<bool (*)(proposition, derivation), proposition, derivation>{check<proposition, derivation>, p, d};
-        }
-        
-        // given a root_proof and a member, return a member_proof.
-        template <typename digest>
-        member_proof<digest> make_member_proof(root_proof<digest> r, digest leaf) {
-            if (!member(r, leaf)) return member_proof<digest>{};
-            return state_proof(root_to_leaf<digest>{r.Proposition, leaf}, r.Derivation);
-        }
-        
-        template <typename digest>
         struct partial {
             list<digest> Hashes;
             list<leaf<digest>> Leaves;

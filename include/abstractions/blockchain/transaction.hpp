@@ -3,6 +3,7 @@
 
 #include <abstractions/abstractions.hpp>
 #include <abstractions/data.hpp>
+#include <abstractions/blockchain/output.hpp>
 
 namespace abstractions 
 {

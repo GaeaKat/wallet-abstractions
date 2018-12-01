@@ -7,6 +7,10 @@ namespace abstractions
     template <typename K, typename V> 
     struct association {
         virtual const V operator[](K) const = 0;
+        
+        bool contains(K k) const {
+            return this->operator[](k) != V{};
+        }
     };
     
 }

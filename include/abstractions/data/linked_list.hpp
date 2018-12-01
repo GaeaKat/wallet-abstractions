@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_DATA_LINKED_LIST_HPP
 
 #include <abstractions/data/list.hpp>
+#include <abstractions/association.hpp>
 
 namespace abstractions
 {
@@ -9,8 +10,6 @@ namespace abstractions
     namespace data
     {
         
-        // Now we say that a list containing elements of
-        // type X is also a pointer to something of type Y. 
         template <typename X>
         struct linked_list {
             using next = pointer<list::node<X, linked_list>>;
@@ -21,6 +20,9 @@ namespace abstractions
                 return Next == nullptr;
             }
             
+            // if the list is empty, then this function
+            // will dereference a nullptr. It is your
+            // responsibility to check. 
             const X& first() const {
                 return Next->First;
             }
@@ -60,6 +62,18 @@ namespace abstractions
             bool operator==(const linked_list<X>& l) {
                 if (this == &l) return true;
                 return Next == l.Next;
+            }
+            
+            const linked_list<X> from(N n) const {
+                if (empty()) return nullptr;
+                if (n == 0) return this;
+                return rest().from(n - 1);
+            }
+                
+            const X operator[](N n) const {
+                auto l = from(n);
+                if (l.empty()) return X{};
+                return l.first();
             }
             
             linked_list(pointer<list::node<X, linked_list>> n) : Next() {}

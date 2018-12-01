@@ -10,10 +10,13 @@ namespace abstractions
         proposition SuchThat;
         
         bool verify(derivation d) const {
+            if (Exists == quantifier{} || SuchThat == proposition{}) return false;
+            
             return Exists(SuchThat, d);
         }
         
         claim(quantifier f, proposition r) : SuchThat(r), Exists(f) {}
+        claim() : Exists{}, SuchThat{} {}
     };
     
     template <typename quantifier, typename proposition, typename derivation>
@@ -26,7 +29,8 @@ namespace abstractions
             return verify(Derivation);
         }
         
-        proof(quantifier f, proposition r, derivation d) : Claim(f, r), Derivation(d) {}
+        proof(quantifier f, proposition r, derivation d) : Claim{f, r}, Derivation{d} {}
+        proof() : Claim{}, derivation{}
     };
 
 }

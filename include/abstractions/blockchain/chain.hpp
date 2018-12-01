@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_BLOCKCHAIN_CHAIN_HPP
 
 #include <abstractions/blockchain/header.hpp>
+#include <abstractions/blockchain/merkle.hpp>
 
 namespace abstractions 
 {
@@ -9,55 +10,68 @@ namespace abstractions
     namespace block
     {
         
-        template <typename chain, typename map> 
-        N index(const chain c, map& m) {
-            if (c == chain{}) {
-                m = map{};
-                return 0;
-            };
-            
-            N height = index(rest(c), m) + 1;
-            
-            m = m.insert(height, first(c));
-            
-            return height;
-        }
-        
-        template <typename index, typename digest>
-        using merkle_trees = association<index, merkle::root_proof<digest> >;
-        
-        template <typename index, typename block>
-        using blocks = association<index, block>;
-        
-        template <typename digest, typename A, typename T>
-        struct chain : association<N, digest> {
+        template <typename H, typename list, typename digest>
+        struct chain {
             N Height;
             
-            A Blocks;
+            digest Latest;
             
-            T Tree;
+            list Blocks;
             
-            const digest operator[](N n) const final override {
-                return Blocks[n];
+            chain() : Height{0}, Blocks{} {}
+            
+            const N height() const {
+                return Height;
+            }
+            
+            const H operator[](N n) const {
+                if (n > Height) return H{};
+                
+                return Blocks[Height - n];
             };
             
+            const N height(H h) const {
+                return Blocks.position(h);
+            }
+            
+            const bool contains(H h) const {
+                return height(h) != aleph_0;
+            }
+            
         private:
-            bool valid_to(N height, digest d) const {
+            chain(N h, list l) : Height{h}, Blocks{l} {}
+            
+            static bool valid_to(N height, digest d, list a) {
                 if (height == 0) return d == header::Genesis<digest>;
                 
-                digest b = Blocks[height];
+                if (empty(a)) return false;
                 
-                return d == b && valid_to(height - 1, header::parent(Tree[b]));
+                H top = first(a);
+                
+                return d == top.hash() && valid_to(height - 1, top.parent(), rest(a));
             }
             
         public:
             bool valid() const {
-                if (Height == 0) return true;
-                
-                return valid_to(Height - 1, header::parent(Tree[Blocks[Height]]));
+                return valid_to(Height, Latest, Blocks);
             } 
             
+            chain operator+(H h) {
+                if (h.parent() == Latest) return chain{};
+                
+                return chain{Height + 1, h.hash(), Blocks + h};
+            }
+            
         };
+        
+        template <typename block, typename digest, typename tree>
+        using merkle_trees = association<block, merkle::root_proof<digest, tree> >;
+        
+        template <typename index, typename block>
+        using blocks = association<index, block>;
+        
+        template <typename tx, typename block>
+        using tx_to_block = association<tx, block>;
 
     }
     
