@@ -46,7 +46,7 @@ namespace abstractions
                 const V operator[](K k) const final override {
                     return Map[k];
                 };
-            }
+            };
             
         }
         

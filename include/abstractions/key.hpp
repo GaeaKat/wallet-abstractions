@@ -22,7 +22,7 @@ namespace abstractions
         };
         
         template <typename to_public, typename priv, typename pub>
-        struct keypair : public pubkey<to_public, priv, pub> {
+        struct pair : public pubkey<to_public, priv, pub> {
             using parent = pubkey<to_public, priv, pub>;
             
             priv Secret;
