@@ -10,7 +10,7 @@ namespace abstractions
     namespace block
     {
         
-        template <typename H, typename list, typename digest>
+        template <typename H, typename digest, typename list>
         struct chain {
             N Height;
             

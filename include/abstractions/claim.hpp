@@ -30,7 +30,33 @@ namespace abstractions
         }
         
         proof(quantifier f, proposition r, derivation d) : Claim{f, r}, Derivation{d} {}
-        proof() : Claim{}, derivation{}
+        proof() : Claim{}, derivation{} {}
+    };
+    
+    template <typename f, typename key, typename value>
+    struct check_inverse {
+        f Function;
+        
+        bool operator()(value v, key k) {
+            return v == Function(k);
+        }
+        
+    };
+    
+    template <typename f, typename key, typename value>
+    claim<check_inverse<f, key, value>, value, key> claim_inverse(f fun, value v) {
+        return claim<check_inverse<f, key, value>, value, key>{check_inverse<f, key, value>{fun}, v};
+    }
+    
+    template <typename f, typename key, typename value>
+    proof<check_inverse<f, key, value>, value, key> prove_inverse(f fun, value v, key k) {
+        return proof<check_inverse<f, key, value>, value, key>{claim_inverse(fun, v), k};
+    }
+    
+    template <typename to_public, typename secret, typename pubkey>
+    struct keypair {
+        pubkey Pubkey;
+        secret Secret;
     };
 
 }
