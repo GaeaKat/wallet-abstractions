@@ -9,10 +9,24 @@ namespace abstractions
     
     namespace redeem
     {
+        // a vertex represents the flow of bitcoins in the blockchain.
+        // it is a transaction without input scripts. When a tx is
+        // being hashed, the input scripts must be removed. This type
+        // is an intermediate stage in that process. 
+        template <typename index, typename out>
+        struct vertex {
+            slice<index> Outpoints;
+            slice<out> Outputs;
+            
+            vertex(slice<index> in, slice<out> o) : Outpoints(in), Outputs(o) {}
+            
+            template <typename tx>
+            vertex(tx t) : Outpoints(outpoints(t)), Outputs(outputs(t)) {}
+        };
         
         template <typename script, typename outpoint, typename out>
         struct word {
-            virtual script speak(N value, script prev, const transaction::vertex<outpoint, out> tx, uint32_t input_index) const = 0;
+            virtual script speak(N value, script prev, const vertex<outpoint, out> tx, uint32_t input_index) const = 0;
         };
         
         template <typename script, typename outpoint, typename out>
@@ -28,11 +42,6 @@ namespace abstractions
             typename out, 
             typename will>           // a desired outcome. 
         class redeemer {
-            output::value<out> get_value;
-            output::script<out, script> get_script;
-            transaction::outputs<tx, out> get_outputs;
-            transaction::outpoints<tx, point> get_outpoints;
-            transaction::input_scripts<tx, point, script> get_input_scripts;
             
             prepend_script<script> prepend;
             
@@ -42,17 +51,8 @@ namespace abstractions
             
         public:
             redeemer(
-                output::value<out> ov,
-                output::script<out, script> os,
-                transaction::outputs<tx, out> gou, 
-                transaction::outpoints<tx, point> goi, 
-                transaction::input_scripts<tx, point, script> gs, 
-                prepend_script<script> p,
                 blockchain<script, point>& b) 
-            : get_value(ov), get_script(os), 
-                get_outputs(gou), 
-                get_outpoints(goi), 
-                get_input_scripts(gs), prepend(p), prior(b) {}
+            : prior(b) {}
             
             script redeem(tx t, point o, script in, will w) {
                 // What is the index of the outpoint we want to redeem?
@@ -70,7 +70,7 @@ namespace abstractions
                 if (hypothetical == nullptr) return script();
                 
                 // Speak the magic word! 
-                return Prepend(in, hypothetical->speak(get_value(*prevout), get_script(*prevout), transaction::to_vertex(get_outputs, get_outpoints, t), index));
+                return Prepend(in, hypothetical->speak(get_value(*prevout), get_script(*prevout), transaction::to_vertex(t), index));
             }
             
             script redeem(tx t, point o, will w) {
