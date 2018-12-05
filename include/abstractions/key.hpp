@@ -1,36 +1,53 @@
 #ifndef ABSTRACTIONS_KEY_HPP
 #define ABSTRACTIONS_KEY_HPP
 
-#include "claim.hpp"
+#include "inverse.hpp"
 
 namespace abstractions
 {
     
     // proofs and claims concerning public and private keys. 
     namespace key {
+        template <typename f, typename priv, typename pub>
+        using claim_exists_private = inverse::claim<f, priv, pub>;
         
-        template <typename to_public, typename priv, typename pub>
+        template <typename f, typename priv, typename pub>
+        using proof_exists_private = inverse::proof<f, priv, pub>;
+        
+        template <typename f, typename priv, typename pub>
         struct pubkey {
+            f ToPublic;
             pub Pubkey;
-            to_public ToPublic;
             
             // claim that a secret key exists which produces this public key.
-            claim<check_inverse<to_public, priv, pub>, pub, priv> claim() {
+            claim_exists_private<f, priv, pub> claim() {
                 return claim_inverse(ToPublic, Pubkey);
             }
             
+            pubkey(f to_public, pub p) : ToPublic{to_public}, Pubkey{p} {}
+            
         };
         
-        template <typename to_public, typename priv, typename pub>
-        struct pair : public pubkey<to_public, priv, pub> {
-            using parent = pubkey<to_public, priv, pub>;
+        template <typename f, typename priv, typename pub>
+        struct pair : public pubkey<f, priv, pub> {
+            using parent = pubkey<f, priv, pub>;
             
             priv Secret;
             
             // prove that the secret exists. 
-            proof<check_inverse<to_public, priv, pub>, pub, priv> claim() {
+            proof_exists_private<f, priv, pub> claim() {
                 return prove_inverse(parent::ToPublic, parent::Pubkey, Secret);
             }
+            
+            pub pubkey() const {
+                return parent::Pubkey;
+            }
+            
+            priv secret() const {
+                return Secret;
+            }
+            
+            pair(f to_public, pub p, priv s) : parent{to_public, p}, Secret{s} {}
             
         };
         

@@ -4,14 +4,25 @@
 namespace abstractions
 {
         
+    template <typename K> 
+    struct set {        
+        virtual bool contains(K k) const = 0;
+    };
+    
     template <typename K, typename V> 
-    struct association {
-        virtual const V operator[](K) const = 0;
+    struct association : public set<K> {
+        virtual const V get(K) const = 0;
         
         bool contains(K k) const {
-            return this->operator[](k) != V{};
+            return get(k) != V{};
         }
     };
+    
+    /*template <typename K, typename V> 
+    struct map : association<K, V> {
+        virtual const pointer<map> insert(K, V) const = 0;
+        virtual const pointer<map> remove(K) const = 0;
+    };*/
     
 }
 
