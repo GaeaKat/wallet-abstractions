@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_BLOCKCHAIN_PATTERN_HPP
-#define ABSTRACTIONS_BLOCKCHAIN_PATTERN_HPP
+#ifndef ABSTRACTIONS_PATTERN_HPP
+#define ABSTRACTIONS_PATTERN_HPP
 
 #include <abstractions/claim.hpp>
 #include <abstractions/data.hpp>
@@ -8,9 +8,8 @@ namespace abstractions
 {
     
     namespace patterns {
-        // define a function by a virtual machine which input and output
-        // scripts and checks them, assuming signature operations
-        // return true. 
+        // define a function by a virtual machine which takes input and output
+        // scripts and checks them. 
         template <typename machine, typename script>
         struct check_script {
             machine Machine;
@@ -28,14 +27,15 @@ namespace abstractions
         template<typename machine, typename script>
         using script_proof = proof<check_script<machine, script>, script, script>;
         
-        template <typename script, typename secret, typename pubkey, typename make_input, typename make_output, typename read_tags>
+        template <typename script, typename key, typename observe, typename make_input, typename make_output, typename read>
         struct pattern {
-            read_tags ReadTags;
+            read Read;
             
             bool match(script output) {
                 return (!ReadTags(output).empty());
             }
             
+            // a function that makes an output script given a public key. 
             make_output MakeOutput;
             
             // claim that 
@@ -47,20 +47,36 @@ namespace abstractions
             //    for all secret s, pubkey p, and transaction t, 
             //        tp(s) == p  <==>  m.initialize(t) << MakeInput(t, s) << MakeOutput(p)
             
-            template <typename tx, typename keys>
-            script redeem(script output, tx t, keys k) {
-                return MakeInput(t, get_all(ReadTags(output), k));
+            template <typename tx_i>
+            script redeem(script output, tx_i t, key k) {
+                return MakeInput(t, Read(output), k);
             } 
+            
+            // should we observe an output of a given pattern and for what purpose? 
+            observe Observe;
             
         };
         
     }
     
-    template <typename S, typename output, typename tx, typename pattern, typename keys>
-    S redeem(output prev, tx t, list<pattern> known, keys k) {
+    template <typename script, typename pattern, typename output, typename tx_i, typename key>
+    script redeem(list<pattern> known, output prev, tx_i t, key k) {
         for (pattern essence : known) if (essence.match(prev.script())) return essence.redeem(prev.script(), t, k);
         return {};
     }
+    
+    template <typename truth, typename pattern, typename script, typename keys>
+    truth observe(list<pattern> theory, script out, keys k) {
+        struct inner {
+            script Out;
+            
+            truth operator()(pattern p) {
+                return p.Observe(get_all(p.Read(out), k));
+            }
+        };
+        
+        return reduce(apply(inner{out}, theory));
+    } 
     
 } 
 
