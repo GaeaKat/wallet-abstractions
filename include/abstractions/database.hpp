@@ -10,40 +10,10 @@ namespace abstractions
     namespace database
     {
         
-        template <typename to_public, typename secret, typename pubkey, typename F, typename tag>
-        struct tagged_key {
-            F Function;
-            
-            // The tag which is is produced by the public key. 
-            tag Tag;
-            
-            // the keypair
-            key::pair<to_public, secret, pubkey> Keypair;
-            
-            key::proof_exists_private<to_public, secret, pubkey> KeyProof;
-            
-            inverse::proof<F, pubkey, tag> TagProof;
-            
-            bool validate() const {
-                return Function == TagProof.Exist.Function
-                    && Tag == TagProof.Proposition
-                    && Keypair.ToPublic == KeyProof.Exist.Function
-                    && Keypair.Pubkey == KeyProof.Proposition
-                    && Keypair.Pubkey == TagProof.Derivation
-                    && Keypair.Secret == KeyProof.Derivation;
-            }
-            
-            bool verify() const {
-                return validate() && KeyProof.verify() && TagProof.verify();
-            }
-            
-        };
-        
         template <typename Mtp, typename Mps, typename tag, typename pubkey, typename secret, typename F, typename to_public>
         struct tag_map {
             static const map::definition::map<Mtp, tag, inverse::proof<F, pubkey, tag>> r1{};
-            static const map::definition::map<Mps, pubkey, key::proof_exists_private<to_public, secret, pubkey>> r2{};
-            
+            static const map::definition::map<Mps, pubkey, key::proof<to_public, secret, pubkey>> r2{};
             static const map::definition::map<tag_map, tag, tagged_key<to_public, secret, pubkey, F, tag>> r3{};
             
             F Function;
@@ -59,22 +29,24 @@ namespace abstractions
             }
             
             tagged_key<to_public, secret, pubkey, F, tag> operator[](tag t) {
-                return inverse::prove(Function, k, Map[k]);
+                auto TagProof = TagsToPubkeys[t];
+                auto KeyProof = PubkeysToPrivkeys[TagProof.Proposition];
+                return tagged_key<to_public, secret, pubkey, F, tag>{Function, t, key::pair{KeyProof}, TagProof, KeyProof};
             }
             
-            tag_map insert(key k, inverse::proof<F, key, value> p) {
-                if (k != p.SuchThat && p.Exist.Function != Function) return {};
-                return {Function, Map.insert(k, p)};
-            }
-            
-            tag_map insert(key k) {
-                return {Function, Map.insert(k, Function(k))};
+            tag_map insert(tag t, tagged_key<to_public, secret, pubkey, F, tag> e) {
+                if (e.Tag != t || !e.validate()) return {};
+                return {Function, ToPublic, TagsToPubkeys.insert(t, e.TagProof), PubkeysToPrivkeys.insert(t, e.KeyProof)};
             }
             
             tag_map remove(tag t) {
-                return {Function, ToPublic, TagsToPubkeys, Map.remove(k)};
+                return {Function, ToPublic, TagsToPubkeys, TagsToPubkeys.remove(t), PubkeysToPrivkeys};
             }
         };
+        
+        // Given a map of claims about public keys, given a set of patterns, and
+        // given an output, return a claim that a private key exists which can
+        // redeem the output if 
         
     }
     

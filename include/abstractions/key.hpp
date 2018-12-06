@@ -8,11 +8,12 @@ namespace abstractions
     
     // proofs and claims concerning public and private keys. 
     namespace key {
-        template <typename f, typename priv, typename pub>
-        using claim_exists_private = inverse::claim<f, priv, pub>;
         
         template <typename f, typename priv, typename pub>
-        using proof_exists_private = inverse::proof<f, priv, pub>;
+        using claim = inverse::claim<f, priv, pub>;
+        
+        template <typename f, typename priv, typename pub>
+        using proof = inverse::proof<f, priv, pub>;
         
         template <typename f, typename priv, typename pub>
         struct pubkey {
@@ -20,7 +21,7 @@ namespace abstractions
             pub Pubkey;
             
             // claim that a secret key exists which produces this public key.
-            claim_exists_private<f, priv, pub> claim() {
+            key::claim<f, priv, pub> claim() {
                 return claim_inverse(ToPublic, Pubkey);
             }
             
@@ -35,7 +36,7 @@ namespace abstractions
             priv Secret;
             
             // prove that the secret exists. 
-            proof_exists_private<f, priv, pub> claim() {
+            proof<f, priv, pub> prove() {
                 return prove_inverse(parent::ToPublic, parent::Pubkey, Secret);
             }
             
@@ -48,6 +49,7 @@ namespace abstractions
             }
             
             pair(f to_public, pub p, priv s) : parent{to_public, p}, Secret{s} {}
+            pair(proof<f, priv, pub> p) : parent{p.Exist.Function, p.Proposition}, Secret{p.Derivation} {}
             
         };
         

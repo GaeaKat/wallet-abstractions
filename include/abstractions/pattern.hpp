@@ -3,33 +3,39 @@
 
 #include <abstractions/claim.hpp>
 #include <abstractions/data.hpp>
+#include <abstractions/map.hpp>
+#include <abstractions/tags.hpp>
 
 namespace abstractions 
 {
     
-    namespace patterns {
+    namespace patterns
+    {
+
         // define a function by a virtual machine which takes input and output
         // scripts and checks them. 
         template <typename machine, typename script>
-        struct check_script {
+        struct verify_script {
             machine Machine;
             
-            check_script(machine m) : Machine{m} {}
+            verify_script(machine m) : Machine{m} {}
             
             bool operator()(script input, script output) {
-                return script::check(Machine, input, output);
+                return script::run(Machine, input, output);
             }
         };
         
-        template<typename machine, typename script>
-        using script_claim = claim<check_script<machine, script>, script, script>;
+        template <typename machine, typename script>
+        using redeemable_claim = claim<verify_script<machine, script>, script, script>;
         
-        template<typename machine, typename script>
-        using script_proof = proof<check_script<machine, script>, script, script>;
+        template <typename machine, typename script>
+        using redeemable_proof = proof<verify_script<machine, script>, script, script>;
+        
+        // given a list of patterns, generate a redeemable_claim from 
         
         template <typename script, typename key, typename observe, typename make_input, typename make_output, typename read>
         struct pattern {
-            read Read;
+            read ReadTags;
             
             bool match(script output) {
                 return (!ReadTags(output).empty());
@@ -54,7 +60,7 @@ namespace abstractions
             
             // should we observe an output of a given pattern and for what purpose? 
             observe Observe;
-            
+
         };
         
     }
@@ -67,6 +73,8 @@ namespace abstractions
     
     template <typename truth, typename pattern, typename script, typename keys>
     truth observe(list<pattern> theory, script out, keys k) {
+        static const map::definition::map<Mtp, tag, inverse::proof<F, pubkey, tag>> r1{};
+        
         struct inner {
             script Out;
             

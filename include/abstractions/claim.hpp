@@ -21,6 +21,7 @@ namespace abstractions
     
     template <typename quantifier, typename proposition, typename derivation>
     struct proof : public claim<quantifier, proposition, derivation> {
+        using claim = claim<quantifier, proposition, derivation>;
         
         derivation Derivation;
         
@@ -28,8 +29,13 @@ namespace abstractions
             return verify(Derivation);
         }
         
-        proof(quantifier f, proposition r, derivation d) : claim<quantifier, proposition, derivation>{f, r}, Derivation{d} {}
-        proof() : claim<quantifier, proposition, derivation>{}, derivation{} {}
+        proof(quantifier f, proposition r, derivation d) : claim{f, r}, Derivation{d} {}
+        proof() : claim{}, derivation{} {}
+        
+        claim make_claim() {
+            return claim{claim::Exist, claim::SuchThat};
+        }
+        
     };
 
 }

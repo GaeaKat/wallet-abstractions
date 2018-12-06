@@ -23,7 +23,7 @@ namespace abstractions
         // check that the machine returns true for the script formed from the
         // denoted input followed by the output script. 
         template <typename machine, typename script>
-        inline bool check(machine m, script input, script output) {
+        inline bool run(machine m, script input, script output) {
             return m.run(input).run(output).read();
         }
         
@@ -31,7 +31,7 @@ namespace abstractions
         // check that the machine returns true for the script formed from the
         // denoted input followed by the output script. 
         template <typename machine, typename script, typename tx>
-        inline bool check(machine m, script output, input_index<tx> ti) {
+        inline bool run(machine m, script output, input_index<tx> ti) {
             return check(m.initialize(ti.Transaction), ti.Transaction.inputs()[ti.Index].script(), output);
         }
         
@@ -39,27 +39,27 @@ namespace abstractions
         // an output script and a transaction input index and returns
         // true based on whether the script has succeeded. 
         template <typename machine, typename script, typename tx>
-        struct check_script {
+        struct run_script {
             machine Machine;
             
-            check_script(machine m) : Machine{m} {}
+            run_script(machine m) : Machine{m} {}
             
             bool operator()(script s, input_index<tx> ti) {
-                return check(Machine, s, ti);
+                return run(Machine, s, ti);
             }
         };
         
         // claim that a transaction input index exists such that the given
         // output is redeemed. 
         template <typename machine, typename script, typename tx>
-        inline claim<check_script<machine, script, tx>, script, input_index<tx>> claim_redeemable(machine m, script s) {
-            return claim<check_script<machine, script, tx>, script, input_index<tx>>{check_script<machine, script, tx>{m}, s};
+        inline claim<run_script<machine, script, tx>, script, input_index<tx>> claim_redeemable(machine m, script s) {
+            return claim<run_script<machine, script, tx>, script, input_index<tx>>{run_script<machine, script, tx>{m}, s};
         }
         
         // proove that a transaction input index redeems a given script. 
         template <typename machine, typename script, typename tx>
-        inline proof<check_script<machine, script, tx>, script, input_index<tx>> prove_redeemable(machine m, script s, input_index<tx> ti) {
-            return proof<check_script<machine, script, tx>, script, input_index<tx>>{claim_redeemable(m, s), ti};
+        inline proof<run_script<machine, script, tx>, script, input_index<tx>> prove_redeemable(machine m, script s, input_index<tx> ti) {
+            return proof<run_script<machine, script, tx>, script, input_index<tx>>{claim_redeemable(m, s), ti};
         }
         
     }
