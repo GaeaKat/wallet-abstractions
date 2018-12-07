@@ -10,14 +10,13 @@ namespace abstractions
     namespace tags
     {
         
-        template <typename to_public, typename secret, typename pub, typename F, typename tag>
+        template <typename F, typename tag, typename to_public, typename secret, typename pub>
         struct tagged_pubkey {
             F Function;
             
             // The tag which is is produced by the public key. 
             tag Tag;
             
-            // the keypair
             key::pubkey<to_public, secret, pub> Pubkey;
             
             inverse::proof<F, pub, tag> TagProof;
@@ -38,7 +37,7 @@ namespace abstractions
             
         };
     
-        template <typename to_public, typename secret, typename pub, typename F, typename tag>
+        template <typename F, typename tag, typename to_public, typename secret, typename pub>
         struct tagged_secret {
             F Function;
             
