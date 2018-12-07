@@ -28,6 +28,26 @@ namespace abstractions
             return reduce(lh, pv{0}).Value;
         }
         
+        template <typename header, typename N>
+        inline N work(header& h) {
+            return h.work();
+        }
+        
+        template <typename header, typename digest>
+        inline digest hash(header& h) {
+            return h.hash();
+        }
+        
+        template <typename header, typename digest>
+        inline digest root(header h) {
+            return h.root();
+        }
+        
+        template <typename header, typename digest>
+        inline digest parent(header& h) {
+            return h.parent();
+        }
+        
     }
     
 } 

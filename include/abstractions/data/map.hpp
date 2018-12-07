@@ -43,13 +43,13 @@ namespace abstractions
                     
                 template <typename M>
                 struct existence {
-                    bool empty(M m) {
+                    bool empty(M m) const {
                         return m.empty();
                     }
                 };
                     
                 template <typename M>
-                struct existence<M*> {
+                struct existence<M*> const {
                     bool empty(M m) {
                         return m == nullptr;
                     }
@@ -57,7 +57,7 @@ namespace abstractions
                     
                 template <typename M>
                 struct existence<pointer<M>> {
-                    bool empty(M m) {
+                    bool empty(M m) const {
                         return m == nullptr;
                     }
                 };
@@ -66,7 +66,7 @@ namespace abstractions
                 // knowledge of the value type. 
                 template <typename M, typename key>
                 struct set : public existence<M> {
-                    bool contains(M m, key k) {
+                    bool contains(M m, key k) const {
                         return m.contains(k);
                     }
                 };
@@ -74,7 +74,7 @@ namespace abstractions
                 // specialization for pointer types. 
                 template <typename M, typename key>
                 struct set<M*, key> : public existence<M*> {
-                    bool contains(M m, key k) {
+                    bool contains(M m, key k) const {
                         if (m == nullptr) return false;
                         return m->contains(k);
                     }
@@ -83,7 +83,7 @@ namespace abstractions
                 // specialization for pointer types. 
                 template <typename M, typename key>
                 struct set<pointer<M>, key> : public existence<pointer<M>> {
-                    bool contains(M m, key k) {
+                    bool contains(M m, key k) const {
                         if (m == nullptr) return false;
                         return m->contains(k);
                     }
@@ -93,7 +93,7 @@ namespace abstractions
                 // knowledge of the value type. 
                 template <typename M, typename key>
                 struct removeable : public set<M, key> {
-                    M remove(M m, key k) {
+                    M remove(M m, key k) const {
                         return m.remove(k);
                     }
                 };
@@ -101,7 +101,7 @@ namespace abstractions
                 // specialization for pointer types. 
                 template <typename M, typename key>
                 struct removeable<M*, key> : public set<M*, key> {
-                    M remove(M m, key k) {
+                    M remove(M m, key k) const {
                         if (m == nullptr) return nullptr;
                         return m->remove(k);
                     }
@@ -110,7 +110,7 @@ namespace abstractions
                 // specialization for pointer types. 
                 template <typename M, typename key>
                 struct removeable<pointer<M>, key> : public set<pointer<M>, key> {
-                    M remove(M m, key k) {
+                    M remove(M m, key k) const {
                         if (m == nullptr) return nullptr;
                         return m->remove(k);
                     }
@@ -119,7 +119,7 @@ namespace abstractions
                 // Now we're getting to something that actually looks more like a map.
                 template <typename M, typename key, typename value>
                 struct map : public set<M, key> {
-                    value get(M m, key k) {
+                    value get(M m, key k) const {
                         return m[k];
                     }
                         
@@ -130,12 +130,12 @@ namespace abstractions
             
                 template <typename M, typename key, typename value>
                 struct map<M*, key, value> : public set<M*, key> {
-                    value get(map m, key k) {
+                    value get(map m, key k) const {
                         if (m == nullptr) return value{};
                         return m->get(k);
                     }
                         
-                    map insert(map m, key k, value v) {
+                    map insert(map m, key k, value v) const {
                         if (m == nullptr) return new map{{k, v}};
                         return m->insert(k, v);
                     }
@@ -143,12 +143,12 @@ namespace abstractions
 
                 template <typename M, typename key, typename value>
                 struct map<pointer<M>, key, value> : public set<pointer<M>, key> {
-                    value get(M m, key k) {
+                    value get(M m, key k) const {
                         if (m == nullptr) return value{};
                         return m->get(k);
                     }
                         
-                    M insert(M m, key k, value v) {
+                    M insert(M m, key k, value v) const {
                         if (m == nullptr) return new map{{k, v}};
                         return m->insert(k, v);
                     }
@@ -159,7 +159,7 @@ namespace abstractions
                 // as a list of entries. 
                 template <typename M, typename key, typename value, typename L>
                 struct countible : public map<M, key, value> {
-                    L entries(M m) {
+                    L entries(M m) const {
                         static const abstractions::data::list::definition::list<L, entry<key, value>> requirement{};
                         return m.entries();
                     }
@@ -167,7 +167,7 @@ namespace abstractions
 
                 template <typename M, typename key, typename value, typename L>
                 struct countible<M*, key, value, L> : public map<M*, key, value> {
-                    L entries(M m) {
+                    L entries(M m) const {
                         static const abstractions::data::list::definition::list<L, entry<key, value>> requirement{};
                         return m->entries();
                     }
@@ -175,7 +175,7 @@ namespace abstractions
 
                 template <typename M, typename key, typename value, typename L>
                 struct countible<pointer<M>, key, value, L> : public map<pointer<M>, key, value> {
-                    L entries(M m) {
+                    L entries(M m) const {
                         static const abstractions::data::list::definition::list<L, entry<key, value>> requirement{};
                         return m->entries();
                     }

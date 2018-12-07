@@ -2,22 +2,22 @@
 #define ABSTRACTIONS_TOOLS_REDUNDANCY_MAP_HPP
 
 #include <abstractions/inverse.hpp>
-#include <abstractions/map.hpp>
+#include <abstractions/data/map.hpp>
 
 namespace abstractions {
     
     // implementation of map which keeps track of things by inverse function.
     template <typename F, typename M, typename key, typename value>
     struct redundancy_map {
-        static const map::definition::map<M, key, value> M_is_key_value_map{};
-        static const map::definition::map<redundancy_map, key, inverse::proof<F, key, value>> redundancy_map_is_key_inverse_proof_map{};
+        static const data::map::definition::map<M, key, value> M_is_key_value_map{};
+        static const data::map::definition::map<redundancy_map, key, inverse::proof<F, key, value>> redundancy_map_is_key_inverse_proof_map{};
         
         F Function;
         
         M Map;
         
         bool empty() const {
-            return map::empty(Map);
+            return Map.empty();
         }
         
         inverse::proof<F, key, value> operator[](key k) {

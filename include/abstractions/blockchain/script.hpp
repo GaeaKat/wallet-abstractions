@@ -24,7 +24,18 @@ namespace abstractions
             tx Transaction;
             N Index;
             
+            bool valid() const {
+                return Index != aleph_0 && Transaction != tx{};
+            }
+            
+            input_index() : Index{aleph_0}, Transaction{} {}
             input_index(tx t, N i) : Transaction{t}, Index{i} {}
+            
+            template <typename s>
+            s get_input_script() const {
+                if (valid()) return transaction::inputs(Transaction)[Index];
+                return s{};
+            }
         };
         
         // given a virtual machine, an output script, and a transaction index, 

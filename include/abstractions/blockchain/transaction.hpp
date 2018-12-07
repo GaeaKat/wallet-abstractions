@@ -13,15 +13,15 @@ namespace abstractions
 
         // outputs of a transaction. 
         template <typename tx, typename out>
-        slice<out> outputs(tx);
+        inline slice<out> outputs(tx t) {
+            return t.outputs();
+        }
             
         // inputs of a transaction.
-        template <typename tx, typename point>
-        slice<point> outpoints(tx);
-            
-        // how much is stored in a given input?
-        template <typename tx, typename point, typename script>
-        map<point, script> inputs(tx);
+        template <typename tx, typename in>
+        inline slice<in> inputs(tx t) {
+            return t.inputs();
+        }
         
         template <typename point, typename tx>
         using index = association<point, tx>;

@@ -24,7 +24,7 @@ namespace abstractions
             
         slice() : invalid(0), data(nullptr), len(0) {};
         
-        slice(vector<X> v) : invalid(0), data(v.data()), len(v.size()) {};
+        slice(vector<X>& v) : invalid(0), data(v.data()), len(v.size()) {};
             
         slice<X> range(N begin, N end) {
             if (begin >= len || end >= len || begin >= end) return slice();

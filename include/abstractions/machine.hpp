@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_MACHINE_HPP
 #define ABSTRACTIONS_MACHINE_HPP
 
-#include <abstractions/list.hpp>
+#include <abstractions/blockchain/script.hpp>
 
 namespace abstractions
 {
@@ -27,12 +27,8 @@ namespace abstractions
             
             template <typename M, typename script>
             struct machine {
-                M run(M m, script s) {
-                    return m << s;
-                }
-                
-                bool valid_state(M m) {
-                    return m.valid_state();
+                bool run(M m, script s ...) {
+                    return m.run(s);
                 }
             };
             

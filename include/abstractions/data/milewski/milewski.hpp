@@ -2,7 +2,8 @@
 #define MILEWSKI_DATA_RB_RB_HPP
 
 #include <milewski/rb.hpp>
-#include <abstractions/map.hpp>
+#include <milewski/Queue.h>
+#include <abstractions/data/map.hpp>
 
 namespace abstractions {
     
@@ -33,6 +34,29 @@ namespace abstractions {
             }
             
         };
+        
+        /*template <typename X>
+        class lazy_queue {
+            Queue<X> Q;
+            
+        public:
+            
+            bool empty() const {
+                
+            }
+            
+            const X& first() const {
+                
+            }
+            
+            lazy_queue<X> rest() const {
+                
+            }
+            
+            lazy_queue<X> operator+(X x) const {
+                
+            }
+        };*/
         
     }
     

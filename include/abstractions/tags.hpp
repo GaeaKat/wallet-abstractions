@@ -1,8 +1,8 @@
-#ifndef ABSTRACTIONS_DATABASE_HPP
-#define ABSTRACTIONS_DATABASE_HPP
+#ifndef ABSTRACTIONS_TAGS_HPP
+#define ABSTRACTIONS_TAGS_HPP
 
+#include <abstractions/data/map.hpp>
 #include "key.hpp"
-#include "map.hpp"
 
 namespace abstractions
 {
@@ -68,6 +68,40 @@ namespace abstractions
                 return {Function, Tag, key::pubkey<to_public, secret, pub>{Keypair.ToPublic, Keypair.Public}, TagProof, KeyProof.make_claim()};
             }
             
+        };
+        
+        template <typename Mtp, typename Mps, typename tag, typename pubkey, typename secret, typename F, typename to_public>
+        struct tag_map {
+            constexpr static const data::map::definition::map<Mtp, tag, inverse::proof<F, pubkey, tag> > r1{};
+            constexpr static const data::map::definition::map<Mps, pubkey, key::proof<to_public, secret, pubkey> > r2{};
+            constexpr static const data::map::definition::map<tag_map, tag, tagged_secret<to_public, secret, pubkey, F, tag> > r3{};
+            
+            F Function;
+            
+            to_public ToPublic;
+            
+            Mtp TagsToPubkeys;
+            
+            Mps PubkeysToPrivkeys;
+        
+            bool empty() const {
+                return data::map::empty(TagsToPubkeys);
+            }
+            
+            tagged_secret<to_public, secret, pubkey, F, tag> operator[](tag t) {
+                auto TagProof = TagsToPubkeys[t];
+                auto KeyProof = PubkeysToPrivkeys[TagProof.Proposition];
+                return tagged_secret<to_public, secret, pubkey, F, tag>{Function, t, key::pair{KeyProof}, TagProof, KeyProof};
+            }
+            
+            tag_map insert(tag t, tagged_secret<to_public, secret, pubkey, F, tag> e) {
+                if (e.Tag != t || !e.validate()) return {};
+                return {Function, ToPublic, TagsToPubkeys.insert(t, e.TagProof), PubkeysToPrivkeys.insert(t, e.KeyProof)};
+            }
+            
+            tag_map remove(tag t) {
+                return {Function, ToPublic, TagsToPubkeys, TagsToPubkeys.remove(t), PubkeysToPrivkeys};
+            }
         };
         
     }
