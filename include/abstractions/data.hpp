@@ -3,6 +3,8 @@
 
 #include <abstractions/data/linked_list.hpp>
 #include <abstractions/data/list_map.hpp>
+#include <abstractions/data/rb/rb.hpp>
+#include <abstractions/map.hpp>
 #include <abstractions/slice.hpp>
 
 namespace abstractions
@@ -12,8 +14,11 @@ namespace abstractions
     using list = data::linked_list<X>;
 
     template <typename K, typename V>
-    using map = data::list_map<K, V,
+    using list_map = data::list_map<K, V,
         list<data::map::entry<K, V> >, data::list::iterator<list<data::map::entry<K, V> >, data::map::entry<K, V> > >;
+        
+    template <typename K, typename V>
+    using map = data::rb_map<K, V>;
         
     template <typename key, typename value, typename map>
     list<value> get_all(map m, list<key> k) {
