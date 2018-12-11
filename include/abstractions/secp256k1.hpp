@@ -17,8 +17,8 @@ namespace abstractions
         const byte point_sign_even = 0x02;
         const byte point_sign_odd = 0x03;
     
-        const std::array<byte, pubkey_size> zero_pubkey = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-        const std::array<byte, secret_size> zero_secret = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+        const std::array<byte, pubkey_size> zero_pubkey{};
+        const std::array<byte, secret_size> zero_secret{};
 
         const std::array<byte, pubkey_size - 1> max_public_key({0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -31,7 +31,7 @@ namespace abstractions
                 return static_cast<std::array<byte, pubkey_size>>(*this)[n];
             }
             
-            pubkey();
+            pubkey() : std::array<byte, pubkey_size>{zero_pubkey} {}
             pubkey(std::array<byte, pubkey_size> a) : std::array<byte, pubkey_size>(a) {}
         };
         
@@ -44,32 +44,13 @@ namespace abstractions
             
             pubkey to_public() const;
             
-            secret();
+            secret() : std::array<byte, secret_size>{zero_secret} {}
             secret(std::array<byte, secret_size> a) : std::array<byte, secret_size>(a) {}
         };
         
         const pubkey to_public(const secret&);
     
     }
-
-    bool valid(const secp256k1::pubkey&);
-
-    bool valid(const secp256k1::secret&);
-        
-    inline bool secp256k1::pubkey::valid() const {
-        return abstractions::valid(*this);
-    }
-        
-    inline secp256k1::pubkey secp256k1::secret::to_public() const {
-        return secp256k1::to_public(*this);
-    }
-
-    inline bool secp256k1::secret::valid() const {
-        return abstractions::valid(*this);
-    }
-
-    inline secp256k1::pubkey::pubkey() : pubkey(secp256k1::zero_pubkey) {}
-    inline secp256k1::secret::secret() : secret(secp256k1::zero_secret) {}
 
 }
 

@@ -7,7 +7,7 @@
 namespace abstractions 
 {
     
-    namespace script
+    namespace scripts
     {
         
         // given a virtual machine, an output script, and a transaction index, 

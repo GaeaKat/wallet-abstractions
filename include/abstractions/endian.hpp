@@ -11,7 +11,7 @@ namespace abstractions {
 
         const uint64_t uint64_all = uint64_t(0) - uint64_t(1);
 
-        const uint16_t uint16_first_half = uint16_all << 8;
+        const uint16_t uint16_first_half = uint16_all << uint16_t(8);
         const uint16_t uint16_second_half = uint16_all >> 8;
 
         const uint32_t uint32_first_half = uint32_all << 16;

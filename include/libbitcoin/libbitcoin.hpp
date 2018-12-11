@@ -4,6 +4,9 @@
 #include <abstractions/data.hpp>
 #include <abstractions/sha256.hpp>
 #include <abstractions/machine.hpp>
+#include <abstractions/key.hpp>
+#include <abstractions/secp256k1.hpp>
+#include <abstractions/sha256.hpp>
 
 #include <bitcoin/bitcoin/chain/header.hpp>
 #include <bitcoin/bitcoin/chain/output.hpp>
@@ -13,15 +16,41 @@
 namespace abstractions 
 {
     
-    namespace libbitcoin_btc {
+    inline const secp256k1::pubkey to_public(const secp256k1::secret& s) {
+        ::libbitcoin::ec_compressed x;
+        ::libbitcoin::secret_to_public(x, s);
+        return x;
+    }
+
+    namespace libbitcoin
+    {
+    
+        namespace ec
+        {
+        
+            struct to_public {
+                secp256k1::pubkey operator()(const secp256k1::secret& s) const {
+                    return secp256k1::pubkey(this->operator()(static_cast<const std::array<byte, secp256k1::secret_size>&>(s)));
+                }
+            };
+            
+            using pubkey = key::pubkey<to_public, secp256k1::pubkey, secp256k1::secret>;
+            using pair = key::pair<to_public, secp256k1::pubkey, secp256k1::secret>;
+        
+        }
+        
+    }
+    
+    namespace btc {
         
         class header {
-            libbitcoin::chain::header Header;
-            mutable libbitcoin::hash_digest* Hash;
+            mutable ::libbitcoin::hash_digest* Hash;
         
         public:
-            header() : Header{}, Hash{nullptr} {}
-            header(libbitcoin::chain::header h) : Header{h}, Hash{nullptr} {}
+            ::libbitcoin::chain::header Header;
+            
+            header() : Hash{nullptr}, Header{} {}
+            header(::libbitcoin::chain::header h) : Hash{nullptr}, Header{h} {}
             ~header() {
                 delete Hash;
             }
@@ -30,56 +59,81 @@ namespace abstractions
                 return Header.is_valid();
             }
             
-            libbitcoin::uint256_t pow() const {
+            ::libbitcoin::uint256_t pow() const {
                 return Header.proof();
             }
         
-            libbitcoin::hash_digest& hash() const {
-                if (Hash == nullptr) Hash = new libbitcoin::hash_digest{Header.hash()};
+            ::libbitcoin::hash_digest& hash() const {
+                if (Hash == nullptr) Hash = new ::libbitcoin::hash_digest{Header.hash()};
                 return *Hash;
             }
         
-            libbitcoin::hash_digest root() const {
+            ::libbitcoin::hash_digest root() const {
                 return Header.merkle();
             }
         
-            libbitcoin::hash_digest parent() const {
+            ::libbitcoin::hash_digest parent() const {
                 return Header.previous_block_hash();
             }
             
         };
         
         class transaction {
-            libbitcoin::chain::transaction Transaction;
-        public:
-            transaction() : Transaction{} {}
-            transaction(libbitcoin::chain::transaction t) : Transaction{t} {}
+            using tx = ::libbitcoin::chain::transaction;
+            using output = ::libbitcoin::chain::output;
+            using input = ::libbitcoin::chain::input;
             
-            slice<libbitcoin::chain::output> outputs() {
-                return slice<libbitcoin::chain::output>{Transaction.outputs()};
+            mutable ::libbitcoin::hash_digest* Hash;
+        
+        public: 
+            tx Transaction;
+            
+            transaction() : Transaction{} {}
+            transaction(tx t) : Transaction{t} {}
+            ~transaction() {
+                delete Hash;
             }
             
-            slice<libbitcoin::chain::input> inputs() {
-                return slice<libbitcoin::chain::input>{Transaction.inputs()};
+            slice<output> outputs() {
+                return slice<output>{Transaction.outputs()};
+            }
+            
+            slice<input> inputs() {
+                return slice<input>{Transaction.inputs()};
             }
         };
         
-        /*class machine {
-            constexpr static const abstractions::machine::definition::machine<machine, libbitcoin::chain::script&> require_machine{};
-            constexpr static const abstractions::machine::definition::initializeable<machine, abstractions::script::input_index<transaction*>> require_initializable{};
+        struct machine {
+            using script = ::libbitcoin::machine::operation::list;
+            using program = ::libbitcoin::machine::program;
             
-            abstractions::script::input_index<transaction*> Index;
-        public:
+            std::error_code ErrorCode;
             
-            machine() : Index{} {}
-            machine(abstractions::script::input_index<transaction*> i) : Index{i} {}
-            
-            bool run(libbitcoin::chain::script output) {
-                if (!Index.valid()) return false;
-                libbitcoin::machine::program p{Index.get_input_script<libbitcoin::chain::script>(), , Index.Index, 0};
-                return 0 == libbitcoin::machine::interpreter{}.run(p);
+            static script concatinate(script& input, script& output) {
+                script n(input.size() + output.size());
+                std::copy(std::begin(input), std::end(input), std::begin(n));
+                std::copy(std::begin(output), std::end(output), std::back_inserter(n));
+                return n;
             }
-        };*/
+            
+            static std::error_code run(script& input, script& output) {
+                script s = concatinate(input, output);
+                program p{s};
+                return ::libbitcoin::machine::interpreter::run(p);
+            }
+            
+            static std::error_code run(abstractions::scripts::input_index<transaction> i, script& input, script& output) {
+                script s = concatinate(input, output);
+                program p{s, i.Transaction.Transaction, static_cast<uint32_t>(i.Index), 0};
+                return ::libbitcoin::machine::interpreter::run(p);
+            }
+            
+            machine(script input, script output)
+                : ErrorCode{run(input, output)} {}
+                
+            machine(abstractions::scripts::input_index<transaction> i, script& input, script& output)
+                : ErrorCode{run(i, input, output)} {}
+        };
         
     }
     
