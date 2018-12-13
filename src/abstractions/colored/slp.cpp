@@ -39,11 +39,11 @@ namespace abstractions
                     byte decimals,
                     optional<byte> mint_baton_vout) {
                     return ticker != encoding::utf8::string{} && name != encoding::utf8::string{} && valid_decimals(decimals)
-                        && mint_baton_vout.valid(valid_mint_baton_vout);
+                        && mint_baton_vout.valid();
                 }
             
                 inline bool valid_mint_input(color id, optional<byte> mint_baton_vout) {
-                    return valid_color(id) && mint_baton_vout.valid(valid_mint_baton_vout);
+                    return valid_color(id) && mint_baton_vout.valid();
                 }
             
                 inline bool valid_send_input(color id, vector<quantity> outputs) {
@@ -272,14 +272,12 @@ namespace abstractions
             };
             
             template <typename tx, typename out, typename sh>
-            meta<color, out> get_meta(tx t, 
-                abstractions::transaction::outputs<tx, out> outs,
-                abstractions::output::script<out, script> s) {
-                script scr = get_slp_script(t, outs, s);
+            meta<color, out> get_meta(tx t) {
+                script scr = get_slp_script(t);
                 tx_data txd = tx_data::read(scr);
                 if (!txd.Valid) return meta<color, out>{};
                 auto o = outs(t);
-            
+
                 map<N, value<color>> sends{};
                 map<N, color> mints{};
                 
@@ -289,7 +287,7 @@ namespace abstractions
                         return meta<color, out>{};
                     case transaction_type::genesis: {
                         const genesis g = genesis::read(scr);
-                        sends = sends.insert(1, value<color>(g.InitialTokenMintQuantity, txd.Color)); 
+                        sends = sends.insert(1, value<color>{g.InitialTokenMintQuantity, txd.Color}); 
                         if (g.MintBatonVout.Exists && o.size() > g.MintBatonVout.Value) mints = mints.insert(g.MintBatonVout.Value, txd.Color);
                         break;
                     }
@@ -302,7 +300,7 @@ namespace abstractions
                         const send d = send::read(scr);
                         uint n = 1;
                         for (quantity q : d.OutputQuantities) {
-                            sends = sends.insert(n, value<color>(q, txd.Color));
+                            sends = sends.insert(n, value<color>{q, txd.Color});
                             n ++;
                         }
                         break;

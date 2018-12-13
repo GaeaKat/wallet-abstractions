@@ -37,7 +37,7 @@ namespace abstractions
                 return *Next;
             }
             
-            next operator->() const {
+            list::node<X, linked_list>& operator->() const {
                 return Next;
             }
             
@@ -114,4 +114,3 @@ namespace abstractions
 }
 
 #endif
-

@@ -9,10 +9,7 @@ namespace abstractions {
     namespace encoding {
         
         namespace utf8 {
-            struct string : public vector<byte> {                
-                string() {}
-                string(N n) : vector<byte>(n) {}
-            };
+            using string = vector<byte>;
             
             string write(unicode);
             

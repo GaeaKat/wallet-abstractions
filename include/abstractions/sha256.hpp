@@ -33,10 +33,6 @@ namespace abstractions
     
     }
 
-    inline bool valid(const sha256::digest& d) {
-        return d.valid();
-    }
-
 }
 
 #endif

@@ -11,40 +11,40 @@ namespace abstractions
         mutable X invalid;
         X* data;
         uint64_t len; 
-            
+
     public:
         const N size() const {
             return len;
         }
-            
+
         X& operator[](N n) const {
             if (n >= len) return invalid;
             return data[n];
         }
-            
+
         slice() : invalid(0), data(nullptr), len(0) {};
-        
-        slice(vector<X>& v) : invalid(0), data(v.data()), len(v.size()) {};
-            
+
+        slice(vector<X>& v) : invalid(0), data(const_cast<std::vector<X>&>(v).data()), len(v.size()) {};
+
         slice<X> range(N begin, N end) {
             if (begin >= len || end >= len || begin >= end) return slice();
-            
+
             return slice(data[begin], end - begin);
         };
-        
+
         slice& operator=(slice<X> s) {
             invalid = s.invalid;
             data = s.data;
             len = s.len;
             return *this;
         }
-        
+
         bool operator==(const slice<X>& s) const {
             if (this == &s) return true;
             if (data == s.data && len == s.len) return true;
             return false;
         }
-        
+
         struct list {
             slice<X>& Slice;
             N Index;
@@ -77,13 +77,15 @@ namespace abstractions
             
             list(slice<X>& s, N n) : Slice(s), Index(n) {}
         };
+        
+        using iterator = data::list::iterator<list, X>;
 
-        data::list::iterator<list, X> begin() {
-            return data::list::iterator<list, X>{list{*this, N(0)}};
+        iterator begin() {
+            return iterator{list{*this, N(0)}};
         }
             
-        data::list::iterator<list, X> end() {
-            return data::list::iterator<list, X>{list{*this, size()}};
+        iterator end() {
+            return iterator{list{*this, size()}};
         }
             
     };

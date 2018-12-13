@@ -7,6 +7,7 @@
 #include <abstractions/blockchain/transaction.hpp>
 #include <abstractions/blockchain/output.hpp>
 #include <abstractions/optional.hpp>
+#include <abstractions/sha256.hpp>
 
 namespace abstractions
 {
@@ -21,7 +22,7 @@ namespace abstractions
             
             using quantity = uint64_t;
             
-            using hash = std::array<byte, 32>;
+            using hash = sha256::digest;
             
             using color = hash;
             
@@ -35,7 +36,8 @@ namespace abstractions
                 voting = 3,         // Reserved for Voting Token Type
                 ticketing = 4,      // Reserved for Ticketing Token Type
             };
-                
+            
+            // representation of the information contained in a genesis script. 
             struct genesis {
                 token_type Token;
                 encoding::utf8::string Ticker;
@@ -69,7 +71,8 @@ namespace abstractions
                     
                 static const genesis read(script);
             };
-                    
+            
+            // representation of the information contained in a mint script
             struct mint {
                 token_type Token;
                 color Color; 
@@ -84,7 +87,8 @@ namespace abstractions
                     
                 static const mint read(script);
             };
-                    
+            
+            // representation of the information in a send script. 
             struct send {
                 token_type Token;
                 color Color; 
@@ -139,9 +143,8 @@ namespace abstractions
             
             // get metadata for a tx of a given color. 
             template <typename tx, typename out>
-            script get_slp_script(tx t,
-                abstractions::transaction::outputs<tx, out> outs, abstractions::output::script<out, script> s) {
-                return s(outs(t)[0]);
+            script get_slp_script(tx t) {
+                return s(bitcoin::transaction::outputs(t)[0]);
             }
             
             color get_color(script x);
@@ -157,14 +160,11 @@ namespace abstractions
             }
             
             template <typename tx, typename out, typename sh>
-            color get_color(tx t, 
-                abstractions::transaction::outputs<tx, out> outs,
-                abstractions::output::script<out, script> s,
-                abstractions::transaction::hash<tx, color> hash) {
+            color get_color(tx t) {
                 // get the script.
-                script x = get_slp_script(t, outs, s);
+                script x = get_slp_script(t);
                 const genesis g = genesis::read(x);
-                if (g.valid()) return hash(t);
+                if (g.valid()) return bitcoin::transaction::hash(t);
                 const mint m = mint::read(x);
                 if (m.valid()) return m.Color;
                 const send d = send::read(x);
@@ -172,11 +172,9 @@ namespace abstractions
             }
             
             template <typename tx, typename out, typename sh>
-            transaction_type get_transaction_type(tx t, 
-                abstractions::transaction::outputs<tx, out> outs,
-                abstractions::output::script<out, script> s) {
+            transaction_type get_transaction_type(tx t) {
                 // get the script.
-                script x = get_slp_script(t, outs, s);
+                script x = get_slp_script(t);
                 const genesis g = genesis::read(x);
                 if (g.valid()) return transaction_type::genesis;
                 const mint m = mint::read(x);
@@ -189,10 +187,8 @@ namespace abstractions
             // this checks for validity of the script and outputs.
             // checking inputs requires tracing back through the blockchain. 
             template <typename tx, typename out, typename sh>
-            inline bool valid(tx t, 
-                abstractions::transaction::outputs<tx, out> outs,
-                abstractions::output::script<out, script> s) {
-                transaction_type tx_type = transaction_type(t, outs, s);
+            inline bool valid(tx t) {
+                transaction_type tx_type = transaction_type(t);
                 N num_outputs = outs(t).size(); 
                 switch (tx_type) {
                     default:
@@ -203,14 +199,12 @@ namespace abstractions
                     case transaction_type::mint:
                         return num_outputs >= 2;
                     case transaction_type::send:
-                        return send::read(get_slp_script(t, outs, s)).OutputQuantities.size() < num_outputs;
+                        return send::read(get_slp_script(t)).OutputQuantities.size() < num_outputs;
                 }
             }
             
             template <typename tx, typename out, typename sh>
-            meta<color, out> get_meta(tx t, 
-                abstractions::transaction::outputs<tx, out> outs,
-                abstractions::output::script<out, script> s);
+            meta<color, out> get_meta(tx t);
             
             // Some constants which will be important. 
             const byte op_return = 0x6a;

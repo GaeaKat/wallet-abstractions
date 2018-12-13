@@ -2,6 +2,8 @@
 #define ABSTRACTIONS_COLORED_COLORED_HPP
 
 #include <abstractions/blockchain/merkle.hpp>
+#include <abstractions/abstractions.hpp>
+#include <abstractions/data.hpp>
 
 namespace abstractions
 {

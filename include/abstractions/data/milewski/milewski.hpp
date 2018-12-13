@@ -1,8 +1,9 @@
-#ifndef MILEWSKI_DATA_RB_RB_HPP
-#define MILEWSKI_DATA_RB_RB_HPP
+#ifndef MILEWSKI_DATA_MILEWSKI_MILEWSKI_HPP
+#define MILEWSKI_DATA_MILEWSKI_MILEWSKI_HPP
 
 #include <milewski/rb.hpp>
-#include <milewski/Queue.h>
+#include <abstractions/data/list.hpp>
+#include <abstractions/data/iterator_list.hpp>
 #include <abstractions/data/map.hpp>
 
 namespace abstractions {
@@ -12,7 +13,7 @@ namespace abstractions {
         template <typename K, typename V>
         class rb_map {
             RBMap<K, V> Map;
-            static const data::map::definition::map<rb_map, K, V> require_is_map{};
+            constexpr static const data::map::definition::map<rb_map, K, V> require_is_map{};
             
             rb_map(RBMap<K, V> m) : Map{m} {}
             
@@ -22,7 +23,11 @@ namespace abstractions {
             }
             
             rb_map insert(K k, V v) const {
-                return RBMap<K, V>{m.inserted(k, v)};
+                return RBMap<K, V>{Map.inserted(k, v)};
+            }
+            
+            rb_map operator+(map::entry<K, V> e) {
+                return RBMap<K, V>{Map.inserted(e.Key, e.Value)};
             }
             
             bool contains(K k) const {
@@ -33,30 +38,14 @@ namespace abstractions {
                 return Map.isEmpty();
             }
             
+            rb_map() : Map{} {};
+            
+            template <typename list>
+            rb_map(list l) : Map{list::template reduce(map::insert, l)} {}
+            
+            rb_map(std::initializer_list<std::pair<K, V> > init);
+            
         };
-        
-        /*template <typename X>
-        class lazy_queue {
-            Queue<X> Q;
-            
-        public:
-            
-            bool empty() const {
-                
-            }
-            
-            const X& first() const {
-                
-            }
-            
-            lazy_queue<X> rest() const {
-                
-            }
-            
-            lazy_queue<X> operator+(X x) const {
-                
-            }
-        };*/
         
     }
     

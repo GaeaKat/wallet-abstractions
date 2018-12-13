@@ -18,12 +18,6 @@ namespace abstractions
         }
     };
     
-    /*template <typename K, typename V> 
-    struct map : association<K, V> {
-        virtual const pointer<map> insert(K, V) const = 0;
-        virtual const pointer<map> remove(K) const = 0;
-    };*/
-    
 }
 
 #endif

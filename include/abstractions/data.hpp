@@ -4,7 +4,7 @@
 #include <abstractions/data/linked_list.hpp>
 #include <abstractions/data/list_map.hpp>
 #include <abstractions/data/milewski/milewski.hpp>
-#include <abstractions/map.hpp>
+#include <abstractions/data/map.hpp>
 #include <abstractions/slice.hpp>
 
 namespace abstractions
@@ -16,9 +16,6 @@ namespace abstractions
     template <typename K, typename V>
     using list_map = data::list_map<K, V,
         list<data::map::entry<K, V> >, data::list::iterator<list<data::map::entry<K, V> >, data::map::entry<K, V> > >;
-        
-    //template <typename X>
-    //using queue = data::lazy_queue<X>;
         
     template <typename K, typename V>
     using map = data::rb_map<K, V>;

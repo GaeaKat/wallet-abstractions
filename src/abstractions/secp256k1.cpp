@@ -2,9 +2,6 @@
 
 namespace abstractions
 {
-    
-    template<> const secp256k1::pubkey zero<secp256k1::pubkey> = secp256k1::zero_pubkey;
-    template<> const secp256k1::secret zero<secp256k1::secret> = secp256k1::zero_secret;
 
     bool valid(const secp256k1::pubkey& pk) {
         if (!(pk[0] == secp256k1::point_sign_even || pk[0] == secp256k1::point_sign_odd)) return false;
@@ -22,7 +19,7 @@ namespace abstractions
     }
 
     inline bool valid(const secp256k1::secret& pk) {
-        return pk != zero<secp256k1::secret>;
+        return pk != secp256k1::secret{};
     }
     
 }

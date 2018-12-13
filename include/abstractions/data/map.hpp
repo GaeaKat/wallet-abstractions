@@ -1,7 +1,8 @@
-#ifndef ABSTRACTIONS_MAP_HPP
-#define ABSTRACTIONS_MAP_HPP
+#ifndef ABSTRACTIONS_DATA_MAP_HPP
+#define ABSTRACTIONS_DATA_MAP_HPP
 
-#include <abstractions/list.hpp>
+#include <abstractions/data/list.hpp>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions
 {
@@ -49,12 +50,12 @@ namespace abstractions
                 };
                     
                 template <typename M>
-                struct existence<M*> const {
-                    bool empty(M m) {
+                struct existence<M*> {
+                    bool empty(M m) const {
                         return m == nullptr;
                     }
                 };
-                    
+
                 template <typename M>
                 struct existence<pointer<M>> {
                     bool empty(M m) const {
@@ -126,6 +127,18 @@ namespace abstractions
                     M insert(M m, key k, value v) {
                         return m.insert(k, v);
                     }
+                        
+                    M plus(M m, entry<key, value> e) {
+                        return m + e;
+                    }
+                    
+                    M default_constructor() const {
+                        return M{};
+                    }
+                    
+                    M initializer_list_constructor(std::initializer_list<std::pair<key, value> > init) const {
+                        return M{init};
+                    }
                 }; 
             
                 template <typename M, typename key, typename value>
@@ -139,6 +152,10 @@ namespace abstractions
                         if (m == nullptr) return new map{{k, v}};
                         return m->insert(k, v);
                     }
+                    
+                    M initializer_list_constructor(std::initializer_list<std::pair<key, value> > init) const {
+                        return new M{init};
+                    }
                 }; 
 
                 template <typename M, typename key, typename value>
@@ -151,6 +168,10 @@ namespace abstractions
                     M insert(M m, key k, value v) const {
                         if (m == nullptr) return new map{{k, v}};
                         return m->insert(k, v);
+                    }
+                    
+                    M initializer_list_constructor(std::initializer_list<std::pair<key, value> > init) const {
+                        return new M{init};
                     }
                 }; 
 
@@ -192,6 +213,11 @@ namespace abstractions
             template <typename M, typename K, typename V> 
             inline V get(M m, K k) {
                 return definition::map<M, K, V>{}.get(m, k);
+            }
+
+            template <typename M, typename K, typename V> 
+            inline M insert(M m, entry<K, V> e) {
+                return definition::map<M, K, V>{}.insert(m, e.Key, e.Value);
             }
 
             template <typename M, typename K, typename V> 
