@@ -1,8 +1,8 @@
-#ifndef ABSTRACTIONS_BLOCKCHAIN_CHAIN_HPP
-#define ABSTRACTIONS_BLOCKCHAIN_CHAIN_HPP
+#ifndef ABSTRACTIONS_BITCOIN_CHAIN_HPP
+#define ABSTRACTIONS_BITCOIN_CHAIN_HPP
 
-#include <abstractions/blockchain/header.hpp>
-#include <abstractions/blockchain/merkle.hpp>
+#include <abstractions/bitcoin/header.hpp>
+#include <abstractions/bitcoin/merkle.hpp>
 
 namespace abstractions 
 {
@@ -42,7 +42,7 @@ namespace abstractions
             chain(N h, list l) : Height{h}, Blocks{l} {}
             
             static bool valid_to(N height, digest d, list a) {
-                if (height == 0) return d == header::Genesis<digest>;
+                if (height == 0) return d == bitcoin::header::Genesis<digest>;
                 
                 if (empty(a)) return false;
                 

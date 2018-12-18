@@ -91,7 +91,7 @@ namespace abstractions
             tagged_secret<to_public, secret, pubkey, F, tag> operator[](tag t) {
                 auto TagProof = TagsToPubkeys[t];
                 auto KeyProof = PubkeysToPrivkeys[TagProof.Proposition];
-                return tagged_secret<to_public, secret, pubkey, F, tag>{Function, t, key::pair{KeyProof}, TagProof, KeyProof};
+                return tagged_secret<to_public, secret, pubkey, F, tag>{Function, t, key::pair<to_public, pubkey, secret>{KeyProof}, TagProof, KeyProof};
             }
             
             tag_map insert(tag t, tagged_secret<to_public, secret, pubkey, F, tag> e) {

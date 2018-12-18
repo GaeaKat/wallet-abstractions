@@ -1,9 +1,9 @@
-#ifndef ABSTRACTIONS_BLOCKCHAIN_TRANSACTION_HPP
-#define ABSTRACTIONS_BLOCKCHAIN_TRANSACTION_HPP
+#ifndef ABSTRACTIONS_BITCOIN_TRANSACTION_HPP
+#define ABSTRACTIONS_BITCOIN_TRANSACTION_HPP
 
 #include <abstractions/abstractions.hpp>
 #include <abstractions/data.hpp>
-#include <abstractions/blockchain/output.hpp>
+#include <abstractions/bitcoin/output.hpp>
 
 namespace abstractions 
 {

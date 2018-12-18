@@ -1,7 +1,7 @@
-#ifndef ABSTRACTIONS_BLOCKCHAIN_SCRIPT_HPP
-#define ABSTRACTIONS_BLOCKCHAIN_SCRIPT_HPP
+#ifndef ABSTRACTIONS_BITCOIN_SCRIPT_HPP
+#define ABSTRACTIONS_BITCOIN_SCRIPT_HPP
 
-#include <abstractions/blockchain/transaction.hpp>
+#include <abstractions/bitcoin/transaction.hpp>
 #include <abstractions/claim.hpp>
 
 namespace abstractions 
