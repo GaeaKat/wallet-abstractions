@@ -93,7 +93,7 @@ namespace abstractions
                 // functions relating to maps which to not require
                 // knowledge of the value type. 
                 template <typename M, typename key>
-                struct removeable : public set<M, key> {
+                struct removable : public set<M, key> {
                     M remove(M m, key k) const {
                         return m.remove(k);
                     }
@@ -101,7 +101,7 @@ namespace abstractions
                     
                 // specialization for pointer types. 
                 template <typename M, typename key>
-                struct removeable<M*, key> : public set<M*, key> {
+                struct removable<M*, key> : public set<M*, key> {
                     M remove(M m, key k) const {
                         if (m == nullptr) return nullptr;
                         return m->remove(k);
@@ -110,7 +110,7 @@ namespace abstractions
                     
                 // specialization for pointer types. 
                 template <typename M, typename key>
-                struct removeable<pointer<M>, key> : public set<pointer<M>, key> {
+                struct removable<pointer<M>, key> : public set<pointer<M>, key> {
                     M remove(M m, key k) const {
                         if (m == nullptr) return nullptr;
                         return m->remove(k);
@@ -152,10 +152,6 @@ namespace abstractions
                         if (m == nullptr) return new map{{k, v}};
                         return m->insert(k, v);
                     }
-                    
-                    M initializer_list_constructor(std::initializer_list<std::pair<key, value> > init) const {
-                        return new M{init};
-                    }
                 }; 
 
                 template <typename M, typename key, typename value>
@@ -168,10 +164,6 @@ namespace abstractions
                     M insert(M m, key k, value v) const {
                         if (m == nullptr) return new map{{k, v}};
                         return m->insert(k, v);
-                    }
-                    
-                    M initializer_list_constructor(std::initializer_list<std::pair<key, value> > init) const {
-                        return new M{init};
                     }
                 }; 
 
@@ -232,7 +224,7 @@ namespace abstractions
 
             template <typename M, typename K> 
             inline M remove(M m, K k) {
-                return definition::removeable<M, K>{}.remove(m, k);
+                return definition::removable<M, K>{}.remove(m, k);
             }
             
         }
