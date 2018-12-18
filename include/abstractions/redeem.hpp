@@ -4,6 +4,7 @@
 #include <abstractions/pattern.hpp>
 #include <abstractions/bitcoin/script.hpp>
 #include <abstractions/tags.hpp>
+#include <abstractions/data.hpp>
 
 namespace abstractions 
 {
@@ -39,12 +40,16 @@ namespace abstractions
         list<spendible<scr, outpoint, tx>> Inputs;
         list<output> Outputs;
         
-        N spent() {
-            // TODO
+        N spent() const {
+            return data::list::reduce([](spendible<scr, outpoint, tx> s){return s.Value;}, Inputs);
         }
         
-        N fee() {
-            // TODO
+        N sent() const {
+            return data::list::reduce([](output o){return bitcoin::output::value(o);}, Inputs);
+        }
+        
+        N fee() const {
+            return spent() - sent();
         }
         
         tx redeem() const {
