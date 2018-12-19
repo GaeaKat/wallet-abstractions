@@ -9,6 +9,8 @@
 #include <abstractions/sha256.hpp>
 #include <abstractions/bitcoin/script.hpp>
 
+#include <libbitcoin/secp256k1.hpp>
+
 #include <bitcoin/bitcoin/chain/header.hpp>
 #include <bitcoin/bitcoin/chain/output.hpp>
 #include <bitcoin/bitcoin/chain/transaction.hpp>
@@ -16,29 +18,9 @@
 
 namespace abstractions 
 {
-    
-    inline const secp256k1::pubkey to_public(const secp256k1::secret& s) {
-        ::libbitcoin::ec_compressed x;
-        ::libbitcoin::secret_to_public(x, s);
-        return x;
-    }
 
     namespace libbitcoin
     {
-    
-        namespace ec
-        {
-        
-            struct to_public {
-                secp256k1::pubkey operator()(const secp256k1::secret& s) const {
-                    return secp256k1::pubkey(this->operator()(static_cast<const std::array<byte, secp256k1::secret_size>&>(s)));
-                }
-            };
-            
-            using pubkey = key::pubkey<to_public, secp256k1::pubkey, secp256k1::secret>;
-            using pair = key::pair<to_public, secp256k1::pubkey, secp256k1::secret>;
-        
-        }
         
         namespace btc {
             

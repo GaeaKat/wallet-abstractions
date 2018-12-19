@@ -23,13 +23,18 @@ namespace abstractions
         const std::array<byte, pubkey_size - 1> max_public_key({0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFC, 0x2F});
+        
+        struct secret;
 
         struct pubkey : public std::array<byte, pubkey_size> {
             bool valid() const;
             
-            byte operator[](N n) const {
+            byte& operator[](N n) const {
                 return static_cast<std::array<byte, pubkey_size>>(*this)[n];
             }
+            
+            pubkey operator+(const pubkey) const;
+            pubkey operator*(const secret) const;
             
             pubkey() : std::array<byte, pubkey_size>{zero_pubkey} {}
             pubkey(std::array<byte, pubkey_size> a) : std::array<byte, pubkey_size>(a) {}
@@ -38,7 +43,7 @@ namespace abstractions
         struct secret : std::array<byte, secret_size> {
             bool valid() const;
             
-            byte operator[](N n) const {
+            byte& operator[](N n) const {
                 return static_cast<std::array<byte, secret_size>>(*this)[n];
             }
             
