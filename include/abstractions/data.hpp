@@ -5,6 +5,7 @@
 #include <abstractions/data/list_map.hpp>
 #include <abstractions/data/milewski/milewski.hpp>
 #include <abstractions/data/map.hpp>
+#include <abstractions/data/map_set.hpp>
 #include <abstractions/slice.hpp>
 
 namespace abstractions
@@ -19,6 +20,9 @@ namespace abstractions
         
     template <typename K, typename V>
     using map = data::rb_map<K, V>;
+    
+    template <typename X>
+    using set = data::map_set<map<X, bool>, X>;
         
     template <typename key, typename value, typename map>
     list<value> get_all(map m, list<key> k) {

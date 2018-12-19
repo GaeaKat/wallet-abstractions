@@ -13,19 +13,23 @@ namespace abstractions {
         struct list_map {
             list List;
             
+            // proof that list map is a map. 
+            constexpr static const map::definition::countable<list_map<key, value, list, it>, key, value, list> requirement1{};
+            constexpr static const map::definition::removable<list_map<key, value, list, it>, key> requirement2{};
+            
             bool empty() const {
-                return List.empty();
+                return list::empty(List);
             }
             
             data::map::entry<key, value>& first() const {
-                return List.first();
+                return list::first(List);
             }
 
             list_map rest() {
-                return list_map{List.rest()};
+                return list_map{list::rest(List)};
             }
             
-            value operator[](key k) const {
+            value get(key k) const {
                 if (empty()) return value{};
                 
                 value v = first()[k];
@@ -35,37 +39,30 @@ namespace abstractions {
                 return list_map{rest(List)}[k];
             }
             
+            value operator[](key k) const {
+                return get(k);
+            }
+            
+            bool contains(key k) const {
+                return get(k) != value{};
+            }
+            
             it begin() const {
-                return List.begin();
+                return std::begin(List);
             }
             
             it end() const {
-                return List.end();
+                return std::end(List);
+            }
+            
+            list entries() const {
+                return List;
             }
             
             list_map(list l) : List(l) {}
+            list_map() : List{} {}
         };
         
-    }
-                
-    template <typename key, typename value, typename list, typename it>
-    inline bool empty(const data::list_map<key, value, list, it> l) {
-        return l.empty();
-    }
-                
-    template <typename key, typename value, typename list, typename it>
-    inline const data::map::entry<key, value>& first(const data::list_map<key, value, list, it> l) {
-        return l.first();
-    }
-                
-    template <typename key, typename value, typename list, typename it>
-    inline const data::list_map<key, value, list, it> rest(const data::list_map<key, value, list, it> l) {
-        return l.rest();
-    }
-            
-    template <typename key, typename value, typename list, typename it>
-    inline const data::list_map<key, value, list, it> append(const data::list_map<key, value, list, it> l, const data::map::entry<key, value> elem) {
-        return data::list_map<key, value, list, it>{append(l.List, elem)};
     }
 
 }

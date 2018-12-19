@@ -110,9 +110,7 @@ namespace abstractions
     }
     
     template <typename truth, typename pattern, typename script, typename keys>
-    truth observe(list<pattern> theory, script out, keys k) {
-        static const map::definition::map<Mtp, tag, inverse::proof<F, pubkey, tag>> r1{};
-        
+    truth observe(list<pattern> theory, script out, keys k) {        
         struct inner {
             script Out;
             

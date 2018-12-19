@@ -82,8 +82,8 @@ namespace abstractions
                     
                 template <typename A, typename X>
                 struct insertable : public set<A, X> {
-                    A insert(A a, X x) const {
-                        return a.remove(x);
+                    A add(A a, X x) const {
+                        return a.add(x);
                     }
                         
                     A plus(A a, X x) {
@@ -93,17 +93,17 @@ namespace abstractions
                     
                 template <typename A, typename X>
                 struct insertable<A*, X> : public set<A*, X> {
-                    A insert(A a, X x) const {
+                    A add(A a, X x) const {
                         if (a == nullptr) return nullptr;
-                        return a->remove(x);
+                        return a->add(x);
                     }
                 };
                     
                 template <typename A, typename X>
                 struct insertable<pointer<A>, X> : public set<pointer<A>, X> {
-                    A insert(A a, X x) const {
+                    A add(A a, X x) const {
                         if (a == nullptr) return nullptr;
-                        return a->remove(x);
+                        return a->add(x);
                     }
                 };
 
@@ -149,13 +149,13 @@ namespace abstractions
             }
 
             template <typename A, typename X> 
-            inline A insert(A a, X x) {
-                return definition::insertable<A, X>{}.insert(a, x);
+            inline A add(A a, X x) {
+                return definition::insertable<A, X>{}.add(a, x);
             }
 
             template <typename A, typename X, typename L> 
             inline L members(A a) {
-                return definition::countable<A, X, L>{}.members(a, x);
+                return definition::countable<A, X, L>{}.members(a);
             }
             
         }

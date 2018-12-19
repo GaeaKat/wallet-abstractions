@@ -7,13 +7,13 @@ namespace abstractions
 {
         
     template <typename K> 
-    class set {
+    class abstract_set {
     public:
         virtual bool contains(K k) const = 0;
     };
     
     template <typename K, typename V> 
-    class association : set<K> {
+    class association : abstract_set<K> {
     public:
         virtual const V get(K) const = 0;
         

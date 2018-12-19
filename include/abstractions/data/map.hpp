@@ -118,6 +118,9 @@ namespace abstractions
                         return m->entries();
                     }
                 }; 
+                
+                template <typename M, typename key>
+                struct removable : public data::set::definition::removable<M, key> {};
 
             }
 
@@ -149,7 +152,12 @@ namespace abstractions
 
             template <typename M, typename K> 
             inline M remove(M m, K k) {
-                return set::definition::removable<M, K>{}.remove(m, k);
+                return definition::removable<M, K>{}.remove(m, k);
+            }
+            
+            template <typename M, typename K, typename V, typename L> 
+            inline L entries(M m) {
+                return map::definition::countable<M, K, V, L>{}.entries(m);
             }
             
         }
