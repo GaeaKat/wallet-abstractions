@@ -17,6 +17,10 @@ namespace abstractions
     public:
         virtual const V get(K) const = 0;
         
+        const V operator[](K k) const {
+            return get(k);
+        }
+        
         bool contains(K k) const override {
             return get(k) != V{};
         }
