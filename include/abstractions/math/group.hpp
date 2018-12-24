@@ -11,13 +11,13 @@ namespace abstractions {
         struct group : public associative::times<X> {
             virtual X identity() const = 0;
             
-            void identity_definition(X x) {
-                equal<X>{identity(), identity() * x};
+            void identity_definition(X x) const {
+                equal<X>{x, identity() * x};
             }
             
             virtual X inverse(X) const = 0;
             
-            void inverse_definition(X x) {
+            void inverse_definition(X x) const {
                 equal<X>{identity(), inverse(x) * x};
             };
             

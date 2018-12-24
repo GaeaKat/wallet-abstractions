@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_MATH_ASSOCIATIVITY_HPP
-#define ABSTRACTIONS_MATH_ASSOCIATIVITY_HPP
+#ifndef ABSTRACTIONS_MATH_COMMUTIVITY_HPP
+#define ABSTRACTIONS_MATH_COMMUTIVITY_HPP
 
 #include <abstractions/math/contradiction.hpp>
 
@@ -7,19 +7,19 @@ namespace abstractions {
     
     namespace math {
         
-        namespace associative {
+        namespace commutative {
     
             template <typename X>
             struct times {
-                void associativity(X a, X b, X c) const {
-                    equal<X>{a * b * c, a * (b * c)};
+                void commutivity(X a, X b) const {
+                    equal<X>{a * b, b * a};
                 }
             };
     
             template <typename X>
             struct plus {
-                void associativity(X a, X b, X c) const {
-                    equal<X>{a + b + c, a + (b + c)};
+                void commutivity(X a, X b) const {
+                    equal<X>{a + b, b + a};
                 }
             };
             
