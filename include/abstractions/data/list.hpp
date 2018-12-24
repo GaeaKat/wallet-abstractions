@@ -127,6 +127,14 @@ namespace abstractions {
             inline L rest(L l) {
                 return definition::list<L, X>{}.rest(l);
             }
+            
+            template <typename L>
+            L from(L l, N n) {
+                if (n > l.size()) return {};
+                L o = l;
+                for (int i = 0; i < n; i++) o = rest(o);
+                return o;
+            }
         
             template<typename function, typename list, typename value>
             value reduce(function plus, list l) {
@@ -167,6 +175,15 @@ namespace abstractions {
                 return rest(l);
             }
             
+            template <typename times, typename L1, typename L2, typename plus, typename value>
+            value inner(times t, L1 l1, L2 l2, plus p) {
+                N size = l1.size();
+                if (size != l2.size()) return value{};
+                if (size == 0) return value{};
+                
+                return p(t(l1.first(), l2.first()), inner(t, rest(l1), rest(l2), p));
+            }
+            
             // this is an iterator that could go with a list. 
             template <typename L, typename E>
             struct iterator {
@@ -188,7 +205,7 @@ namespace abstractions {
                 bool operator==(const iterator i) const {
                     List == i.List;
                 }
-                    
+                
             };
             
             // This is a node that you could perhaps use to make a list. 
