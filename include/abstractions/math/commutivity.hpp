@@ -12,14 +12,14 @@ namespace abstractions {
             template <typename X>
             struct times {
                 void commutivity(X a, X b) const {
-                    equal<X>{a * b, b * a};
+                    if (a * b != b * a) contradiction();
                 }
             };
     
             template <typename X>
             struct plus {
                 void commutivity(X a, X b) const {
-                    equal<X>{a + b, b + a};
+                    if (a + b != b + a) contradiction();
                 }
             };
             

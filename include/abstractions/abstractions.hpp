@@ -6,12 +6,6 @@
 namespace abstractions 
 {
 
-    // the identity function is always possible. 
-    template <typename anything>
-    anything identity (anything a) {
-        return a;
-    }
-
     using N = unsigned long long int;
 
     const N all = N(0 - 1);

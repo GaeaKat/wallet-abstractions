@@ -10,7 +10,7 @@ namespace abstractions {
         template <typename X>
         struct distributive {
             void definition(X a, X x, X y) const {
-                equal<X>{a * x + a * y, a * (x + y)};
+                if (a * x + a * y != a * (x + y)) contradiction();
             }
         };
     
