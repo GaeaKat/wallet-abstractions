@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_COLORED_HPBOC_HPP
-#define ABSTRACTIONS_COLORED_HPBOC_HPP
+#ifndef ABSTRACTIONS_COLORED_SLP_SLP_HPP
+#define ABSTRACTIONS_COLORED_SLP_SLP_HPP
 
 #include <abstractions/colored/colored.hpp>
 #include <abstractions/encoding/ascii.hpp>
@@ -8,6 +8,7 @@
 #include <abstractions/bitcoin/output.hpp>
 #include <abstractions/optional.hpp>
 #include <abstractions/sha256.hpp>
+#include <abstractions/data.hpp>
 
 namespace abstractions
 {
@@ -17,7 +18,6 @@ namespace abstractions
         
         namespace slp {
             
-            // Some new types. 
             using script = vector<byte>;
             
             using quantity = uint64_t;
@@ -37,7 +37,7 @@ namespace abstractions
                 ticketing = 4,      // Reserved for Ticketing Token Type
             };
             
-            // representation of the information contained in a genesis script. 
+            // representation of a genesis script. 
             struct genesis {
                 token_type Token;
                 encoding::utf8::string Ticker;
@@ -56,14 +56,14 @@ namespace abstractions
                 genesis(unicode x, unicode n, encoding::ascii::string u, hash h, byte d, byte m, quantity q)
                     : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
-                genesis(token_type, unicode x, unicode n, encoding::ascii::string u, hash h, byte d, quantity q)
+                genesis(unicode x, unicode n, encoding::ascii::string u, hash h, byte d, quantity q)
                     : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(u), DocumentHash(h), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
-                genesis(token_type, unicode x, unicode n, byte d, byte m, quantity q)
+                genesis(unicode x, unicode n, byte d, byte m, quantity q)
                     : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(m), InitialTokenMintQuantity(q) {}
-                genesis(token_type, unicode x, unicode n, byte d, quantity q)
-                    : Token(t), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
+                genesis(unicode x, unicode n, byte d, quantity q)
+                    : Token(permissionless), Ticker(encoding::utf8::write(x)), Name(encoding::utf8::write(n)),
                         DocumentUrl(""), DocumentHash(), Decimals(d), MintBatonVout(), InitialTokenMintQuantity(q) {}
                         
                 genesis(const genesis& g) : Token{g.Token}, Ticker{g.Ticker}, Name{g.Name}, DocumentUrl{g.DocumentUrl},
@@ -72,7 +72,7 @@ namespace abstractions
                 static const genesis read(script);
             };
             
-            // representation of the information contained in a mint script
+            // representation a mint script
             struct mint {
                 token_type Token;
                 color Color; 
@@ -88,7 +88,7 @@ namespace abstractions
                 static const mint read(script);
             };
             
-            // representation of the information in a send script. 
+            // representation a send script. 
             struct send {
                 token_type Token;
                 color Color; 
@@ -229,7 +229,7 @@ namespace abstractions
             
             namespace low {
                 
-                using reader = const abstractions::reader;
+                using reader = abstractions::reader;
             
                 const byte max_byte = 0xff;
                 const uint32_t max_uint32 = 0xffff;
@@ -338,7 +338,7 @@ namespace abstractions
             public:
                 
                 static reader make(script& s) {
-                    return reader(abstractions::reader(slice<byte>(s)));
+                    return reader(abstractions::reader(slice<byte>::make(s)));
                 }
                 
                 bool end() const {

@@ -1,4 +1,4 @@
-#include <abstractions/colored/slp.hpp>
+#include <abstractions/colored/slp/slp.hpp>
 #include <abstractions/data.hpp>
             
 namespace abstractions
@@ -128,7 +128,7 @@ namespace abstractions
             }
                 
             inline writer write_string(writer w, encoding::utf8::string s) {
-                return write_push(w, s.size()).write(s);
+                return write_push(w, s.size()).write(bytestring::make(s));
             }
                 
             inline writer write(writer w, byte* b) {
@@ -220,14 +220,14 @@ namespace abstractions
                     N size = 1 + 5 + 2 + 5 + 33 + (mint_baton_vout.Exists ? 2 : 0) + 9;
 
                     std::vector<byte> scr(size); 
-                    auto s = bytestring(scr);
+                    auto s = bytestring::make(scr);
                     
                     writer w = initial_script(s);
                     w = write_transaction_type(w, colored::mint);
                     w = write_hash(w, id);
                     w = write(w, mint_baton_vout);
                     w = write(w, additional_token_quantity);
-                        
+
                     return scr;
                 }
 
@@ -241,7 +241,7 @@ namespace abstractions
                     N size = 1 + 5 + 2 + 5 + 33 + outputs * 9;
 
                     std::vector<byte> scr(size); 
-                    auto s = bytestring(scr);
+                    auto s = bytestring::make(scr);
 
                     writer w = initial_script(s);
                     w = write_transaction_type(w, colored::send);

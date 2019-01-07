@@ -23,8 +23,7 @@ namespace abstractions
             
             value() : Quantity(0), Color({}) {}
             
-            // You're not allowed to have colored value with zero in it. 
-            value(N q, C c) : Quantity{c == C{} ? 0 : q}, Color{q == 0 ? 0 : c} {}
+            value(N q, C c) : Quantity{q}, Color{c} {}
             value(value<C>& v) : Quantity{v.Quantity}, Color{v.Color} {}
             
             value<C> operator+(value<C> x) const {
@@ -34,7 +33,7 @@ namespace abstractions
             }
             
             bool valid() const {
-                Color != C{};
+                Color != C{} && Quantity != 0;
             }
         };
         
