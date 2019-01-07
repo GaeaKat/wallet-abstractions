@@ -1,6 +1,8 @@
 #ifndef ABSTRACTIONS_OPTIONAL_HPP
 #define ABSTRACTIONS_OPTIONAL_HPP
 
+#include "valid.hpp"
+
 namespace abstractions {
 
     template <typename X>
@@ -14,7 +16,7 @@ namespace abstractions {
         optional(const optional<X>& o) : Exists(o.Exists), Value(o.Value) {}
         
         bool valid() const {
-            return (!Exists) || Value.valid();
+            return (!Exists) || abstractions::valid(Value);
         }
         
         const bool operator==(const optional<X>& o) const {

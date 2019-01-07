@@ -2,7 +2,7 @@
 #define ABSTRACTIONS_TOOLS_REDUNDANCY_MAP_HPP
 
 #include <abstractions/inverse.hpp>
-#include <abstractions/data/map.hpp>
+#include <data/map.hpp>
 
 namespace abstractions {
     

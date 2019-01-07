@@ -4,8 +4,8 @@
 #include <abstractions/colored/colored.hpp>
 #include <abstractions/encoding/ascii.hpp>
 #include <abstractions/encoding/utf8.hpp>
-#include <abstractions/blockchain/transaction.hpp>
-#include <abstractions/blockchain/output.hpp>
+#include <abstractions/bitcoin/transaction.hpp>
+#include <abstractions/bitcoin/output.hpp>
 #include <abstractions/optional.hpp>
 #include <abstractions/sha256.hpp>
 

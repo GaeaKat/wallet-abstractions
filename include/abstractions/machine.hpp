@@ -1,8 +1,8 @@
 #ifndef ABSTRACTIONS_MACHINE_HPP
 #define ABSTRACTIONS_MACHINE_HPP
 
-#include <abstractions/blockchain/script.hpp>
-#include <abstractions/blockchain/transaction.hpp>
+#include <abstractions/bitcoin/script.hpp>
+#include <abstractions/bitcoin/transaction.hpp>
 
 namespace abstractions
 {
@@ -24,7 +24,7 @@ namespace abstractions
             template <typename M, typename script, typename tx>
             struct for_real {
                 // This means run checking sigops on the given tx. 
-                bool run(scripts::input_index<tx> t, script input, script output) {
+                bool run(bitcoin::script::input_index<tx> t, script input, script output) {
                     return M{t, input, output}.ErrorCode != 0;
                 }
             };
@@ -37,13 +37,13 @@ namespace abstractions
         }
         
         template <typename M, typename script, typename tx>
-        inline bool run(scripts::input_index<tx> t, script input, script output) {
+        inline bool run(bitcoin::script::input_index<tx> t, script input, script output) {
             return definition::for_real<M, script, tx>{}.run(t, input, output);
         }
         
         template <typename M, typename script, typename tx>
-        inline bool run(scripts::input_index<tx> t, script output) {
-            return definition::for_real<M, script, tx>{}.run(t, transaction::inputs(t.Transaction)[t.Index], output);
+        inline bool run(bitcoin::script::input_index<tx> t, script output) {
+            return definition::for_real<M, script, tx>{}.run(t, bitcoin::transaction::inputs(t.Transaction)[t.Index], output);
         }
         
     }

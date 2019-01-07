@@ -1,8 +1,8 @@
 #ifndef ABSTRACTIONS_DATA_LIST_MAP_HPP
 #define ABSTRACTIONS_DATA_LIST_MAP_HPP
 
-#include <abstractions/data/list.hpp>
-#include <abstractions/data/map.hpp>
+#include <data/list.hpp>
+#include <data/map.hpp>
 
 namespace abstractions {
     

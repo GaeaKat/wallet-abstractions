@@ -1,12 +1,13 @@
 #ifndef ABSTRACTIONS_BYTESTRING_HPP
 #define ABSTRACTIONS_BYTESTRING_HPP
 
-#include <abstractions/slice.hpp>
+#include <data/slice.hpp>
 #include <abstractions/endian.hpp>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions {
     
-    using bytestring = slice<byte>;
+    using bytestring = ::data::slice<byte>;
     
     class reader {
         bytestring::iterator i;

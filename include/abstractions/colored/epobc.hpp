@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_COLORED_HPBOC_HPP
 
 #include <abstractions/colored/colored.hpp>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions
 {

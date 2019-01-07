@@ -3,6 +3,7 @@
 
 #include <abstractions/bitcoin/header.hpp>
 #include <abstractions/bitcoin/merkle.hpp>
+#include <abstractions/abstractions.hpp>
 
 namespace abstractions 
 {

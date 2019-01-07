@@ -41,11 +41,11 @@ namespace abstractions
         list<output> Outputs;
         
         N spent() const {
-            return data::list::reduce([](spendible<scr, outpoint, tx> s){return s.Value;}, Inputs);
+            return ::data::list::reduce([](spendible<scr, outpoint, tx> s){return s.Value;}, Inputs);
         }
         
         N sent() const {
-            return data::list::reduce([](output o){return bitcoin::output::value(o);}, Inputs);
+            return ::data::list::reduce([](output o){return bitcoin::output::value(o);}, Inputs);
         }
         
         N fee() const {

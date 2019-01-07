@@ -1,14 +1,12 @@
 #ifndef ABSTRACTIONS_LOGIC_LOGIC_HPP
 #define ABSTRACTIONS_LOGIC_LOGIC_HPP
 
-#include <abstractions/identity.hpp>
+#include <truth/identity.hpp>
 #include <abstractions/logic/relation.hpp>
 
 namespace abstractions {
     
     namespace logic {
-        using namespace statement;
-            
         template <typename A, typename B>
         struct Implies : public relation<A, operand::Implies, B> {
             virtual B operator()(A) const = 0;
@@ -38,6 +36,10 @@ namespace abstractions {
         struct Equal<X, X> : public Implies<A, A> {};
             
     }
+
+}
+
+namespace truth {
     
     namespace statement {
         

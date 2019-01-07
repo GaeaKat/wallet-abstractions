@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_UNICODE_HPP
 
 #include <string>
+#include "fundamental.hpp"
 
 namespace abstractions {
     

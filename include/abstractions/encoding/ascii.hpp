@@ -34,6 +34,10 @@ namespace abstractions {
                     for (int i = 0; i < s.size(); i++) this->at(i) = s[i];
                 }
                 string(const string& s) : vector<character>(static_cast<vector<character>>(s)) {}
+                
+                bool operator==(const string& s) {
+                    return static_cast<vector<character>>(*this) == static_cast<const vector<character>&>(s);
+                }
             };
             
             string read(const bytestring x) {

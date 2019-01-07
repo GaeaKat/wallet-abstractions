@@ -1,8 +1,9 @@
 #ifndef ABSTRACTIONS_DATA_TREE_HPP
 #define ABSTRACTIONS_DATA_TREE_HPP
 
-#include <abstractions/data/list.hpp>
-#include <abstractions/data/set.hpp>
+#include <data/list.hpp>
+#include <data/set.hpp>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions {
     
@@ -13,7 +14,7 @@ namespace abstractions {
             namespace definition {
                     
                 template <typename T>
-                struct tree : public set::definition::existence<T> {
+                struct tree : public ::data::set::definition::existence<T> {
                     T left(T t) const {
                         return t.left();
                     }
@@ -24,7 +25,7 @@ namespace abstractions {
                 };
                     
                 template <typename T>
-                struct tree<T*> : public set::definition::existence<T*> {
+                struct tree<T*> : public ::data::set::definition::existence<T*> {
                     T left(T t) const {
                         if (t == nullptr) return nullptr;
                         return t->left();
@@ -37,7 +38,7 @@ namespace abstractions {
                 };
                     
                 template <typename T>
-                struct tree<pointer<T>> : public set::definition::existence<pointer<T>> {
+                struct tree<pointer<T>> : public ::data::set::definition::existence<pointer<T>> {
                     T left(T t) const {
                         if (t == nullptr) return nullptr;
                         return t->left();
@@ -50,34 +51,34 @@ namespace abstractions {
                 };
                     
                 template <typename T, typename X>
-                struct set : public data::set::definition::set<T, X> {
+                struct set : public ::data::set::definition::set<T, X> {
                     X& root(T t) const {
                         return t.root();
                     }
                 };
                     
                 template <typename T, typename X>
-                struct set<T*, X> : public data::set::definition::set<T*, X> {
+                struct set<T*, X> : public ::data::set::definition::set<T*, X> {
                     X& root(T t) const {
                         return t->root();
                     }
                 };
                     
                 template <typename T, typename X>
-                struct set<pointer<T>, X> : public data::set::definition::set<pointer<T>, X> {
+                struct set<pointer<T>, X> : public ::data::set::definition::set<pointer<T>, X> {
                     X& root(T t) const {
                         return t->root();
                     }
                 };
                     
                 template <typename T, typename X>
-                struct removable : public data::set::definition::removable<T, X>, public set<T, X> , public tree<T> {};
+                struct removable : public ::data::set::definition::removable<T, X>, public set<T, X> , public tree<T> {};
                     
                 template <typename T, typename X>
-                struct insertable : public data::set::definition::insertable<T, X>, public set<T, X>, public tree<T> {};
+                struct insertable : public ::data::set::definition::insertable<T, X>, public set<T, X>, public tree<T> {};
 
                 template <typename T, typename X, typename L>
-                struct countable : public data::set::definition::countable<T, X, L>, public set<T, X>, public tree<T> {}; 
+                struct countable : public ::data::set::definition::countable<T, X, L>, public set<T, X>, public tree<T> {}; 
                 
             }
             
@@ -85,12 +86,12 @@ namespace abstractions {
             inline X& root(const T t) {
                 return definition::set<T, X>{}.root(t);
             }
-                
+
             template <typename T>
             inline T right(const T t) {
                 return definition::tree<T>{}.right(t);
             }
-                
+
             template <typename T>
             inline T left(const T t) {
                 return definition::tree<T>{}.left(t);
@@ -98,7 +99,7 @@ namespace abstractions {
 
             template <typename A>
             inline bool empty(A a) {
-                return set::definition::existence<A>{}.empty(a);
+                return ::data::set::definition::existence<A>{}.empty(a);
             }
 
             template <typename A, typename X> 
@@ -199,13 +200,13 @@ namespace abstractions {
             };
 
             template <typename X, typename T, typename L>
-            data::list::iterator<list<X, T, L>, X> begin(T t) {
-                return data::list::iterator<list<X, T, L>, X>{list<X, T, L>{t, {}}};
+            ::data::list::iterator<list<X, T, L>, X> begin(T t) {
+                return ::data::list::iterator<list<X, T, L>, X>{list<X, T, L>{t, {}}};
             }
             
             template <typename X, typename T, typename L>
-            data::list::iterator<list<X, T, L>, X> end() {
-                return data::list::iterator<list<X, T, L>, X>{list<X, T, L>{}};
+            ::data::list::iterator<list<X, T, L>, X> end() {
+                return ::data::list::iterator<list<X, T, L>, X>{list<X, T, L>{}};
             }
             
             template <typename X>

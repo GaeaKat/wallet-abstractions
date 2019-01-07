@@ -2,9 +2,9 @@
 #define MILEWSKI_DATA_MILEWSKI_MILEWSKI_HPP
 
 #include <milewski/rb.hpp>
-#include <abstractions/data/list.hpp>
+#include <data/list.hpp>
 #include <abstractions/data/iterator_list.hpp>
-#include <abstractions/data/map.hpp>
+#include <data/map.hpp>
 
 namespace abstractions {
     
@@ -13,7 +13,7 @@ namespace abstractions {
         template <typename K, typename V>
         class rb_map {
             RBMap<K, V> Map;
-            constexpr static const data::map::definition::map<rb_map, K, V> require_is_map{};
+            constexpr static const ::data::map::definition::map<rb_map, K, V> require_is_map{};
             
             rb_map(RBMap<K, V> m) : Map{m} {}
             

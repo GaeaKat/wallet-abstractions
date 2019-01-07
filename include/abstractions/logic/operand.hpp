@@ -1,11 +1,11 @@
 #ifndef ABSTRACTIONS_LOGIC_OPERAND_HPP
 #define ABSTRACTIONS_LOGIC_OPERAND_HPP
 
-#include <abstractions/abstractions.hpp>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions {
     
-    namespace statement {
+    namespace logic {
     
         namespace operand {
             

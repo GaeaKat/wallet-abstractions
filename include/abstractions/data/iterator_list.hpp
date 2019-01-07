@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_DATA_ITERATOR_LIST_HPP
 #define ABSTRACTIONS_DATA_ITERATOR_LIST_HPP
 
-#include <abstractions/data/list.hpp>
+#include <data/list.hpp>
 #include <abstractions/association.hpp>
 
 namespace abstractions

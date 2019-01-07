@@ -4,15 +4,18 @@
 #include <abstractions/data/linked_list.hpp>
 #include <abstractions/data/list_map.hpp>
 #include <abstractions/data/milewski/milewski.hpp>
-#include <abstractions/data/map.hpp>
+#include <data/map.hpp>
 #include <abstractions/data/map_set.hpp>
-#include <abstractions/slice.hpp>
+#include <data/slice.hpp>
 
 namespace abstractions
 {
 
     template <typename X>
     using list = data::linked_list<X>;
+            
+    template <typename X>
+    using slice = ::data::slice<X>;
 
     template <typename K, typename V>
     using list_map = data::list_map<K, V,

@@ -1,14 +1,17 @@
 #ifndef ABSTRACTIONS_DATA_LINKED_LIST_HPP
 #define ABSTRACTIONS_DATA_LINKED_LIST_HPP
 
-#include <abstractions/data/list.hpp>
+#include <data/list.hpp>
 #include <abstractions/association.hpp>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions
 {
     
     namespace data
     {
+        
+        using namespace ::data;
         
         template <typename X>
         struct linked_list {

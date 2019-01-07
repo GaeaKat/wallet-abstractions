@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_BLOCKCHAIN_PROFILE_HPP
 
 #include <abstractions/abstractions.hpp>
+#include <stdint.h>
 
 namespace abstractions 
 {

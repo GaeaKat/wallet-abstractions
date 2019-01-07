@@ -1,8 +1,9 @@
 #ifndef ABSTRACTIONS_LOGIC_CONTRADICTION_HPP
 #define ABSTRACTIONS_LOGIC_CONTRADICTION_HPP
 
-#include <abstractions/logic/statement.hpp>
+#include <truth/statement/statement.hpp>
 #include <exception>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions {
 
@@ -25,19 +26,23 @@ namespace abstractions {
         
     }
     
+    inline void contradiction() {
+        return logic::contradiction::contradict("");
+    }
+    
+}
+
+namespace truth {
+    
     namespace statement {
         
         template<>
-        struct reader<logic::contradiction> {
-            string read() const {
+        struct writer<abstractions::logic::contradiction> {
+            string write() const {
                 return "contradiction"; 
             }
         };
     
-    }
-    
-    inline void contradiction() {
-        return logic::contradiction::contradict("");
     }
     
 }

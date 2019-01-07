@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_LOGIC_RELATION_HPP
 #define ABSTRACTIONS_LOGIC_RELATION_HPP
 
-#include <abstractions/logic/statement.hpp>
+#include <truth/statement/statement.hpp>
 #include <abstractions/logic/operand.hpp>
 
 namespace abstractions {
@@ -10,10 +10,18 @@ namespace abstractions {
         
         template <typename A, typename R, typename B>
         struct relation {};
-            
+    
+    }
+    
+}
+
+namespace truth {
+    
+    namespace statement {
+
         template <typename A, typename R, typename B>
-        struct reader<relation<A, R, B>> {
-            string read() const {
+        struct writer<relation<A, R, B>> {
+            string write() const {
                 return "(" + statement::read<A>() + ") " + operand::read<R>() + " (" + statement::read<B>() + ")";
             }
         };

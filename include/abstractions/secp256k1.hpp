@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_SECP256K1_HPP
 #define ABSTRACTIONS_SECP256K1_HPP
 
-#include "abstractions.hpp"
+#include "fundamental.hpp"
 
 namespace abstractions
 {
