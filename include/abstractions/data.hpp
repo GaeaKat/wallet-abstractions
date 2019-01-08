@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_DATA_HPP
 #define ABSTRACTIONS_DATA_HPP
 
-#include <abstractions/data/linked_list.hpp>
+#include <data/list/linked_list.hpp>
 #include <data/tools/list_map.hpp>
 #include <abstractions/data/milewski/milewski.hpp>
 #include <data/map.hpp>
@@ -12,7 +12,7 @@ namespace abstractions
 {
 
     template <typename X>
-    using list = data::linked_list<X>;
+    using list = ::data::linked_list<X>;
             
     template <typename X>
     using slice = ::data::slice<X>;
