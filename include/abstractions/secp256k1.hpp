@@ -2,9 +2,9 @@
 #define ABSTRACTIONS_SECP256K1_HPP
 
 #include "fundamental.hpp"
+#include "abstractions.hpp"
 
-namespace abstractions
-{
+namespace abstractions {
     
     // incomplete implementation of secp256k1
     namespace secp256k1
@@ -20,11 +20,25 @@ namespace abstractions
         const std::array<byte, pubkey_size> zero_pubkey{};
         const std::array<byte, secret_size> zero_secret{};
 
-        const std::array<byte, pubkey_size - 1> max_public_key({0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        const std::array<byte, pubkey_size - 1> max_public_key{{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFC, 0x2F});
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFC, 0x2F}};
         
-        struct secret;
+        struct pubkey;
+        
+        struct secret : std::array<byte, secret_size> {
+            
+            bool valid() const;
+            
+            byte& operator[](N n) const {
+                return static_cast<std::array<byte, secret_size>>(*this)[n];
+            }
+            
+            pubkey to_public() const;
+            
+            secret() : std::array<byte, secret_size>{zero_secret} {}
+            secret(std::array<byte, secret_size> a) : std::array<byte, secret_size>(a) {}
+        };
 
         struct pubkey : public std::array<byte, pubkey_size> {
             bool valid() const;
@@ -38,19 +52,10 @@ namespace abstractions
             
             pubkey() : std::array<byte, pubkey_size>{zero_pubkey} {}
             pubkey(std::array<byte, pubkey_size> a) : std::array<byte, pubkey_size>(a) {}
-        };
-        
-        struct secret : std::array<byte, secret_size> {
-            bool valid() const;
             
-            byte& operator[](N n) const {
-                return static_cast<std::array<byte, secret_size>>(*this)[n];
+            static pubkey identity() {
+                return pubkey{};
             }
-            
-            pubkey to_public() const;
-            
-            secret() : std::array<byte, secret_size>{zero_secret} {}
-            secret(std::array<byte, secret_size> a) : std::array<byte, secret_size>(a) {}
         };
         
         const pubkey to_public(const secret&);
