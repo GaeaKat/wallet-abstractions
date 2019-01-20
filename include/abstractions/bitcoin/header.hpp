@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_BLOCKCHAIN_HEADER_HPP
 #define ABSTRACTIONS_BLOCKCHAIN_HEADER_HPP
 
-#include <abstractions/data/list.hpp>
+#include <data/list.hpp>
 #include <abstractions/association.hpp>
 
 namespace abstractions 

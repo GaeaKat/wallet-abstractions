@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_BITCOIN_TRANSACTION_HPP
 
 #include <abstractions/abstractions.hpp>
+#include <abstractions/association.hpp>
 #include <abstractions/data.hpp>
 #include <abstractions/bitcoin/output.hpp>
 
@@ -59,7 +60,7 @@ namespace abstractions
             template <typename tx, typename index>
             inline Z fee(index b, tx t) {
                 Z redeemed = redeemed(b, t);
-                if (redeemed == invalid<Z>) return invalid<Z>;
+                if (redeemed == Z{}) return Z{};
                 return redeemed - spent(t);
             }
 
