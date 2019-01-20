@@ -1,8 +1,9 @@
 #ifndef ABSTRACTIONS_HD_SECP256K1_HPP
 #define ABSTRACTIONS_HD_SECP256K1_HPP
 
-#include <abstractions/secp256k1.hpp>
+#include <data/crypto/secp256k1.hpp>
 #include <abstractions/one_way.hpp>
+#include <abstractions/fundamental.hpp>
 
 namespace abstractions
 {
@@ -15,10 +16,10 @@ namespace abstractions
 
             const uint chain_code_size = 32;
             
-            using public_key = abstractions::secp256k1::pubkey;
-            using private_key = abstractions::secp256k1::secret;
+            using public_key = ::data::secp256k1::pubkey;
+            using private_key = ::data::secp256k1::secret;
             
-            const std::array<byte, chain_code_size> zero_chain_code = abstractions::secp256k1::zero_secret;
+            const std::array<byte, chain_code_size> zero_chain_code = ::data::secp256k1::zero_secret;
 
             struct chain_code : public std::array<byte, chain_code_size> {
                 bool valid() const;
@@ -71,7 +72,7 @@ namespace abstractions
                     return Pubkey != n.Pubkey || Secret != n.Secret;
                 }
                 
-                private_node() : Secret(abstractions::secp256k1::zero_secret), Pubkey() {}
+                private_node() : Secret(data::secp256k1::zero_secret), Pubkey() {}
                 private_node(
                     const private_key s,
                     const public_key p,
@@ -91,7 +92,7 @@ namespace abstractions
         return cc != hd::secp256k1::zero_chain_code;
     }
     
-    inline hd::secp256k1::public_node::public_node() : Point(abstractions::secp256k1::zero_pubkey), ChainCode(hd::secp256k1::zero_chain_code) {}
+    inline hd::secp256k1::public_node::public_node() : Point(data::secp256k1::zero_pubkey), ChainCode(hd::secp256k1::zero_chain_code) {}
     
     inline hd::secp256k1::chain_code::chain_code() : std::array<byte, chain_code_size>(hd::secp256k1::zero_chain_code) {}
 

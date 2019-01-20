@@ -2,6 +2,7 @@
 #define ABSTRACTIONS_HD_BIP32_HPP
 
 #include <abstractions/hd/secp256k1.hpp>
+#include <abstractions/data.hpp>
 
 namespace abstractions
 {
@@ -18,6 +19,11 @@ namespace abstractions
             // A transformation which is hardened is denoted by having the hardened_flag
             // set. In otherwords if it is larger than 2^31. 
             const child_index hardened_flag = 0x80000000;
+            
+            using derivation = list<child_index>;
+            
+            template<typename K> using algebra = K (*)(K, child_index);
+            
         }
         
     }
@@ -25,4 +31,3 @@ namespace abstractions
 }
 
 #endif
-
