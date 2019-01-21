@@ -20,7 +20,7 @@ namespace abstractions
     };
     
     template <typename quantifier, typename proposition, typename derivation>
-    struct proof : public claim<quantifier, proposition, derivation> {
+    struct proof : public virtual claim<quantifier, proposition, derivation> {
         using claim = claim<quantifier, proposition, derivation>;
         
         derivation Derivation;

@@ -16,6 +16,7 @@ namespace abstractions
                 return k == Function(v);
             }
             
+            test(f fun) : Function{fun} {}
         };
         
         template <typename f, typename key, typename value>

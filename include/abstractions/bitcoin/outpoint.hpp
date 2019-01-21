@@ -5,14 +5,18 @@
 
 namespace abstractions 
 {
-        
-    template <typename digest>
-    struct outpoint {
-        digest Digest;
-        N Index;
-        
-        outpoint(digest d, N i) : Digest(d), Index(i) {}
-    };
+    
+    namespace bitcoin {
+
+        template <typename digest>
+        struct outpoint {
+            digest Digest;
+            N Index;
+            
+            outpoint(digest d, N i) : Digest(d), Index(i) {}
+        };
+    
+    }
     
 } 
 
