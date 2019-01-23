@@ -2,13 +2,13 @@
 #define ABSTRACTIONS_COLORED_SLP_SLP_HPP
 
 #include <abstractions/colored/colored.hpp>
-#include <abstractions/encoding/ascii.hpp>
-#include <abstractions/encoding/utf8.hpp>
 #include <abstractions/bitcoin/transaction.hpp>
 #include <abstractions/bitcoin/output.hpp>
 #include <abstractions/optional.hpp>
 #include <abstractions/sha256.hpp>
 #include <abstractions/data.hpp>
+#include <data/encoding/ascii.hpp>
+#include <data/encoding/utf8.hpp>
 
 namespace abstractions
 {
@@ -25,6 +25,8 @@ namespace abstractions
             using hash = sha256::digest;
             
             using color = hash;
+            
+            using unicode = ::data::unicode;
             
             // Several types of tokens have been named, but only the first
             // has been defined. The others are reserved but meaningless
@@ -192,7 +194,7 @@ namespace abstractions
                 N num_outputs = outs(t).size(); 
                 switch (tx_type) {
                     default:
-                    case none:
+                    case transaction_type::none:
                         return false;
                     case transaction_type::genesis:
                         return num_outputs >= 2;
