@@ -2,8 +2,7 @@
 #define ABSTRACTIONS_DATA_HPP
 
 #include <data/list/linked_list.hpp>
-#include <data/tools/list_map.hpp>
-#include <abstractions/data/milewski/milewski.hpp>
+#include <data/map/rb.hpp>
 #include <data/map.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/slice.hpp>
@@ -18,8 +17,7 @@ namespace abstractions
     using slice = ::data::slice<X>;
 
     template <typename K, typename V>
-    using list_map = ::data::list_map<K, V,
-        list<::data::map::entry<K, V> >, ::data::list::iterator<list<::data::map::entry<K, V> >, ::data::map::entry<K, V> > >;
+    using list_map = ::data::rb_map<K, V>;
         
     template <typename K, typename V>
     using map = data::rb_map<K, V>;
