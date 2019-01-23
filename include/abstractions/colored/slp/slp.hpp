@@ -5,7 +5,7 @@
 #include <abstractions/bitcoin/transaction.hpp>
 #include <abstractions/bitcoin/output.hpp>
 #include <abstractions/optional.hpp>
-#include <abstractions/sha256.hpp>
+#include <data/crypto/sha256.hpp>
 #include <abstractions/data.hpp>
 #include <data/encoding/ascii.hpp>
 #include <data/encoding/utf8.hpp>
@@ -22,7 +22,7 @@ namespace abstractions
             
             using quantity = uint64_t;
             
-            using hash = sha256::digest;
+            using hash = ::data::sha256::digest;
             
             using color = hash;
             
