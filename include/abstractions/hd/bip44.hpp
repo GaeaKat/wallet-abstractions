@@ -17,8 +17,9 @@ namespace abstractions
             const bip32::child_index purpose = bip32::hardened_flag + 44;
                 
             enum coin_type {
-                bitcoin = 0x80000000, 
-                bitcoin_cash = 0x80000091
+                BTC = 0x80000000, 
+                BCH = 0x80000091, 
+                BSV = 0x80000000
             };
                 
             enum sequence_type {
