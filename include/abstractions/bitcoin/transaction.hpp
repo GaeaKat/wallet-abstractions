@@ -6,14 +6,11 @@
 #include <abstractions/data.hpp>
 #include <abstractions/bitcoin/output.hpp>
 
-namespace abstractions 
-{
+namespace abstractions {
     
-    namespace bitcoin
-    {
+    namespace bitcoin {
         
-        namespace transaction
-        {
+        namespace transaction {
 
             // outputs of a transaction. 
             template <typename tx, typename out>
