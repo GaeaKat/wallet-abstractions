@@ -38,11 +38,11 @@ namespace abstractions {
         
         struct proto final {
             satoshi Balance;
-            list<spendable> Outputs;
+            queue<spendable> Outputs;
             
             proto() : Balance{0}, Outputs{} {}
-            proto(list<spendable> l) : Balance{data::fold(plus, empty, l)}, Outputs{} {}
-            proto(std::initializer_list<spendable> l) : proto(list<spendable>{l}) {}
+            proto(queue<spendable> l) : Balance{data::fold(plus, empty, l)}, Outputs{} {}
+            proto(std::initializer_list<spendable> l) : proto(queue<spendable>{l}) {}
             
             proto fill(const proto p, const spendable s) const;
             
@@ -51,7 +51,7 @@ namespace abstractions {
             spent spend(const proto p, satoshi amount, satoshi fee, address to, secret change) const;
             
         private:
-            proto(satoshi b, list<spendable> o) : Balance{b}, Outputs{o} {}
+            proto(satoshi b, queue<spendable> o) : Balance{b}, Outputs{o} {}
         };
         
         struct proto::spent {
@@ -64,7 +64,7 @@ namespace abstractions {
         };
         
         inline proto proto::fill(const proto p, const spendable s) const {
-            return proto{p.Balance + s.Amount, data::append(p.Outputs, s)};
+            return proto{p.Balance + s.Amount, p.Outputs + s};
         }
         
         using script = vector<byte>;
@@ -74,7 +74,7 @@ namespace abstractions {
             script Script;
         };
         
-        transaction make_transaction(list<input>, list<output>);
+        transaction make_transaction(queue<input>, queue<output>);
         
         script pay_to_address(const address);
         
@@ -83,7 +83,7 @@ namespace abstractions {
         proto::spent proto::spend(const proto p, satoshi amount, satoshi fee, address to, secret mine) const {
             if (amount + fee > p.Balance) return {};
             
-            list<input> redeemed = data::for_each(redeem, p.Outputs);
+            queue<input> redeemed = data::for_each(redeem, p.Outputs);
             
             output sent{amount, pay_to_address(to)};
             

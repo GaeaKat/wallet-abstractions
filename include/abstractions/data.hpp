@@ -2,10 +2,10 @@
 #define ABSTRACTIONS_DATA_HPP
 
 #include <data/list/linked_list.hpp>
-#include <data/map/rb.hpp>
 #include <data/map.hpp>
+#include <data/map/rb.hpp>
 #include <data/tools/map_set.hpp>
-#include <data/tools/list_queue.hpp>
+#include <data/queue/functional_queue.hpp>
 #include <data/slice.hpp>
 
 namespace abstractions
@@ -27,7 +27,7 @@ namespace abstractions
     using set = data::map_set<map<X, bool>, X>;
     
     template <typename X>
-    using queue = data::list_queue<list<X>, X>;
+    using queue = data::functional_queue<list<X>>;
         
     template <typename key, typename value, typename map>
     list<value> get_all(map m, list<key> k) {
