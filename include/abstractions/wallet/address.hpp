@@ -7,26 +7,30 @@
 
 namespace abstractions {
     
-    struct address : ::data::sha256::digest {
-        char Prefix;
-            
-        string write();
-        
-        static address read(string& s);
-        
-        address(data::secp256k1::pubkey);
-        address(data::secp256k1::secret);
-        
-    private:
-        address(char prefix, ::data::sha256::digest d) : ::data::sha256::digest(d), Prefix{prefix} {}
-    };
+    namespace wallet {
     
-    namespace cashaddr {
+        struct address : ::data::sha256::digest {
+            char Prefix;
+                
+            string write();
+            
+            static address read(string& s);
+            
+            address(data::secp256k1::pubkey);
+            address(data::secp256k1::secret);
+            
+        private:
+            address(char prefix, ::data::sha256::digest d) : ::data::sha256::digest(d), Prefix{prefix} {}
+        };
         
-        address read(string& s);
-        
-        string write(address& a);
-        
+        namespace cashaddr {
+            
+            address read(string& s);
+            
+            string write(address& a);
+            
+        }
+    
     }
     
 } 

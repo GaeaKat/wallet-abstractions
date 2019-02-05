@@ -129,7 +129,7 @@ namespace abstractions {
                 T Left;
                 T Right;
                     
-                node(X v, T n, T l, T r) : Data(v), Left(l), Right(r) {}
+                node(X v, T l, T r) : Data(v), Left(l), Right(r) {}
                 node(X v) : Data(v), Left{}, Right{} {}
                 
                 X& first() const {
