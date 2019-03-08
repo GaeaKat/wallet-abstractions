@@ -12,7 +12,7 @@ namespace abstractions {
     
     namespace wallet {
         
-        satoshi add_balance(satoshi total, spendable next){
+        inline satoshi add_balance(satoshi total, spendable next){
             return total + next.Amount;
         }
         
@@ -52,23 +52,6 @@ namespace abstractions {
         script pay_to_address(const address);
         
         extern const satoshi dust;
-        
-        proto::spent proto::spend(const proto p, satoshi amount, satoshi fee, address to, secret mine) const {
-            if (amount + fee > p.Balance) return {};
-            
-            queue<input> redeemed = data::for_each(redeem, p.Outputs);
-            
-            output sent{amount, pay_to_address(to)};
-            
-            satoshi remainder = p.Balance - amount - fee;
-            
-            address change = address(mine);
-
-            if (remainder <= dust) return spent{make_transaction(redeemed, {sent}), proto{}};
-            return spent{make_transaction(redeemed, {{sent, output{remainder, pay_to_address(change)}}}), proto{{spendable{change, remainder, mine}}}};
-            
-            return {};
-        }
 
     }
 
