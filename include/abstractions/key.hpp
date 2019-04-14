@@ -1,11 +1,10 @@
 #ifndef ABSTRACTIONS_KEY_HPP
 #define ABSTRACTIONS_KEY_HPP
 
-#include <abstractions/inverse.hpp>
+#include <data/knowledge/inverse.hpp>
 #include <data/crypto/concepts.hpp>
 
-namespace abstractions
-{
+namespace abstractions {
     
     // proofs and claims concerning public and private keys. 
     namespace key {
@@ -13,8 +12,8 @@ namespace abstractions
         using to_public = ::data::crypto::keypair<priv, pub>;
         
         template <typename priv, typename pub>
-        struct claim : virtual inverse::claim<::data::crypto::keypair<priv, pub>, priv, pub> {
-            using parent = inverse::claim<to_public<priv, pub>, priv, pub>;
+        struct claim : virtual data::knowledge::inverse::claim<to_public<priv, pub>, priv, pub> {
+            using parent = data::knowledge::inverse::claim<to_public<priv, pub>, priv, pub>;
             
             pub pubkey() const {
                 return parent::SuchThat;
@@ -24,8 +23,10 @@ namespace abstractions
         };
         
         template <typename priv, typename pub>
-        struct pair : public claim<priv, pub>, public inverse::proof<::data::crypto::keypair<priv, pub>, priv, pub> {
-            using proof = inverse::proof<::data::crypto::keypair<priv, pub>, priv, pub>;
+        struct pair :
+            public claim<priv, pub>,
+            public data::knowledge::inverse::proof<to_public<priv, pub>, priv, pub> {
+            using proof = data::knowledge::inverse::proof<to_public<priv, pub>, priv, pub>;
             
             priv secret() const {
                 return proof::Derivation;
