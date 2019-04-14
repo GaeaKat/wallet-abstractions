@@ -2,16 +2,13 @@
 #define ABSTRACTIONS_BITCOIN_SCRIPT_HPP
 
 #include <abstractions/bitcoin/transaction.hpp>
-#include <abstractions/claim.hpp>
+#include <data/knowledge/claim.hpp>
 
-namespace abstractions 
-{
+namespace abstractions {
     
-    namespace bitcoin 
-    {
+    namespace bitcoin {
     
-        namespace script
-        {
+        namespace script {
             
             // given a virtual machine, an output script, and a transaction index, 
             // check that the machine returns true for the script formed from the
@@ -66,14 +63,14 @@ namespace abstractions
             // claim that a transaction input index exists such that the given
             // output is redeemed. 
             template <typename machine, typename script, typename tx>
-            inline claim<run_script<machine, script, tx>, script, input_index<tx>> claim_redeemable(machine m, script s) {
-                return claim<run_script<machine, script, tx>, script, input_index<tx>>{run_script<machine, script, tx>{m}, s};
+            inline data::knowledge::claim<run_script<machine, script, tx>, script, input_index<tx>> claim_redeemable(machine m, script s) {
+                return data::knowledge::claim<run_script<machine, script, tx>, script, input_index<tx>>{run_script<machine, script, tx>{m}, s};
             }
             
             // proove that a transaction input index redeems a given script. 
             template <typename machine, typename script, typename tx>
-            inline proof<run_script<machine, script, tx>, script, input_index<tx>> prove_redeemable(machine m, script s, input_index<tx> ti) {
-                return proof<run_script<machine, script, tx>, script, input_index<tx>>{claim_redeemable(m, s), ti};
+            inline data::knowledge::proof<run_script<machine, script, tx>, script, input_index<tx>> prove_redeemable(machine m, script s, input_index<tx> ti) {
+                return data::knowledge::proof<run_script<machine, script, tx>, script, input_index<tx>>{claim_redeemable(m, s), ti};
             }
         
         }

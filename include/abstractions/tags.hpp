@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_TAGS_HPP
-#define ABSTRACTIONS_TAGS_HPP
+#ifndef ABSTRACTIONS_TAGS
+#define ABSTRACTIONS_TAGS
 
 #include <abstractions/data.hpp>
 #include <abstractions/key.hpp>
@@ -19,9 +19,9 @@ namespace abstractions {
             // The tag which is is produced by the public key. 
             tag Tag;
             
-            key::pubkey<priv, pub> Pubkey;
+            key::claim<priv, pub> Pubkey;
             
-            inverse::proof<F, pub, tag> TagProof;
+            data::knowledge::inverse::proof<F, pub, tag> TagProof;
             
             bool validate() const {
                 return Function == TagProof.Exist.Function
@@ -44,7 +44,7 @@ namespace abstractions {
             
             key::pair<priv, pub> Keypair;
             
-            inverse::proof<F, pub, tag> TagProof;
+            data::knowledge::inverse::proof<F, pub, tag> TagProof;
             
             bool validate() const {
                 return Function == TagProof.Exist.Function

@@ -14,7 +14,7 @@ namespace abstractions
         {
             
             template <typename digest>
-            const digest Genesis;
+            const extern digest Genesis;
             
             template <typename list, typename N>
             N cumulative_pow(list lh) {

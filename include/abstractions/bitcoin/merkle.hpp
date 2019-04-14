@@ -1,7 +1,7 @@
 #ifndef ABSTRACTIONS_BITCOIN_MERKLE_HPP
 #define ABSTRACTIONS_BITCOIN_MERKLE_HPP
 
-#include <abstractions/claim.hpp>
+#include <data/knowledge/claim.hpp>
 
 namespace abstractions {
     
@@ -21,7 +21,7 @@ namespace abstractions {
         
         // construct a proof that a merkle tree has a given root. 
         template <typename digest, typename tree>
-        using root_proof = abstractions::proof<bool (*)(digest, tree), digest, tree>;
+        using root_proof = data::knowledge::proof<bool (*)(digest, tree), digest, tree>;
         
         template <typename digest, typename tree>
         inline const root_proof<digest, tree> state_root_proof(digest r, tree t) {
@@ -30,7 +30,7 @@ namespace abstractions {
         
         // construct a proof that a merkle tree has a given leaf. 
         template <typename digest, typename tree>
-        using leaf_proof = abstractions::proof<bool (*)(digest, tree), digest, tree>;
+        using leaf_proof = data::knowledge::proof<bool (*)(digest, tree), digest, tree>;
         
         template <typename digest, typename tree>
         inline const leaf_proof<digest, tree> state_leaf_proof(digest r, tree t) {
@@ -51,7 +51,7 @@ namespace abstractions {
         }
         
         template <typename digest, typename tree>
-        using member_proof = abstractions::proof<bool (*)(root_to_leaf<digest>, tree), root_to_leaf<digest>, tree>;
+        using member_proof = data::knowledge::proof<bool (*)(root_to_leaf<digest>, tree), root_to_leaf<digest>, tree>;
         
         // construct a proof that a merkle tree has a given leaf. 
         template <typename digest, typename tree>

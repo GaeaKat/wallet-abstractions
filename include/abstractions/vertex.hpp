@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_REDEEM_HPP
-#define ABSTRACTIONS_REDEEM_HPP
+#ifndef ABSTRACTIONS_VERTEX
+#define ABSTRACTIONS_VERTEX
 
 #include <abstractions/pattern.hpp>
 #include <abstractions/bitcoin/script.hpp>
@@ -20,11 +20,11 @@ namespace abstractions {
         list<output> Outputs;
         
         N spent() const {
-            return ::data::list::reduce([](input i){return bitcoin::output::value(i.Prevout);}, Inputs);
+            return data::reduce([](input i){return bitcoin::output::value(i.Prevout);}, Inputs);
         }
         
         N sent() const {
-            return ::data::list::reduce([](output o){return bitcoin::output::value(o);}, Outputs);
+            return data::reduce([](output o){return bitcoin::output::value(o);}, Outputs);
         }
         
         N fee() const {

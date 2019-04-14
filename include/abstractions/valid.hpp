@@ -1,12 +1,11 @@
-#ifndef ABSTRACTIONS_VALID_HPP
-#define ABSTRACTIONS_VALID_HPP
+#ifndef ABSTRACTIONS_VALID
+#define ABSTRACTIONS_VALID
 
 #include "fundamental.hpp"
 
 #include <truth/metaprogramming/which.hpp>
 
-namespace abstractions 
-{
+namespace abstractions {
     
     namespace validity {
         

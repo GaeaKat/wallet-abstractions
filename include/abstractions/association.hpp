@@ -3,8 +3,7 @@
 
 #include <data/map.hpp>
 
-namespace abstractions
-{
+namespace abstractions {
         
     template <typename K> 
     class abstract_set {
@@ -30,8 +29,8 @@ namespace abstractions
     class abstract_map : association<K, V> {
     public:
         // proof that this abstract class implements map. 
-        using is_map = ::data::map::definition::map<abstract_map<K, V>*, K, V>;
-        using is_removable = ::data::map::definition::removable<abstract_map<K, V>*, K>;
+        using is_map = data::map::definition::map<abstract_map<K, V>*, K, V>;
+        using is_removable = data::map::definition::removable<abstract_map<K, V>*, K>;
         static is_map requirement1{};
         static is_removable requirement2{};
         

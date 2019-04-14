@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_DATA_HPP
-#define ABSTRACTIONS_DATA_HPP
+#ifndef ABSTRACTIONS_DATA
+#define ABSTRACTIONS_DATA
 
 #include <data/list/linked_list.hpp>
 #include <data/map.hpp>
@@ -8,17 +8,13 @@
 #include <data/queue/functional_queue.hpp>
 #include <data/slice.hpp>
 
-namespace abstractions
-{
+namespace abstractions {
 
     template <typename X>
     using list = data::linked_list<X>;
             
     template <typename X>
     using slice = data::slice<X>;
-
-    template <typename K, typename V>
-    using list_map = data::rb_map<K, V>;
         
     template <typename K, typename V>
     using map = data::rb_map<K, V>;
