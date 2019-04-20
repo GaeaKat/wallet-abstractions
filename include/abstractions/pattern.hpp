@@ -19,7 +19,7 @@ namespace abstractions {
         public data::function::definition<pay, pk, script>, 
         public machine::definition<interpreter, script, tx> {
         
-        void required(pk pubkey, sk secret, pay p, redeem r, tx t, interpreter i) {
+        static void required(pk pubkey, sk secret, pay p, redeem r, tx t, interpreter i) {
             assert(i.run(p(pubkey), r(secret, t), t));
         }
     };
@@ -27,4 +27,3 @@ namespace abstractions {
 } 
 
 #endif
-

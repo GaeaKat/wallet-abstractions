@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_ABSTRACTIONS_HPP
-#define ABSTRACTIONS_ABSTRACTIONS_HPP
+#ifndef ABSTRACTIONS_ABSTRACTIONS
+#define ABSTRACTIONS_ABSTRACTIONS
 
 namespace abstractions 
 {
@@ -15,6 +15,10 @@ namespace abstractions
     }
 
     using Z = const long long int;
+    
+    using satoshi = N;
+    
+    using index = uint32_t;
 
 }
 
