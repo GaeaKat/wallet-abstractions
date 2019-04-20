@@ -12,19 +12,19 @@ namespace abstractions {
         using to_public = ::data::crypto::keypair<priv, pub>;
         
         template <typename priv, typename pub>
-        struct claim : virtual data::knowledge::inverse::claim<to_public<priv, pub>, priv, pub> {
+        struct pubkey_claim : virtual data::knowledge::inverse::claim<to_public<priv, pub>, priv, pub> {
             using parent = data::knowledge::inverse::claim<to_public<priv, pub>, priv, pub>;
             
             pub pubkey() const {
                 return parent::SuchThat;
             }
             
-            claim(pub p) : parent{to_public<priv, pub>{}, p} {}
+            pubkey_claim(pub p) : parent{to_public<priv, pub>{}, p} {}
         };
         
         template <typename priv, typename pub>
         struct pair :
-            public claim<priv, pub>,
+            public pubkey_claim<priv, pub>,
             public data::knowledge::inverse::proof<to_public<priv, pub>, priv, pub> {
             using proof = data::knowledge::inverse::proof<to_public<priv, pub>, priv, pub>;
             
