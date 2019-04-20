@@ -14,8 +14,7 @@ namespace abstractions {
         typename value, 
         typename transaction,
         typename script_pubkey
-    > struct output : 
-        public data::function::definition<transaction, out, txid>, 
+    > struct output :  
         public data::function::definition<value, out, satoshi>, 
         public data::function::definition<script_pubkey, out, script> {};
         

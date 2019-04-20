@@ -1,14 +1,13 @@
-#ifndef ABSTRACTIONS_WALLET_SPENDABLE_HPP
-#define ABSTRACTIONS_WALLET_SPENDABLE_HPP
+#ifndef ABSTRACTIONS_WALLET_SPENDABLE
+#define ABSTRACTIONS_WALLET_SPENDABLE
 
 #include <abstractions/wallet/keys.hpp>
 #include <abstractions/wallet/address.hpp>
+#include <abstractions/abstractions.hpp>
 
 namespace abstractions {
     
     namespace wallet {
-        
-        using satoshi = const uint64_t;
         
         satoshi empty = 0;
         

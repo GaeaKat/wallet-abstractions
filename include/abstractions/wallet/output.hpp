@@ -1,13 +1,12 @@
-#ifndef ABSTRACTIONS_WALLET_OUTPUT_HPP
-#define ABSTRACTIONS_WALLET_OUTPUT_HPP
+#ifndef ABSTRACTIONS_WALLET_OUTPUT
+#define ABSTRACTIONS_WALLET_OUTPUT
 
 #include <abstractions/wallet/spendable.hpp>
+#include <script.hpp>
 
 namespace abstractions {
     
     namespace wallet {
-        
-        using script = vector<byte>;
         
         struct output {
             satoshi Amount;

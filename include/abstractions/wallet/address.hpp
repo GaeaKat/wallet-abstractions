@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_WALLET_ADDRESS_HPP
-#define ABSTRACTIONS_WALLET_ADDRESS_HPP
+#ifndef ABSTRACTIONS_WALLET_ADDRESS
+#define ABSTRACTIONS_WALLET_ADDRESS
 
 #include <data/crypto/sha256.hpp>
 #include <data/crypto/secp256k1.hpp>
@@ -8,31 +8,19 @@
 namespace abstractions {
     
     namespace wallet {
-    
-        struct address : ::data::sha256::digest {
-            char Prefix;
-                
-            string write();
-            
-            static address read(string& s);
-            
-            address(data::secp256k1::pubkey);
-            address(data::secp256k1::secret);
-            
-        private:
-            address(char prefix, ::data::sha256::digest d) : ::data::sha256::digest(d), Prefix{prefix} {}
-        };
+        
+        using address = ::data::sha256::digest;
+        
+        namespace bitcoin {
+            address read(string& s);
+            string write(address& a);
+        }
         
         namespace cashaddr {
-            
             address read(string& s);
-            
             string write(address& a);
-            
         }
-    
     }
-    
-} 
+}
 
 #endif
