@@ -2,7 +2,7 @@
 #define ABSTRACTIONS_WALLET_OUTPUT
 
 #include <abstractions/wallet/spendable.hpp>
-#include <script.hpp>
+#include "script.hpp"
 
 namespace abstractions {
     

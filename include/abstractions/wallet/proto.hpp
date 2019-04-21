@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_WALLET_PROTO_HPP
-#define ABSTRACTIONS_WALLET_PROTO_HPP
+#ifndef ABSTRACTIONS_WALLET_PROTO
+#define ABSTRACTIONS_WALLET_PROTO
 
 #include <abstractions/data.hpp>
 #include <abstractions/wallet/output.hpp>

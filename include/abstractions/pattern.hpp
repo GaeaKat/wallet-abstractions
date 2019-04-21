@@ -14,9 +14,8 @@ namespace abstractions {
                 typename Key,
                 typename Script, 
                 typename Tx, 
-                typename Machine
-            > struct basic : 
-                public virtual machine::definition<Machine, Script, Tx> {
+                typename Machine>
+            struct pattern : public virtual machine::definition<Machine, Script, Tx> {
                 
                 // make a script pubkey. 
                 virtual Script pay(Key) const = 0;
@@ -29,16 +28,8 @@ namespace abstractions {
                 }
             };
         
-            template <
-                typename Key,
-                typename Script, 
-                typename Tag, 
-                typename Tx, 
-                typename Machine
-            > struct tagged : public virtual basic<Key, Machine, Script, Tx> {
-                
+            template <typename Key, typename Tag> struct tagged {
                 virtual Tag tag(Key) const = 0;
-                
             };
         
             template <
@@ -46,14 +37,15 @@ namespace abstractions {
                 typename Script, 
                 typename Tag, 
                 typename Tx, 
-                typename Machine
-            > struct recognizable : public virtual tagged<Key, Machine, Tag, Script, Tx> {
+                typename Machine>
+            struct recognizable : 
+                public virtual pattern<Key, Script, Tx, Machine>, 
+                public virtual tagged<Key, Tag> {
                 
-                virtual bool recognize(Script, Tag) const = 0;
+                virtual Tag recognize(Script) const = 0;
                 
                 void recognizable_pattern_definition(Key k) const final {
-                    assert(recognize(basic<Key, Machine, Script, Tx>::pay(k),
-                                     tagged<Key, Machine, Tag, Script, Tx>::tag(k)));
+                    assert(tagged<Key, Tag>::tag(k) == recognize(pattern<Key, Script, Tx, Machine>::pay(k)));
                 }
                 
             };
@@ -63,13 +55,15 @@ namespace abstractions {
                 typename Script, 
                 typename Tag, 
                 typename Tx, 
-                typename Machine
-            > struct addressable : public virtual tagged<Key, Machine, Tag, Script, Tx> {
+                typename Machine>
+            struct addressable : 
+                public virtual pattern<Key, Script, Tx, Machine>, 
+                public virtual tagged<Key, Tag> {
                 
                 virtual Script pay(Tag) const = 0;
                 
                 Script pay(Key k) const final override {
-                    return pay(tagged<Key, Machine, Tag, Script, Tx>::tag(k));
+                    return pay(tagged<Key, Tag>::tag(k));
                 }
                 
             };
@@ -80,10 +74,11 @@ namespace abstractions {
                 typename Script, 
                 typename Tag, 
                 typename Tx, 
-                typename Machine
-            > struct standard : public virtual data::crypto::keypair<Sk, Pk>, 
-                public recognizable<Sk, Machine, Tag, Script, Tx>, 
-                public addressable<Sk, Machine, Tag, Script, Tx> {
+                typename Machine>
+            struct standard : 
+                public virtual data::crypto::keypair<Sk, Pk>, 
+                public virtual recognizable<Sk, Tag, Script, Tx, Machine>, 
+                public virtual addressable<Sk, Tag, Script, Tx, Machine> {
                     
                 virtual Tag tag(Pk) const = 0;
                 
@@ -102,8 +97,8 @@ namespace abstractions {
             typename Redeem, 
             typename Recognize, 
             typename Tx, 
-            typename Machine
-        > struct pay_to_public_key final : public abstract::standard<Sk, Pk, Script, Pk, Tx, Machine> {
+            typename Machine>
+        struct pay_to_public_key final : public abstract::standard<Sk, Pk, Script, Pk, Tx, Machine> {
             
             Pk tag(Pk k) const final override {
                 return k;
@@ -117,8 +112,8 @@ namespace abstractions {
                 return Redeem{}(k, t);
             }
             
-            bool recognize(Script s, Pk k) const final override {
-                return Recognize{}(s, k);
+            Pk recognize(Script s) const final override {
+                return Recognize{}(s);
             };
         
         };
@@ -133,8 +128,8 @@ namespace abstractions {
             typename Recognize, 
             typename Hash, 
             typename Tx, 
-            typename Machine
-        > struct pay_to_address final : public abstract::standard<Sk, Pk, Script, Address, Tx, Machine> {
+            typename Machine>
+        struct pay_to_address final : public abstract::standard<Sk, Pk, Script, Address, Tx, Machine> {
             
             Address tag(Pk k) const final override {
                 return Hash{}(k);
