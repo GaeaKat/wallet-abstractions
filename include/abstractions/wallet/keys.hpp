@@ -3,28 +3,26 @@
 
 #include <data/crypto/secp256k1.hpp>
 #include <abstractions/fundamental.hpp>
+#include "tag.hpp"
 
 namespace abstractions {
     
-    namespace wallet {
+    namespace bitcoin {
         
-        using pubkey = ::data::secp256k1::pubkey;
+        struct pubkey : public ::data::secp256k1::pubkey, public tag {};
         
-        using secret = ::data::secp256k1::secret;
+        struct secret : public ::data::secp256k1::secret {};
     
         namespace wif {
-            secret read(string& x);
-            string write(secret& s);
+            bool read(string&, secret&);
+            string write(secret&);
+            void write(secret& s, stringstream& s);
         }
         
         namespace wif_compressed {
-            secret read(string& x);
-            string write(secret& s);
-        }
-        
-        namespace hex {            
-            pubkey read(string& x);
-            string write(pubkey& s);
+            bool read(string&, secret&);
+            string write(secret&);
+            void write(secret&, stringstream&);
         }
         
     }

@@ -1,16 +1,16 @@
 #ifndef ABSTRACTIONS_WALLET_OUTPUT
 #define ABSTRACTIONS_WALLET_OUTPUT
 
-#include <abstractions/wallet/spendable.hpp>
+#include <abstractions/abstractions.hpp>
 #include "script.hpp"
 
 namespace abstractions {
     
-    namespace wallet {
+    namespace bitcoin {
         
         struct output {
             satoshi Amount;
-            script Script;
+            script ScriptPubKey;
         };
 
     }

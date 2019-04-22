@@ -1,5 +1,5 @@
-#ifndef ABSTRACTIONS_WALLET_BASIC
-#define ABSTRACTIONS_WALLET_BASIC
+#ifndef ABSTRACTIONS_WALLET
+#define ABSTRACTIONS_WALLET
 
 #include <abstractions/pattern.hpp>
 #include <abstractions/data.hpp>
@@ -31,9 +31,11 @@ namespace abstractions {
         map<tag, key> Tags;
             
         map<entry<out, point>, tag> Entries;
-            
+        
         account import_key(key);
-            
+        
+        // Look for any inputs that redeem outputs in our funds
+        // and any outputs that we can add to our funds. 
         account update(tx t);
             
     };

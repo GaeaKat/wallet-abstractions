@@ -1,18 +1,13 @@
 #ifndef ABSTRACTIONS_WALLET_SCRIPT
 #define ABSTRACTIONS_WALLET_SCRIPT
 
-#include <abstractions/wallet/spendable.hpp>
+#include <abstractions/abstractions.hpp>
 
 namespace abstractions {
     
-    namespace wallet {
+    namespace bitcoin {
         
         using script = vector<byte>;
-        
-        namespace hex {
-            script read(string& x);
-            string write(script& s);
-        }
 
     }
 

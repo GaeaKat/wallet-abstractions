@@ -4,21 +4,24 @@
 #include <data/crypto/sha256.hpp>
 #include <data/crypto/secp256k1.hpp>
 #include <abstractions/fundamental.hpp>
+#include "tag.hpp"
 
 namespace abstractions {
     
-    namespace wallet {
+    namespace bitcoin {
         
-        using address = ::data::sha256::digest;
+        struct address : public ::data::sha256::digest, public tag {};
         
-        namespace bitcoin {
-            address read(string& s);
-            string write(address& a);
+        namespace bitcoin_address {
+            bool read(stringstream&, address&);
+            string write(address&);
+            void write(address&, stringstream&);
         }
         
         namespace cashaddr {
-            address read(string& s);
-            string write(address& a);
+            bool read(stringstream&, address&);
+            string write(address&);
+            void write(address&, stringstream&);
         }
     }
 }

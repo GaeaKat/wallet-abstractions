@@ -1,6 +1,8 @@
 #ifndef ABSTRACTIONS_ABSTRACTIONS
 #define ABSTRACTIONS_ABSTRACTIONS
 
+#include <cstdint>
+
 namespace abstractions 
 {
 

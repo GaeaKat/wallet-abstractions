@@ -7,7 +7,7 @@
 
 namespace abstractions {
     
-    namespace wallet {
+    namespace bitcoin {
         
         satoshi empty = 0;
         

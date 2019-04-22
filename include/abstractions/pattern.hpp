@@ -6,6 +6,9 @@
 
 namespace abstractions {
     
+    // Two patterns are currently suported. 
+    //   pay to address (public key hash)
+    //   pay to public key
     namespace pattern {
         
         namespace abstract {

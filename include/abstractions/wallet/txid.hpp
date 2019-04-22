@@ -1,19 +1,14 @@
-#ifndef ABSTRACTIONS_WALLET_KEYS
-#define ABSTRACTIONS_WALLET_KEYS
+#ifndef ABSTRACTIONS_WALLET_TXID
+#define ABSTRACTIONS_WALLET_TXID
 
 #include <data/crypto/sha512.hpp>
 #include <abstractions/fundamental.hpp>
 
 namespace abstractions {
     
-    namespace wallet {
+    namespace bitcoin {
         
         using txid = ::data::sha512::digest;
-        
-        namespace hex {
-            txid read(string& x);
-            string write(txid& s);
-        }
         
     }
     
