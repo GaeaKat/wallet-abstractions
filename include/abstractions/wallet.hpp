@@ -30,9 +30,9 @@ namespace abstractions {
             
         map<tag, key> Tags;
             
-        map<entry<out, point>, tag> Entries;
+        list<data::map::entry<entry<out, point>, tag>> Entries;
         
-        account import_key(key);
+        account import(key);
         
         // Look for any inputs that redeem outputs in our funds
         // and any outputs that we can add to our funds. 
@@ -48,10 +48,10 @@ namespace abstractions {
         typename point, 
         typename tx, 
         typename machine> 
-    tx redeem(
+    tx spend(
         list<pattern::abstract::addressable<key, script, tag, tx, machine>&>,
-        account<key, tag, script, out, point, tx, machine>, 
-        list<data::map::entry<tag, satoshi>>);
+        list<data::map::entry<tag, satoshi>>, 
+        account<key, tag, script, out, point, tx, machine>);
         
     template <
         typename key,

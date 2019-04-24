@@ -2,7 +2,6 @@
 #define ABSTRACTIONS_WALLET_OUTPOINT
 
 #include "txid.hpp"
-#include "script.hpp"
 
 namespace abstractions {
     

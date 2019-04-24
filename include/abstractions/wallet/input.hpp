@@ -1,8 +1,8 @@
 #ifndef ABSTRACTIONS_WALLET_INPUT
 #define ABSTRACTIONS_WALLET_INPUT
 
-#include "script.hpp"
 #include "outpoint.hpp"
+#include "script.hpp"
 
 namespace abstractions {
     

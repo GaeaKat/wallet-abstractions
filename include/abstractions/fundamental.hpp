@@ -7,7 +7,7 @@
 
 namespace abstractions {
     
-    template<typename X>
+    template <typename X>
     using vector = const std::vector<X>;
 
     using byte = uint8_t;
