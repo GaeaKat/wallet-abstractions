@@ -1,3 +1,7 @@
+// Copyright (c) 2018-2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef ABSTRACTIONS_WALLET
 #define ABSTRACTIONS_WALLET
 
@@ -8,7 +12,7 @@
 namespace abstractions {
     
     template <typename out, typename point>
-    struct entry {
+    struct debit {
         out Output;
         point Point;
     };
@@ -21,37 +25,29 @@ namespace abstractions {
         typename point, 
         typename tx,
         typename machine>
-    struct account {
+    struct funds {
+        using spendable = data::map::entry<tag, debit<out, point>>;
+        using recognizable = pattern::abstract::recognizable<key, script, tag, tx, machine>&;
+        
         satoshi Balance;
-            
-        list<pattern::abstract::recognizable<key, script, tag, tx, machine>&> Patterns;
-            
+        
+        list<recognizable> Recognize;
+        
         list<key> Keys;
             
-        map<tag, key> Tags;
+        list<debit<out, point>> Entries;
             
-        list<data::map::entry<entry<out, point>, tag>> Entries;
+        map<tag, key> Tags; 
         
-        account import(key);
+        funds import(key);
         
         // Look for any inputs that redeem outputs in our funds
         // and any outputs that we can add to our funds. 
-        account update(tx t);
+        funds update(tx t);
+        
+        funds(list<recognizable> r) : Balance{empty}, Recognize{r} {}
             
     };
-        
-    template <
-        typename key, 
-        typename tag, 
-        typename script,
-        typename out, 
-        typename point, 
-        typename tx, 
-        typename machine> 
-    tx spend(
-        list<pattern::abstract::addressable<key, script, tag, tx, machine>&>,
-        list<data::map::entry<tag, satoshi>>, 
-        account<key, tag, script, out, point, tx, machine>);
         
     template <
         typename key,
@@ -60,11 +56,26 @@ namespace abstractions {
         typename out, 
         typename point, 
         typename tx,
-        typename machine>
+        typename machine> 
     struct wallet {
-        account<key, tag, script, out, point, tx, machine> Funds;
+        using funds = funds<key, tag, script, out, point, tx, machine>; 
+        using payable = pattern::abstract::addressable<key, script, tag, tx, machine>&;
+        using recognizable = typename funds::recognizable;
         
-        list<key> Change;
+        // funds available to spend in this wallet. 
+        funds Funds;
+        
+        // patterns that this wallet knows how to pay to.
+        list<payable> Pay;
+        
+        // index of pattern that generates change scripts. 
+        index Change;
+        
+        list<key> Source;
+        
+        bool valid() const {
+            return Funds.valid() && data::size(Pay) <= Change && Change >= 1 && data::size(Source) >= 1;
+        }
         
         struct spent {
             tx Transaction;
@@ -73,9 +84,16 @@ namespace abstractions {
             bool valid() const {
                 return Transaction.valid() && Remainder.valid();
             }
+            
+        private :
+            spent() : Transaction{}, Remainder{} {}
+            spent(tx t, wallet w) : Transaction{t}, Remainder{w} {}
         };
         
-        spent spend();
+        spent spend(list<data::map::entry<tag, satoshi>> to, satoshi fee) const;
+            
+        wallet(funds f, list<payable> pay, index change, 
+            list<key> source) : Funds{f}, Pay{pay}, Change{change}, Source{source} {}
     };
     
 }

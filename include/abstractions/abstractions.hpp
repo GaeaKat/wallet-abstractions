@@ -1,3 +1,7 @@
+// Copyright (c) 2018-2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef ABSTRACTIONS_ABSTRACTIONS
 #define ABSTRACTIONS_ABSTRACTIONS
 
@@ -19,6 +23,8 @@ namespace abstractions
     using Z = const long long int;
     
     using satoshi = N;
+    
+    const satoshi empty = 0;
     
     using index = uint32_t;
 

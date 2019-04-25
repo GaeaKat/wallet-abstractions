@@ -1,3 +1,7 @@
+// Copyright (c) 2018-2019 Daniel Krawisz
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef ABSTRACTIONS_TRANSACTION
 #define ABSTRACTIONS_TRANSACTION
 
@@ -7,16 +11,12 @@
 
 namespace abstractions {
         
-    template <
-        typename out,
-        typename script, 
-        typename txid,
-        typename value, 
-        typename transaction,
-        typename script_pubkey
-    > struct output :  
-        public data::function::definition<value, out, satoshi>, 
-        public data::function::definition<script_pubkey, out, script> {};
+    template <typename script> struct output {
+        satoshi Value;
+        script ScriptPubKey;
+        
+        output(satoshi v, script s) : Value{v}, ScriptPubKey{s} {}
+    };
         
     template <
         typename point,
