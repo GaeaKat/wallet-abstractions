@@ -6,12 +6,23 @@
 #define ABSTRACTIONS_WALLET_TRANSACTION
 
 #include <abstractions/fundamental.hpp>
+#include <abstractions/data.hpp>
+#include "input.hpp"
+#include "output.hpp"
 
 namespace abstractions {
     
     namespace bitcoin {
         
-        using transaction = vector<byte>;
+        struct transaction : public std::vector<byte> {
+            transaction();
+            transaction(bytes);
+            transaction(list<bitcoin::input>, list<output>);
+            
+            N locktime() const;
+            list<bitcoin::input> inputs();
+            list<output> outputs();
+        };
         
     }
 

@@ -10,33 +10,33 @@
 #include <abstractions/data.hpp>
 
 namespace abstractions {
-        
-    template <typename script> struct output {
+    
+    template <typename script> 
+    struct output {
         satoshi Value;
         script ScriptPubKey;
         
         output(satoshi v, script s) : Value{v}, ScriptPubKey{s} {}
     };
+    
+    template <typename txid>
+    struct outpoint {
+        txid Transaction;
+        index Index;
         
-    template <
-        typename point,
-        typename txid,
-        typename transaction,
-        typename output_index
-    > struct outpoint : 
-        public data::function::definition<transaction, point, txid>, 
-        public data::function::definition<output_index, point, index> {};
+        outpoint(txid tx, index i) : Transaction{tx}, Index{i} {}
+    };
+    
+    template <typename point, typename script>
+    struct input {
+        point Outpoint;
+        script ScriptSignature;
+        N Sequence;
         
-    template <
-        typename in,
-        typename script,
-        typename point,
-        typename output_point, 
-        typename script_sig
-    > struct input : 
-        public data::function::definition<output_point, in, point>, 
-        public data::function::definition<script_sig, in, script> {};
-        
+        input(point p, script s, N n) : Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
+        input(point p, script s) : Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
+    };
+    
     template <
         typename tx,
         typename txid, 
