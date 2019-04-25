@@ -55,7 +55,7 @@ namespace abstractions {
                 Funds.Entries)};
         
         tx t = redeem(Funds.Recognize, vertex{inputs, outputs});
-        return {t, funds{Funds.Recognize}.import(next).update(t)};
+        return {t, {funds{Funds.Recognize}.import(next).update(t), Pay, Change, data::rest(Source)}};
     };
     
 }

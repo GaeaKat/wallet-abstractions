@@ -9,6 +9,7 @@
 #include "keys.hpp"
 #include "address.hpp"
 #include "transaction.hpp"
+#include "outpoint.hpp"
 
 namespace abstractions {
     
