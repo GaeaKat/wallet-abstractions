@@ -14,15 +14,7 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        struct transaction : public std::vector<byte> {
-            transaction();
-            transaction(bytes);
-            transaction(list<bitcoin::input>, list<output>);
-            
-            N locktime() const;
-            list<bitcoin::input> inputs();
-            list<output> outputs();
-        };
+        using transaction = abstractions::transaction<input, output>;
         
     }
 
