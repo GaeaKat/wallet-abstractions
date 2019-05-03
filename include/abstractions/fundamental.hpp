@@ -5,9 +5,10 @@
 #ifndef ABSTRACTIONS_FUNDAMENTAL
 #define ABSTRACTIONS_FUNDAMENTAL
 
-#include <vector>
 #include <memory>
 #include <string>
+#include <stdint.h>
+#include <vector>
 
 namespace abstractions {
     

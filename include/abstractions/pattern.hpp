@@ -7,6 +7,7 @@
 
 #include <data/crypto/keypair.hpp>
 #include <abstractions/machine.hpp>
+#include <abstractions/transaction.hpp>
 
 namespace abstractions {
     
@@ -28,7 +29,7 @@ namespace abstractions {
                 virtual Script pay(Key) const = 0;
                 
                 // make a script signature.
-                virtual Script redeem(Key, Tx) const = 0;
+                virtual Script redeem(output<Script> out, Tx t, Key k) const = 0;
                 
                 void pattern_definition(Key k, Tx t, Machine i) const final {
                     assert(i.run(pay(k), redeem(k, t), t));
@@ -49,7 +50,7 @@ namespace abstractions {
                 public virtual pattern<Key, Script, Tx, Machine>, 
                 public virtual tagged<Key, Tag> {
                 
-                virtual Tag recognize(Script) const = 0;
+                virtual list<Tag> recognize(Script) const = 0;
                 
                 void recognizable_pattern_definition(Key k) const final {
                     assert(tagged<Key, Tag>::tag(k) == recognize(pattern<Key, Script, Tx, Machine>::pay(k)));
@@ -115,13 +116,13 @@ namespace abstractions {
                 return Pay{}(k);
             };
             
-            Script redeem(Sk k, Tx t) const final override {
-                return Redeem{}(k, t);
-            }
-            
-            Pk recognize(Script s) const final override {
+            list<Pk> recognize(Script s) const final override {
                 return Recognize{}(s);
             };
+            
+            Script redeem(output<Script> out, Tx t, Sk k) const final override {
+                return Redeem{}(out, t, k);
+            }
         
         };
         
@@ -146,13 +147,13 @@ namespace abstractions {
                 return Pay{}(a);
             };
             
-            Script redeem(Sk k, Tx t) const final override {
-                return Redeem{}(k, t);
-            }
-            
-            bool recognize(Script s, Hash k) const final override {
+            list<Address> recognize(Script s) const final override {
                 return Recognize{}(s, k);
             };
+            
+            Script redeem(output<Script> out, Tx t, Sk k) const final override {
+                return Redeem{}(out, t, k);
+            }
         
         };
         
