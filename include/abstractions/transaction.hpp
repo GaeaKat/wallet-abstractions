@@ -7,8 +7,6 @@
 
 #include <data/function.hpp>
 #include <abstractions/abstractions.hpp>
-#include <abstractions/fundamental.hpp>
-#include <abstractions/data.hpp>
 
 namespace abstractions {
     

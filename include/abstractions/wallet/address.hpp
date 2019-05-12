@@ -7,7 +7,7 @@
 
 #include <data/crypto/sha256.hpp>
 #include <data/crypto/secp256k1.hpp>
-#include <abstractions/fundamental.hpp>
+#include <abstractions/abstractions.hpp>
 #include "tag.hpp"
 
 namespace abstractions {

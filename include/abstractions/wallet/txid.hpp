@@ -6,7 +6,6 @@
 #define ABSTRACTIONS_WALLET_TXID
 
 #include <data/crypto/sha512.hpp>
-#include <abstractions/fundamental.hpp>
 
 namespace abstractions {
     

@@ -53,7 +53,7 @@ namespace abstractions {
                 virtual list<Tag> recognize(Script) const = 0;
                 
                 void recognizable_pattern_definition(Key k) const final {
-                    assert(tagged<Key, Tag>::tag(k) == recognize(pattern<Key, Script, Tx, Machine>::pay(k)));
+                    if (tagged<Key, Tag>::tag(k) != recognize(pattern<Key, Script, Tx, Machine>::pay(k))) throw 0;
                 }
                 
             };

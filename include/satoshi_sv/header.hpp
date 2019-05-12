@@ -2,7 +2,7 @@
 #define SATOSHI_SV_HEADER
 
 #include <data/crypto/sha256.hpp>
-#include <abstractions/crypto/secp256k1.hpp>
+#include <data/crypto/secp256k1.hpp>
 
 #include <abstractions/data.hpp>
 

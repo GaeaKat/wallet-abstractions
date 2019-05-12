@@ -5,8 +5,7 @@
 #ifndef ABSTRACTIONS_WALLET_TRANSACTION
 #define ABSTRACTIONS_WALLET_TRANSACTION
 
-#include <abstractions/fundamental.hpp>
-#include <abstractions/data.hpp>
+#include <abstractions/abstractions.hpp>
 #include "input.hpp"
 #include "output.hpp"
 

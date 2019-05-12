@@ -5,9 +5,8 @@
 #ifndef ABSTRACTIONS_REDEEM
 #define ABSTRACTIONS_REDEEM
 
-#include <abstractions/pattern.hpp>
-#include <abstractions/data.hpp>
 #include <abstractions/abstractions.hpp>
+#include <abstractions/pattern.hpp>
 
 namespace abstractions {
     

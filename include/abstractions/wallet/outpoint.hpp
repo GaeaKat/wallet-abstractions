@@ -5,7 +5,7 @@
 #ifndef ABSTRACTIONS_WALLET_OUTPOINT
 #define ABSTRACTIONS_WALLET_OUTPOINT
 
-#include <abstractions/fundamental.hpp>
+#include <abstractions/abstractions.hpp>
 #include <abstractions/transaction.hpp>
 #include "txid.hpp"
 
