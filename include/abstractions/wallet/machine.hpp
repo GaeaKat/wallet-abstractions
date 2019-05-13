@@ -6,12 +6,24 @@
 #define ABSTRACTIONS_WALLET_MACHINE
 
 #include <abstractions/machine.hpp>
+#include <abstractions/wallet/transaction.hpp>
 
 namespace abstractions {
     
     namespace bitcoin {
         
-        using txid = ::data::sha512::digest;
+        struct machine {
+            // Run machine without checking signatures. 
+            machine();
+            
+            // Run the machine with checking signatures. 
+            machine(transaction& tx, index i, satoshi amount);
+            
+            bool run(script& output, script& input) const;
+            
+        };
+        
+        constexpr static abstractions::machine::definition<machine, script&, transaction&> is_script_machine{};
         
     }
     

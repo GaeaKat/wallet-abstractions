@@ -148,7 +148,7 @@ namespace abstractions {
             };
             
             list<Address> recognize(Script s) const final override {
-                return Recognize{}(s, k);
+                return Recognize{}(s);
             };
             
             Script redeem(output<Script> out, Tx t, Sk k) const final override {

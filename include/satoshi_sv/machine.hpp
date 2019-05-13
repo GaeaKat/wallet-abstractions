@@ -6,7 +6,7 @@
 #define SATOSHI_SV_MACHINE
 
 #include <abstractions/machine.hpp>
-#include <abstractions/fundamental.hpp>
+#include <abstractions/abstractions.hpp>
 
 #include <satoshi_sv/src/script/bitcoinconsensus.h>
 #include <satoshi_sv/src/script/script.h>

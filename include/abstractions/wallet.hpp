@@ -6,7 +6,6 @@
 #define ABSTRACTIONS_WALLET
 
 #include <abstractions/pattern.hpp>
-#include <abstractions/data.hpp>
 #include <abstractions/abstractions.hpp>
 
 namespace abstractions {
@@ -58,7 +57,7 @@ namespace abstractions {
         typename tx,
         typename machine> 
     struct wallet {
-        using funds = funds<key, tag, script, out, point, tx, machine>; 
+        using funds = abstractions::funds<key, tag, script, out, point, tx, machine>; 
         using payable = pattern::abstract::addressable<key, script, tag, tx, machine>&;
         using recognizable = typename funds::recognizable;
         
