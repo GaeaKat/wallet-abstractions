@@ -8,12 +8,16 @@
 #include <abstractions/abstractions.hpp>
 #include "input.hpp"
 #include "output.hpp"
+#include "txid.hpp"
 
 namespace abstractions {
     
     namespace bitcoin {
         
-        using transaction = abstractions::transaction<input, output>;
+        struct transaction : public abstractions::transaction<input, output> {
+            txid hash() const;
+            transaction(hex);
+        };
         
     }
 

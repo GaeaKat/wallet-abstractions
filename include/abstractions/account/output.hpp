@@ -2,19 +2,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef ABSTRACTIONS_WALLET_TXID
-#define ABSTRACTIONS_WALLET_TXID
+#ifndef ABSTRACTIONS_ACCOUNT_OUTPUT
+#define ABSTRACTIONS_ACCOUNT_OUTPUT
 
-#include <data/crypto/sha512.hpp>
+#include <abstractions/transaction.hpp>
 
 namespace abstractions {
     
-    namespace bitcoin {
+    namespace account {
         
-        struct txid : public ::data::sha512::digest {
-            txid(hex);
-            hex hex() const;
-        };
+        template <typename script>
+        using output = abstractions::output<script>;
         
     }
     

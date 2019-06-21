@@ -23,6 +23,8 @@ namespace abstractions {
             representation() : Valid{false}, Value{}, ScriptPubKey{} {}
         };
         
+        bool valid() const;
+        
         output();
         output(bytes);
         output(representation);
@@ -40,6 +42,8 @@ namespace abstractions {
         private:
             representation() : Valid{false}, Reference{}, Index{} {}
         };
+        
+        bool valid() const;
         
         outpoint();
         outpoint(bytes);
@@ -61,6 +65,8 @@ namespace abstractions {
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
         };
         
+        bool valid() const;
+        
         input();
         input(bytes);
         input(representation);
@@ -81,6 +87,8 @@ namespace abstractions {
         private:
             representation() : Valid{false}, Locktime{}, Inputs{}, Outputs{} {}
         };
+        
+        bool valid() const;
         
         transaction();
         transaction(bytes);
