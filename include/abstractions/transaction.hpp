@@ -10,20 +10,25 @@
 
 namespace abstractions {
     
-    template <typename script> 
+    template <typename ops> 
     struct output : public std::vector<byte> {
         struct representation {
             bool Valid;
             satoshi Value;
-            script ScriptPubKey;
+            ops ScriptPubKey;
             
-            representation(satoshi v, script s) : Value{v}, ScriptPubKey{s} {}
-            representation(output);
+            representation(satoshi v, ops o) : Value{v}, ScriptPubKey{o} {}
+            representation(&output);
         private:
             representation() : Valid{false}, Value{}, ScriptPubKey{} {}
         };
         
-        bool valid() const;
+        bool valid() const {
+            return representation{*this}.Valid;
+        }
+        
+        satoshi value() const;
+        ops script() const;
         
         output();
         output(bytes);
@@ -38,34 +43,45 @@ namespace abstractions {
             index Index;
             
             representation(txid tx, index i) : Valid{true}, Reference{tx}, Index{i} {}
-            representation(outpoint);
+            representation(outpoint&);
         private:
             representation() : Valid{false}, Reference{}, Index{} {}
         };
         
-        bool valid() const;
+        bool valid() const {
+            return representation{*this}.Valid;
+        }
+        
+        txid reference() const;
+        index index() const;
         
         outpoint();
         outpoint(bytes);
         outpoint(representation);
     };
     
-    template <typename point, typename script>
+    template <typename point, typename ops>
     struct input : public std::vector<byte> {
         struct representation {
             bool Valid;
             point Outpoint;
-            script ScriptSignature;
+            ops ScriptSignature;
             N Sequence;
             
-            representation(point p, script s, N n) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
-            representation(point p, script s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
-            representation(input);
+            representation(point p, ops s, N n) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
+            representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
+            representation(input&);
         private:
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
         };
         
-        bool valid() const;
+        bool valid() const {
+            return representation{*this}.Valid;
+        }
+        
+        ops script() const;
+        N sequence() const;
+        point outpoint() const;
         
         input();
         input(bytes);
@@ -83,12 +99,14 @@ namespace abstractions {
                 
             representation(N l, list<input> i, list<output> o) :
                 Valid{true}, Locktime{l}, Inputs{i}, Outputs{o} {}
-            representation(transaction);
+            representation(transaction&);
         private:
             representation() : Valid{false}, Locktime{}, Inputs{}, Outputs{} {}
         };
         
-        bool valid() const;
+        bool valid() const {
+            return representation{*this}.Valid;
+        }
         
         transaction();
         transaction(bytes);

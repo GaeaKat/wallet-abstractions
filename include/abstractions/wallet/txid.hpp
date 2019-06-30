@@ -6,14 +6,17 @@
 #define ABSTRACTIONS_WALLET_TXID
 
 #include <data/crypto/sha512.hpp>
+#include <abstractions/abstractions.hpp>
 
 namespace abstractions {
     
     namespace bitcoin {
         
-        struct txid : public ::data::sha512::digest {
-            txid(hex);
-            hex hex() const;
+        struct txid : public pointer<::data::sha512::digest> {
+            using pointer<::data::sha512::digest>::shared_ptr;
+            txid(string hex);
+            txid(::data::sha512::digest);
+            txid(::data::sha512::digest&);
         };
         
     }

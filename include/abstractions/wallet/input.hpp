@@ -5,7 +5,6 @@
 #ifndef ABSTRACTIONS_WALLET_INPUT
 #define ABSTRACTIONS_WALLET_INPUT
 
-#include "script.hpp"
 #include "outpoint.hpp"
 #include <abstractions/transaction.hpp>
 
@@ -13,7 +12,8 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        using input = abstractions::input<outpoint, script>;
+        template <typename script>
+        using input = typename abstractions::input<outpoint, script>::representation;
         
     }
     

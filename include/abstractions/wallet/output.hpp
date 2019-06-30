@@ -6,13 +6,13 @@
 #define ABSTRACTIONS_WALLET_OUTPUT
 
 #include <abstractions/transaction.hpp>
-#include "script.hpp"
 
 namespace abstractions {
     
     namespace bitcoin {
         
-        using output = abstractions::output<script>;
+        template <typename script>
+        using output = typename abstractions::output<script>::representation;
 
     }
 

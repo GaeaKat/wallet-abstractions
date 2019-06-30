@@ -44,11 +44,9 @@ namespace abstractions {
     using byte = uint8_t;
     
     using bytes = vector<byte>;
-    
-    using hex = data::encoding::hex::string;
 
     template<typename X>
-    using pointer = const std::shared_ptr<X>;
+    using pointer = std::shared_ptr<X>;
 
     using string = const std::string;
 

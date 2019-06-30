@@ -9,12 +9,17 @@
 #include <data/crypto/secp256k1.hpp>
 #include <abstractions/abstractions.hpp>
 #include "tag.hpp"
+#include "keys.hpp"
 
 namespace abstractions {
     
     namespace bitcoin {
         
-        struct address : public ::data::sha256::digest, public tag {};
+        struct address : public ::data::sha256::digest, public tag {
+            using ::data::sha256::digest::digest;
+            static address read(string formated);
+            address(secret);
+        };
         
         namespace bitcoin_address {
             bool read(stringstream&, address&);

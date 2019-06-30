@@ -12,6 +12,7 @@ namespace abstractions {
     
     namespace bitcoin {
         
+        template <typename script>
         struct machine {
             // Run machine without checking signatures. 
             machine();
@@ -19,11 +20,11 @@ namespace abstractions {
             // Run the machine with checking signatures. 
             machine(transaction& tx, index i, satoshi amount);
             
-            bool run(script& output, script& input) const;
+            bool run(script output, script input) const;
+        
+            constexpr static abstractions::machine::definition<machine, script, transaction&> is_script_machine{};
             
         };
-        
-        constexpr static abstractions::machine::definition<machine, script&, transaction&> is_script_machine{};
         
     }
     

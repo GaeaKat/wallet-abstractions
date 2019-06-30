@@ -14,9 +14,12 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        struct transaction : public abstractions::transaction<input, output> {
+        template <typename script>
+        struct transaction : public abstractions::transaction<input<script>, output<script>> {
             txid hash() const;
-            transaction(hex);
+            transaction(string hex);
+            
+            using representation = typename abstractions::transaction<input<script>, output<script>>::representation;
         };
         
     }
