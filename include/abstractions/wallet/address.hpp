@@ -19,6 +19,7 @@ namespace abstractions {
             using ::data::sha256::digest::digest;
             static address read(string formated);
             address(secret);
+            bool valid();
         };
         
         namespace bitcoin_address {

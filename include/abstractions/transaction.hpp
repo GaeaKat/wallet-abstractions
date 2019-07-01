@@ -17,9 +17,8 @@ namespace abstractions {
             satoshi Value;
             ops ScriptPubKey;
             
-            representation(satoshi v, ops o) : Value{v}, ScriptPubKey{o} {}
-            representation(&output);
-        private:
+            representation(satoshi v, ops o) : Valid{true}, Value{v}, ScriptPubKey{o} {}
+            representation(output);
             representation() : Valid{false}, Value{}, ScriptPubKey{} {}
         };
         
@@ -43,8 +42,7 @@ namespace abstractions {
             index Index;
             
             representation(txid tx, index i) : Valid{true}, Reference{tx}, Index{i} {}
-            representation(outpoint&);
-        private:
+            representation(outpoint);
             representation() : Valid{false}, Reference{}, Index{} {}
         };
         
@@ -58,6 +56,8 @@ namespace abstractions {
         outpoint();
         outpoint(bytes);
         outpoint(representation);
+        
+        outpoint& operator=(outpoint);
     };
     
     template <typename point, typename ops>
@@ -70,8 +70,7 @@ namespace abstractions {
             
             representation(point p, ops s, N n) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
             representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
-            representation(input&);
-        private:
+            representation(input);
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
         };
         
@@ -86,6 +85,8 @@ namespace abstractions {
         input();
         input(bytes);
         input(representation);
+        
+        input& operator=(input);
     };
     
     template <typename input, typename output>
@@ -99,9 +100,14 @@ namespace abstractions {
                 
             representation(N l, list<input> i, list<output> o) :
                 Valid{true}, Locktime{l}, Inputs{i}, Outputs{o} {}
-            representation(transaction&);
-        private:
+                
+            representation(list<input> i, list<output> o) :
+                Valid{true}, Locktime{0}, Inputs{i}, Outputs{o} {}
+                
+            representation(transaction);
             representation() : Valid{false}, Locktime{}, Inputs{}, Outputs{} {}
+            
+            friend struct transaction;
         };
         
         bool valid() const {
@@ -111,6 +117,8 @@ namespace abstractions {
         transaction();
         transaction(bytes);
         transaction(representation);
+        
+        transaction& operator=(transaction);
     };
     
 } 

@@ -16,10 +16,14 @@ namespace abstractions {
         
         template <typename script>
         struct transaction : public abstractions::transaction<input<script>, output<script>> {
+            using abstractions::transaction<input<script>, output<script>>::transaction;
+            
             txid hash() const;
             transaction(string hex);
             
             using representation = typename abstractions::transaction<input<script>, output<script>>::representation;
+            
+            transaction& operator=(transaction);
         };
         
     }

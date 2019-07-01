@@ -30,6 +30,8 @@ namespace abstractions {
         vertex(list<spendable> i, list<out> o) : Inputs{i}, Outputs{o} {}
         vertex(std::initializer_list<spendable>, std::initializer_list<out>);
         
+        uint expected_size() const;
+        
     };
     
     template <
