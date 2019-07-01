@@ -15,8 +15,8 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        template <typename machine, typename script> 
-        using proto = abstractions::wallet<secret, address, script, output<script>, outpoint, transaction<script>, machine> ;
+        template <typename machine> 
+        using proto = abstractions::wallet<secret, address, script, output, outpoint, transaction, machine> ;
         
         extern const satoshi dust;
 

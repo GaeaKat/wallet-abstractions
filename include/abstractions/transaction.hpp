@@ -11,7 +11,7 @@
 namespace abstractions {
     
     template <typename ops> 
-    struct output : public std::vector<byte> {
+    struct output : public bytes {
         struct representation {
             bool Valid;
             satoshi Value;
@@ -39,7 +39,7 @@ namespace abstractions {
     };
     
     template <typename txid>
-    struct outpoint : public std::vector<byte> {
+    struct outpoint : public bytes {
         struct representation {
             bool Valid;
             txid Reference;
@@ -65,7 +65,7 @@ namespace abstractions {
     };
     
     template <typename point, typename ops>
-    struct input : public std::vector<byte> {
+    struct input : public bytes {
         struct representation {
             bool Valid;
             point Outpoint;
@@ -98,7 +98,7 @@ namespace abstractions {
     };
     
     template <typename input, typename output>
-    struct transaction : public std::vector<byte> {
+    struct transaction : public bytes {
         
         struct representation {
             bool Valid;

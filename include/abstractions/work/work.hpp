@@ -22,13 +22,16 @@ namespace abstractions {
             operator uint32_t();
         };
         
-        using message = std::array<byte, 68>;
+        const N message_size = 68;
+        using message = std::array<byte, message_size>;
         
         struct candidate {
             message Message;
             target Target;
             
             candidate(message m, target t) : Message{m}, Target{t} {}
+            
+            bytes encode() const;
         };
     
     }

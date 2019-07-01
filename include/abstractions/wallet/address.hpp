@@ -5,21 +5,33 @@
 #ifndef ABSTRACTIONS_WALLET_ADDRESS
 #define ABSTRACTIONS_WALLET_ADDRESS
 
-#include <data/crypto/sha256.hpp>
+#include <abstractions/sha256.hpp>
 #include <data/crypto/secp256k1.hpp>
 #include <abstractions/abstractions.hpp>
 #include "tag.hpp"
-#include "keys.hpp"
 
 namespace abstractions {
     
     namespace bitcoin {
         
+        struct pubkey;
+        struct secret;
+        
         struct address : public ::data::sha256::digest, public tag {
-            using ::data::sha256::digest::digest;
+            using parent = ::data::sha256::digest;
+            using parent::digest;
+            
             static address read(string formated);
-            address(secret);
-            bool valid();
+            
+            bool operator==(const address& a) const;
+            bool operator!=(const address& a) const;
+            
+            address& operator=(const address& a);
+            
+            address(const address&);
+            address(address&&);
+            address(pubkey&);
+            address(secret&);
         };
         
         namespace bitcoin_address {
@@ -32,6 +44,19 @@ namespace abstractions {
             bool read(stringstream&, address&);
             string write(address&);
             void write(address&, stringstream&);
+        }
+        
+        inline bool address::operator==(const address& a) const {
+            return uint256::operator==(static_cast<const uint256&>(a));
+        }
+        
+        inline bool address::operator!=(const address& a) const {
+            return uint256::operator!=(static_cast<const uint256&>(a));
+        }
+        
+        inline address& address::operator=(const address& a) {
+            uint256::operator=(static_cast<const uint256&>(a));
+            return *this;
         }
     }
 }

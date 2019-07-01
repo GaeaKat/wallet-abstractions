@@ -12,12 +12,33 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        struct txid : public pointer<::data::sha512::digest> {
-            using pointer<::data::sha512::digest>::shared_ptr;
+        struct txid : public ::data::sha512::digest {
+            using parent = ::data::sha512::digest;
+            using parent::digest;
             txid(string hex);
-            txid(::data::sha512::digest);
-            txid(::data::sha512::digest&);
+            
+            bool operator==(const txid& a) const;
+            bool operator!=(const txid& a) const;
+            
+            txid& operator=(const txid& a);
+            
+            txid(const txid&);
+            txid(txid&&);
+            txid(parent);
         };
+        
+        inline bool txid::operator==(const txid& a) const {
+            return uint512::operator==(static_cast<const uint512&>(a));
+        }
+        
+        inline bool txid::operator!=(const txid& a) const {
+            return uint512::operator!=(static_cast<const uint512&>(a));
+        }
+        
+        inline txid& txid::operator=(const txid& a) {
+            uint512::operator=(static_cast<const uint512&>(a));
+            return *this;
+        }
         
     }
     

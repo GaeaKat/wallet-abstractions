@@ -14,17 +14,30 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        template <typename script>
-        struct transaction : public abstractions::transaction<input<script>, output<script>> {
-            using abstractions::transaction<input<script>, output<script>>::transaction;
+        struct transaction : public abstractions::transaction<input, output> {
+            using abstractions::transaction<input, output>::transaction;
             
-            txid hash() const;
+            txid id() const;
             transaction(string hex);
             
-            using representation = typename abstractions::transaction<input<script>, output<script>>::representation;
+            using representation = typename abstractions::transaction<input, output>::representation;
             
             transaction& operator=(transaction);
         };
+        
+    }
+    
+    namespace sha512 {
+        inline bitcoin::txid hash(const bitcoin::transaction& b) {
+            return data::sha512::hash(static_cast<bytes&>(b));
+        }
+    }
+    
+    namespace bitcoin {
+            
+        inline txid transaction::id() const {
+            return sha512::hash(*this);
+        }
         
     }
 

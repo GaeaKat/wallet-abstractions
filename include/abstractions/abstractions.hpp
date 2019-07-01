@@ -38,6 +38,9 @@ namespace abstractions {
     
     using index = uint32_t;
     
+    using uint256 = data::uint256;
+    using uint512 = data::uint512;
+    
     template <typename X>
     using vector = const std::vector<X>;
 
