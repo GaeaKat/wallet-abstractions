@@ -20,6 +20,10 @@ namespace abstractions {
             representation(satoshi v, ops o) : Valid{true}, Value{v}, ScriptPubKey{o} {}
             representation(output);
             representation() : Valid{false}, Value{}, ScriptPubKey{} {}
+            
+            ops script() const {
+                return ScriptPubKey;
+            }
         };
         
         bool valid() const {
@@ -72,6 +76,10 @@ namespace abstractions {
             representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
             representation(input);
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
+            
+            ops script() const {
+                return ScriptSignature;
+            }
         };
         
         bool valid() const {
@@ -117,6 +125,8 @@ namespace abstractions {
         transaction();
         transaction(bytes);
         transaction(representation);
+        transaction(N l, list<input> i, list<output> o) : transaction{representation{l, i, o}} {}
+        transaction(list<input> i, list<output> o) : transaction{representation{i, o}} {}
         
         transaction& operator=(transaction);
     };

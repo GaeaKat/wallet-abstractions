@@ -32,6 +32,8 @@ namespace abstractions {
         
         uint expected_size() const;
         
+        bytes write() const;
+        
     };
     
     template <
@@ -42,7 +44,7 @@ namespace abstractions {
         typename point, 
         typename tx,
         typename machine>
-    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx, machine>&>, vertex<key, out, point>);
+    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx, machine>&> patterns, vertex<key, out, point> v);
     
 }
 
