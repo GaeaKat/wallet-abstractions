@@ -29,9 +29,9 @@ namespace abstractions {
                 virtual Script pay(Key) const = 0;
                 
                 // make a script signature.
-                virtual Script redeem(output<Script> out, Tx t, Key k) const = 0;
+                virtual Script redeem(satoshi, Script, Tx, Key) const = 0;
                 
-                void pattern_definition(Key k, Tx t, Machine i) const final {
+                void pattern_definition(Key k, Tx t, Machine i) const {
                     assert(i.run(pay(k), redeem(k, t), t));
                 }
             };
@@ -52,7 +52,7 @@ namespace abstractions {
                 
                 virtual list<Tag> recognize(Script) const = 0;
                 
-                void recognizable_pattern_definition(Key k) const final {
+                void recognizable_pattern_definition(Key k) const {
                     if (tagged<Key, Tag>::tag(k) != recognize(pattern<Key, Script, Tx, Machine>::pay(k))) throw 0;
                 }
                 
@@ -85,77 +85,22 @@ namespace abstractions {
                 typename Machine>
             struct standard : 
                 public virtual data::crypto::keypair<Sk, Pk>, 
-                public virtual recognizable<Sk, Tag, Script, Tx, Machine>, 
-                public virtual addressable<Sk, Tag, Script, Tx, Machine> {
+                public virtual recognizable<Sk, Script, Tag, Tx, Machine>, 
+                public virtual addressable<Sk, Script, Tag, Tx, Machine> {
                     
                 virtual Tag tag(Pk) const = 0;
                 
                 Tag tag(Sk k) const final override {
                     return tag(data::crypto::to_public<Sk, Pk>{}(k));
                 };
+                
+                Script pay(Pk k) const {
+                    return pay(tag(k));
+                }
+                
             };
             
         }
-        
-        template <
-            typename Sk, 
-            typename Pk, 
-            typename Script, 
-            typename Pay, 
-            typename Redeem, 
-            typename Recognize, 
-            typename Tx, 
-            typename Machine>
-        struct pay_to_public_key final : public abstract::standard<Sk, Pk, Script, Pk, Tx, Machine> {
-            
-            Pk tag(Pk k) const final override {
-                return k;
-            };
-            
-            Script pay(Pk k) const final override {
-                return Pay{}(k);
-            };
-            
-            list<Pk> recognize(Script s) const final override {
-                return Recognize{}(s);
-            };
-            
-            Script redeem(output<Script> out, Tx t, Sk k) const final override {
-                return Redeem{}(out, t, k);
-            }
-        
-        };
-        
-        template <
-            typename Sk, 
-            typename Pk, 
-            typename Script, 
-            typename Address, 
-            typename Pay, 
-            typename Redeem, 
-            typename Recognize, 
-            typename Hash, 
-            typename Tx, 
-            typename Machine>
-        struct pay_to_address final : public abstract::standard<Sk, Pk, Script, Address, Tx, Machine> {
-            
-            Address tag(Pk k) const final override {
-                return Hash{}(k);
-            };
-            
-            Script pay(Address a) const final override {
-                return Pay{}(a);
-            };
-            
-            list<Address> recognize(Script s) const final override {
-                return Recognize{}(s);
-            };
-            
-            Script redeem(output<Script> out, Tx t, Sk k) const final override {
-                return Redeem{}(out, t, k);
-            }
-        
-        };
         
     }
     

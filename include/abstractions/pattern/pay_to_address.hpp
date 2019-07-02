@@ -5,36 +5,28 @@
 #ifndef ABSTRACTIONS_PATTERN_PAY_TO_ADDRESS
 #define ABSTRACTIONS_PATTERN_PAY_TO_ADDRESS
 
-#include <data/crypto/secp256k1.hpp>
-#include <data/crypto/sha256.hpp>
-#include <abstractions/transaction.hpp>
+#include <abstractions/wallet/keys.hpp>
+#include <abstractions/wallet/machine.hpp>
+#include <abstractions/wallet/transaction.hpp>
 #include <abstractions/pattern.hpp>
 
 namespace abstractions {
     
-    namespace script {
-        using digest = data::sha256::digest;
-        using pubkey = data::secp256k1::pubkey;
-        using secret = data::secp256k1::secret;
-            
-        struct hash {
-            digest operator()(const pubkey&) const;
-        };
-            
-        struct pay {
-            bytes operator()(const digest&) const;
-        };
-            
-        struct recognize {
-            list<digest> operator()(const bytes) const;
-        };
-            
-        struct redeem {
-            bytes operator()(const output<bytes>&, const bytes&, const secret&) const;
-        };
+    namespace bitcoin {
         
-        template <typename machine> 
-        using pay_to_address = abstractions::pattern::pay_to_address<secret, pubkey, bytes, digest, pay, redeem, recognize, hash, bytes, machine>;
+        struct pay_to_address final : public pattern::abstract::standard<secret, pubkey, script, address, transaction, machine> {
+            
+            address tag(pubkey k) const final override {
+                return hash(k);
+            }
+            
+            script pay(address a) const final override;
+            
+            list<address> recognize(script s) const final override;
+            
+            script redeem(satoshi amount, script script_pubkey, transaction t, secret k) const final override;
+        
+        };
             
     }
 }

@@ -12,7 +12,6 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        template <typename script>
         struct machine {
             // Run machine without checking signatures. 
             machine();
