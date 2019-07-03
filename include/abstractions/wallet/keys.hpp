@@ -17,6 +17,8 @@ namespace abstractions {
         
         struct pubkey;
         
+        using signature = data::secp256k1::signature;
+        
         struct secret : public data::secp256k1::secret {
             using parent = data::secp256k1::secret;
             using parent::secret;
@@ -28,7 +30,7 @@ namespace abstractions {
             
             secret& operator=(const secret& s);
             
-            libbitcoin::system::ec_signature sign(const sha256::digest&) const;
+            signature sign(const sha256::digest&) const;
             
             secret(string wif);
         };
@@ -42,13 +44,13 @@ namespace abstractions {
             
             pubkey& operator=(const pubkey& p);
             
-            bool verify(const sha256::digest&, const libbitcoin::system::ec_signature&) const;
+            bool verify(const sha256::digest&, const signature&) const;
             
             pubkey(string wif);
         };
         
         constexpr data::math::module<pubkey, secret> is_module{};
-        constexpr data::crypto::signature_scheme<secret, pubkey, const sha256::digest, libbitcoin::system::ec_signature> is_signature_scheme{};
+        constexpr data::crypto::signature_scheme<secret, pubkey, const sha256::digest, signature> is_signature_scheme{};
     
         namespace wif {
             bool read(string&, secret&);
