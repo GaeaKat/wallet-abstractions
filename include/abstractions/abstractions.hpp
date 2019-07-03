@@ -56,6 +56,8 @@ namespace abstractions {
     using knowledge = const uint64_t; 
     
     using stringstream = std::stringstream;
+    using istream = data::istream<byte>;
+    using ostream = data::ostream<byte>;
 
     template <typename X>
     using list = data::linked_list<X>;
