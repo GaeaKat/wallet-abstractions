@@ -52,6 +52,7 @@ namespace abstractions {
     using pointer = std::shared_ptr<X>;
 
     using string = const std::string;
+    using hex = data::encoding::hex::string;
 
     using knowledge = const uint64_t; 
     

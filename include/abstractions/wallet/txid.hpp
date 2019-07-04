@@ -15,12 +15,15 @@ namespace abstractions {
         struct txid : public ::data::sha512::digest {
             using parent = ::data::sha512::digest;
             using parent::digest;
-            txid(string hex);
             
             bool operator==(const txid& a) const;
             bool operator!=(const txid& a) const;
             
             txid& operator=(const txid& a);
+            
+            txid(hex s) : txid{s.valid() ? bytes(s) : bytes{}} {}
+            txid(string hex_string) : txid{hex{hex_string}} {}
+            txid(bytes b);
             
             txid(const txid&);
             txid(txid&&);

@@ -60,12 +60,15 @@ namespace abstractions {
             };
             
             txid id() const;
-            transaction(string hex);
             transaction& operator=(transaction);
+            
+            transaction(hex s) : transaction{s.valid() ? bytes(s) : bytes{}} {}
+            transaction(string hex_string) : transaction{hex{hex_string}} {}
         
             transaction() : parent{} {};
             transaction(bytes b) : parent{b} {};
             transaction(representation r) : parent{r.deconvert()} {}
+            
             transaction(N l, list<input> i, list<output> o) : transaction{representation{l, i, o}} {}
             transaction(list<input> i, list<output> o) : transaction{representation{i, o}} {}
             transaction(N l, list<input> i, list<output> o, op_return d) : transaction{representation{l, i, o, d}} {}
