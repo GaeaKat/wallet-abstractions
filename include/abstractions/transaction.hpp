@@ -12,8 +12,9 @@ namespace abstractions {
     
     template <typename ops> 
     struct output : public bytes {
-        struct representation {
+        class representation {
             bool Valid;
+        public:
             satoshi Value;
             ops ScriptPubKey;
             
@@ -23,6 +24,10 @@ namespace abstractions {
             
             ops script() const {
                 return ScriptPubKey;
+            }
+            
+            bool valid() const {
+                return Valid;
             }
         };
         
@@ -42,12 +47,17 @@ namespace abstractions {
     struct outpoint : public bytes {
         struct representation {
             bool Valid;
+        public:
             txid Reference;
             index Index;
             
             representation(txid tx, index i) : Valid{true}, Reference{tx}, Index{i} {}
             representation(outpoint);
             representation() : Valid{false}, Reference{}, Index{} {}
+            
+            bool valid() const {
+                return Valid;
+            }
         };
         
         bool valid() const {
@@ -68,6 +78,7 @@ namespace abstractions {
     struct input : public bytes {
         struct representation {
             bool Valid;
+        public:
             point Outpoint;
             ops ScriptSignature;
             N Sequence;
@@ -79,6 +90,10 @@ namespace abstractions {
             
             ops script() const {
                 return ScriptSignature;
+            }
+            
+            bool valid() const {
+                return Valid;
             }
         };
         
@@ -102,6 +117,7 @@ namespace abstractions {
         
         struct representation {
             bool Valid;
+        public:
             N Locktime;
             list<input> Inputs;
             list<output> Outputs;
@@ -115,7 +131,9 @@ namespace abstractions {
             representation(transaction);
             representation() : Valid{false}, Locktime{}, Inputs{}, Outputs{} {}
             
-            friend struct transaction;
+            bool valid() const {
+                return Valid;
+            }
         };
         
         bool valid() const {
