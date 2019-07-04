@@ -16,12 +16,7 @@ namespace abstractions {
         struct program {
             virtual N length() const = 0;
             virtual void write(ostream&) const = 0;
-            operator bytes() const {
-                std::vector<byte> b{static_cast<unsigned char>(length())};
-                data::slice_ostream s{b};
-                write(s);
-                return b;
-            };
+            operator bytes() const;
 
             enum op {
                 // push value
@@ -170,6 +165,7 @@ namespace abstractions {
                 OP_INVALIDOPCODE = 0xff,
             };
             
+            struct noop;
             struct push;
             struct op_code;
             struct sequence;
@@ -177,10 +173,20 @@ namespace abstractions {
         
         };
             
+        struct program::noop : public program {
+            void write(ostream&) const final override {}
+            
+            N length() const final override {
+                return 0;
+            }
+            
+            noop() {}
+        };
+            
         struct program::push : public program {
             bytes Data;
             
-            virtual void write(ostream&) const final override;
+            void write(ostream&) const final override;
             N length() const final override;
             
             push(bytes data) : Data{data} {}

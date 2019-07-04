@@ -6,7 +6,8 @@
 #define ABSTRACTIONS_WALLET_KEYS
 
 #include <data/crypto/secp256k1.hpp>
-#include <abstractions/sha256.hpp>
+#include <abstractions/crypto/hash/sha256.hpp>
+#include <abstractions/crypto/hash/ripemd160.hpp>
 #include "tag.hpp"
 #include "hash.hpp"
 #include "address.hpp"
@@ -65,7 +66,7 @@ namespace abstractions {
         }
         
         inline address hash(pubkey& b) {
-            return bitcoin::hash<data::secp256k1::pubkey_size>(static_cast<std::array<byte, data::secp256k1::pubkey_size>&>(b));
+            return ripemd160::hash<data::secp256k1::pubkey_size>(static_cast<std::array<byte, data::secp256k1::pubkey_size>&>(b));
         }
         
     }

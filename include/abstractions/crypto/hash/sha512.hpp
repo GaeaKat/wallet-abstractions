@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef ABSTRACTIONS_SHA512
-#define ABSTRACTIONS_SHA512
+#ifndef ABSTRACTIONS_CRYPTO_HASH_SHA512
+#define ABSTRACTIONS_CRYPTO_HASH_SHA512
 
 #include <data/crypto/sha512.hpp>
 #include <abstractions/abstractions.hpp>

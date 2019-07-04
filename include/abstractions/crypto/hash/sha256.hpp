@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef ABSTRACTIONS_SHA256
-#define ABSTRACTIONS_SHA256
+#ifndef ABSTRACTIONS_CRYPTO_HASH_SHA256
+#define ABSTRACTIONS_CRYPTO_HASH_SHA256
 
 #include <data/crypto/sha256.hpp>
 #include <abstractions/abstractions.hpp>

@@ -15,21 +15,30 @@ namespace abstractions {
         pointer<program> op(program::op);
         pointer<program> sequence(std::vector<pointer<program>>);
         pointer<program> push(bytes);
+        pointer<program> push(bitcoin::signature);
+        pointer<program> push(bitcoin::pubkey);
+        pointer<program> push(bitcoin::address);
+        pointer<program> push(N);
+        pointer<program> noop();
         pointer<program> repeat(pointer<program>, N);
         pointer<program> dup();
+        pointer<program> swap();
         pointer<program> to_alt_stack();
         pointer<program> from_alt_stack();
         pointer<program> concat();
         pointer<program> concat(N);
-        pointer<program> rotate_bits(Z);
-        pointer<program> split(Z);
+        pointer<program> rotate_bytes(Z);
+        pointer<program> rotate_bytes_left(N);
+        pointer<program> rotate_bytes_right(N);
+        pointer<program> rotate_bytes_left();
+        pointer<program> rotate_bytes_right();
+        pointer<program> split(N);
+        pointer<program> equal();
         pointer<program> bitcoin_hash();
-        pointer<program> less();
-        pointer<program> greater();
-        pointer<program> less_equal();
-        pointer<program> greater_equal();
+        pointer<program> address_hash();
+        pointer<program> check_signature(); 
         pointer<program> pay_to_address(bitcoin::address);
-        pointer<program> redeem_from_pay_to_address(bitcoin::pubkey, bitcoin::signature);
+        pointer<program> redeem_from_pay_to_address(bitcoin::signature, bitcoin::pubkey);
         
         inline pointer<program> op(program::op o) {
             return std::make_shared<program>(new program::op_code{o});
@@ -65,6 +74,40 @@ namespace abstractions {
         
         inline pointer<program> concat(N n) {
             return repeat(concat(), n);
+        }
+        
+        inline pointer<program> rotate_bytes(Z z) {
+            if (z == 0) return noop();
+            if (z < 0) return rotate_bytes_left(-z);
+            return rotate_bytes_right(z);
+        }
+        
+        inline pointer<program> split(N n) {
+            return sequence({push(n), op(program::OP_SPLIT)});
+        }
+        
+        inline pointer<program> equal() {
+            return op(program::OP_EQUAL);
+        }
+        
+        inline pointer<program> bitcoin_hash() {
+            return op(program::OP_HASH256);
+        }
+        
+        inline pointer<program> address_hash() {
+            return op(program::OP_HASH160);
+        }
+        
+        inline pointer<program> check_signature() {
+            return op(program::OP_CHECKSIG);
+        }
+        
+        inline pointer<program> pay_to_address(bitcoin::address a) {
+            return sequence({dup(), address_hash(), push(a), equal(), check_signature()});
+        }
+        
+        inline pointer<program> redeem_from_pay_to_address(bitcoin::signature x, bitcoin::pubkey p) {
+            return sequence({push(x), push(p)});
         }
         
     }

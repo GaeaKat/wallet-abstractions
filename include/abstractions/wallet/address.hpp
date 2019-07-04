@@ -5,7 +5,7 @@
 #ifndef ABSTRACTIONS_WALLET_ADDRESS
 #define ABSTRACTIONS_WALLET_ADDRESS
 
-#include <abstractions/sha256.hpp>
+#include <abstractions/crypto/hash/ripemd160.hpp>
 #include <data/crypto/secp256k1.hpp>
 #include <abstractions/abstractions.hpp>
 #include "tag.hpp"
@@ -17,8 +17,8 @@ namespace abstractions {
         struct pubkey;
         struct secret;
         
-        struct address : public ::data::sha256::digest, public tag {
-            using parent = ::data::sha256::digest;
+        struct address : public ::data::ripemd160::digest, public tag {
+            using parent = ::data::ripemd160::digest;
             using parent::digest;
             
             static address read(string formated);
@@ -47,15 +47,15 @@ namespace abstractions {
         }
         
         inline bool address::operator==(const address& a) const {
-            return uint256::operator==(static_cast<const uint256&>(a));
+            return parent::operator==(static_cast<const parent&>(a));
         }
         
         inline bool address::operator!=(const address& a) const {
-            return uint256::operator!=(static_cast<const uint256&>(a));
+            return parent::operator!=(static_cast<const parent&>(a));
         }
         
         inline address& address::operator=(const address& a) {
-            uint256::operator=(static_cast<const uint256&>(a));
+            parent::operator=(static_cast<const parent&>(a));
             return *this;
         }
     }
