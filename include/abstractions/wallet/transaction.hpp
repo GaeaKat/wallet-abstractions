@@ -9,6 +9,7 @@
 #include "input.hpp"
 #include "output.hpp"
 #include "txid.hpp"
+#include "keys.hpp"
 
 namespace abstractions {
     
@@ -75,6 +76,8 @@ namespace abstractions {
             transaction(list<input> i, list<output> o, op_return d) : transaction{representation{i, o, d}} {}
             
         };
+    
+        signature sign(output, transaction, N, secret);
         
     }
     

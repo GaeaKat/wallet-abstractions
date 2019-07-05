@@ -29,7 +29,7 @@ namespace abstractions {
                 virtual Script pay(Key) const = 0;
                 
                 // make a script signature.
-                virtual Script redeem(satoshi, Script, Tx, Key) const = 0;
+                virtual Script redeem(satoshi, Script, Tx, N, Key) const = 0;
                 
                 void pattern_definition(Key k, Tx t, Machine i) const {
                     assert(i.run(pay(k), redeem(k, t), t));

@@ -16,7 +16,10 @@ namespace abstractions {
         struct program {
             virtual N length() const = 0;
             virtual void write(ostream&) const = 0;
-            operator bytes() const;
+            bytes compile() const;
+            operator bytes() const {
+                return compile();
+            }
 
             enum op {
                 // push value

@@ -33,6 +33,8 @@ namespace abstractions {
             
             bytes encode() const;
         };
+        
+        message reference(bytes b);
     
     }
     

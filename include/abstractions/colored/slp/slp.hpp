@@ -1,24 +1,22 @@
-#ifndef ABSTRACTIONS_COLORED_SLP_SLP_HPP
-#define ABSTRACTIONS_COLORED_SLP_SLP_HPP
+#ifndef ABSTRACTIONS_COLORED_SLP_SLP
+#define ABSTRACTIONS_COLORED_SLP_SLP
 
 #include <abstractions/colored/colored.hpp>
 #include <abstractions/bitcoin/transaction.hpp>
 #include <abstractions/bitcoin/output.hpp>
-#include <abstractions/optional.hpp>
 #include <data/crypto/sha256.hpp>
-#include <abstractions/data.hpp>
+#include <abstractions/abstractions.hpp>
 #include <data/encoding/ascii.hpp>
 #include <data/encoding/utf8.hpp>
+#include <data/optional.hpp>
 
-namespace abstractions
-{
+namespace abstractions {
     
-    namespace colored
-    {
+    namespace colored {
         
         namespace slp {
             
-            using script = vector<byte>;
+            using script = bytes;
             
             using quantity = uint64_t;
             
@@ -42,12 +40,12 @@ namespace abstractions
             // representation of a genesis script. 
             struct genesis {
                 token_type Token;
-                encoding::utf8::string Ticker;
-                encoding::utf8::string Name;
-                encoding::ascii::string DocumentUrl;
-                optional<hash> DocumentHash;
+                data::encoding::utf8::string Ticker;
+                data::encoding::utf8::string Name;
+                data::encoding::ascii::string DocumentUrl;
+                data::optional<hash> DocumentHash;
                 byte Decimals;
-                optional<byte> MintBatonVout;
+                data::optional<byte> MintBatonVout;
                 quantity InitialTokenMintQuantity;
                     
                 bool valid() const;
@@ -262,9 +260,9 @@ namespace abstractions
                 
                 reader read_value(reader, quantity& b, N size);
                 
-                reader read_value(reader, encoding::ascii::string& b, N size);
+                reader read_value(reader, data::encoding::ascii::string& b, N size);
                 
-                reader read_value(reader, encoding::utf8::string& b, N size);
+                reader read_value(reader, data::encoding::utf8::string& b, N size);
                 
                 template <typename X>
                 inline reader read_push(reader r, X& x) {

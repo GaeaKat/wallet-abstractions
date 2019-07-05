@@ -16,7 +16,9 @@
 #include <data/tools/map_set.hpp>
 #include <data/queue/functional_queue.hpp>
 #include <data/slice.hpp>
+
 #include <data/encoding/hex.hpp>
+#include <data/encoding/ascii.hpp>
 
 namespace abstractions {
 
@@ -53,6 +55,7 @@ namespace abstractions {
 
     using string = const std::string;
     using hex = data::encoding::hex::string;
+    using ascii = data::encoding::ascii::string;
 
     using knowledge = const uint64_t; 
     

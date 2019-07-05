@@ -9,6 +9,7 @@
 #include <abstractions/wallet/machine.hpp>
 #include <abstractions/wallet/transaction.hpp>
 #include <abstractions/pattern.hpp>
+#include <abstractions/script/pay_to_address.hpp>
 
 namespace abstractions {
     
@@ -20,11 +21,17 @@ namespace abstractions {
                 return hash(k);
             }
             
-            script pay(address a) const final override;
+            script pay(address a) const final override {
+                return abstractions::script::pay_to(a)->compile();
+            }
             
-            list<address> recognize(script s) const final override;
+            list<address> recognize(script s) const final override {
+                return {abstractions::script::pay_to_address::to(s)};
+            }
             
-            script redeem(satoshi amount, script script_pubkey, transaction t, secret k) const final override;
+            script redeem(satoshi amount, script script_pubkey, transaction t, N index, secret k) const final override {
+                return abstractions::script::redeem_from_pay_to_address(bitcoin::sign(bitcoin::output{amount, script_pubkey}, t, index, k), k.to_public())->compile();
+            }
         
         };
             

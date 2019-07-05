@@ -37,8 +37,6 @@ namespace abstractions {
         pointer<program> bitcoin_hash();
         pointer<program> address_hash();
         pointer<program> check_signature(); 
-        pointer<program> pay_to_address(bitcoin::address);
-        pointer<program> redeem_from_pay_to_address(bitcoin::signature, bitcoin::pubkey);
         
         inline pointer<program> op(program::op o) {
             return std::make_shared<program>(new program::op_code{o});
@@ -100,14 +98,6 @@ namespace abstractions {
         
         inline pointer<program> check_signature() {
             return op(program::OP_CHECKSIG);
-        }
-        
-        inline pointer<program> pay_to_address(bitcoin::address a) {
-            return sequence({dup(), address_hash(), push(a), equal(), check_signature()});
-        }
-        
-        inline pointer<program> redeem_from_pay_to_address(bitcoin::signature x, bitcoin::pubkey p) {
-            return sequence({push(x), push(p)});
         }
         
     }
