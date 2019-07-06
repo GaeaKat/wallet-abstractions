@@ -36,6 +36,7 @@ namespace abstractions {
         pointer<program> equal();
         pointer<program> bitcoin_hash();
         pointer<program> address_hash();
+        pointer<program> sha256_hash();
         pointer<program> check_signature(); 
         
         inline pointer<program> op(program::op o) {

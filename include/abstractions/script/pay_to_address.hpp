@@ -43,7 +43,7 @@ namespace abstractions {
             
         };
         
-        inline pointer<program> pay_to_address(bitcoin::address a) {
+        inline pointer<program> pay_to(bitcoin::address a) {
             return sequence({dup(), address_hash(), push(a), equal(), check_signature()});
         }
         

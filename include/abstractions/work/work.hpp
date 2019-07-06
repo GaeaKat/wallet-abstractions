@@ -6,6 +6,7 @@
 #define ABSTRACTIONS_WORK_WORK
 
 #include <abstractions/abstractions.hpp>
+#include <abstractions/crypto/hash/sha256.hpp>
 
 namespace abstractions {
     
@@ -22,19 +23,29 @@ namespace abstractions {
             operator uint32_t();
         };
         
-        const N message_size = 68;
+        const N message_size = 36;
         using message = std::array<byte, message_size>;
         
         struct candidate {
+            sha256::digest Reference;
             message Message;
             target Target;
             
-            candidate(message m, target t) : Message{m}, Target{t} {}
+            bool valid() const;
+            
+            candidate(sha256::digest r, message m, target t) : Reference{r}, Message{m}, Target{t} {}
+            candidate();
             
             bytes encode() const;
         };
         
-        message reference(bytes b);
+        message reference(const sha256::digest d) {
+            message m{};
+            std::copy(d.begin(), d.end(), m.begin());
+            return m;
+        };
+        
+        uint32_t work(candidate);
     
     }
     

@@ -21,8 +21,6 @@ namespace abstractions {
             using parent = ::data::ripemd160::digest;
             using parent::digest;
             
-            static address read(string formated);
-            
             bool operator==(const address& a) const;
             bool operator!=(const address& a) const;
             
@@ -32,6 +30,7 @@ namespace abstractions {
             address(address&&);
             address(pubkey&);
             address(secret&);
+            address(string&);
         };
         
         namespace bitcoin_address {

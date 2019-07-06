@@ -11,6 +11,22 @@
 namespace abstractions {
     
     namespace script {
+        struct pow_lock : public program {
+            bytes Script;
+            work::candidate Candidate; 
+            
+            static bool valid(bytes& s);
+            bool valid() const {
+                return valid(Script);
+            }
+            
+            pow_lock(bytes& s);
+            pow_lock() {}
+            
+        private :
+            pow_lock(bytes s, work::candidate c) : Script{s}, Candidate{c} {} 
+        };
+        
         pointer<program> expand_target();
         pointer<program> lock_by_pow(work::message, work::target);
         
@@ -19,7 +35,7 @@ namespace abstractions {
         
         pointer<program> push_target_zeros();
         
-        pointer<program> expand_target() {
+        inline pointer<program> expand_target() {
             return sequence({
                 split(1), 
                 swap(), 
@@ -34,10 +50,15 @@ namespace abstractions {
             });
         }
         
-        inline pointer<program> lock_by_pow(work::candidate c) {
+        inline pointer<program> lock_by_pow(work::message m, work::target t) {
+            // The input that redeems this script will push a nonce, a signature, and a pubkey. 
             return sequence({
-                push_pow_message(c.Message),
-                push_pow_target(c.Target),
+                to_alt_stack(), 
+                dup(), 
+                to_alt_stack(), 
+                sha256_hash(), 
+                push_pow_message(m),
+                push_pow_target(t),
                 dup(), 
                 to_alt_stack(),
                 concat(2),
@@ -45,7 +66,10 @@ namespace abstractions {
                 bitcoin_hash(),
                 from_alt_stack(), 
                 expand_target(), 
-                greater256()
+                greater256(),
+                from_alt_stack(), 
+                from_alt_stack(), 
+                check_signature()
             });
         }
     }

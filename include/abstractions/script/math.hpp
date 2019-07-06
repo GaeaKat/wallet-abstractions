@@ -17,7 +17,6 @@ namespace abstractions {
         pointer<program> less_equal256();
         pointer<program> greater_equal256();
         
-        
         inline pointer<program> less_equal256() {
             return sequence({op(program::OP_SWAP), greater256()});
         }
@@ -29,3 +28,5 @@ namespace abstractions {
     }
 
 }
+
+#endif
