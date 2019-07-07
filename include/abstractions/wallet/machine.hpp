@@ -17,11 +17,11 @@ namespace abstractions {
             machine();
             
             // Run the machine with checking signatures. 
-            machine(transaction& tx, index i, satoshi amount);
+            machine(const transaction& tx, index i, satoshi amount);
             
-            bool run(script output, script input) const;
+            bool run(const script output, const script input) const;
         
-            constexpr static abstractions::machine::definition<machine, script, transaction&> is_script_machine{};
+            constexpr static abstractions::machine::definition<machine, const script, const transaction&> is_script_machine{};
             
         };
         

@@ -21,7 +21,9 @@ namespace abstractions {
             out Output;
             point Point;
             
-            bool valid() const;
+            bool valid() const {
+                return Key.valid() && Output.valid() && Point.valid();
+            }
         };
     
         list<spendable> Inputs;
@@ -44,7 +46,7 @@ namespace abstractions {
         typename point, 
         typename tx,
         typename machine>
-    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx, machine>&> patterns, vertex<key, out, point> v);
+    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx, machine>&> patterns, vertex<key, out, point> v) noexcept;
     
 }
 

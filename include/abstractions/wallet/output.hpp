@@ -19,6 +19,7 @@ namespace abstractions {
             op_return() : output{} {}
             op_return(output o) : output{o} {}
             op_return(op_return& o) : output{static_cast<output&>(o)} {}
+            op_return(bytes data);
             bool valid() {
                 return output::valid() && output::ScriptPubKey.size() > 0 && ScriptPubKey[0] == abstractions::script::program::OP_RETURN;
             }
