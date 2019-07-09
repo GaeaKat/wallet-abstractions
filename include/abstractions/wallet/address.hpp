@@ -31,18 +31,19 @@ namespace abstractions {
             address(pubkey&);
             address(secret&);
             address(string&);
+            
+            string write();
+            string cashaddr();
         };
         
         namespace bitcoin_address {
-            bool read(stringstream&, address&);
+            bool read(const string&, ::data::ripemd160::digest&);
             string write(address&);
-            void write(address&, stringstream&);
         }
         
         namespace cashaddr {
-            bool read(stringstream&, address&);
+            bool read(const string&, ::data::ripemd160::digest&);
             string write(address&);
-            void write(address&, stringstream&);
         }
         
         inline bool address::operator==(const address& a) const {
@@ -56,6 +57,20 @@ namespace abstractions {
         inline address& address::operator=(const address& a) {
             parent::operator=(static_cast<const parent&>(a));
             return *this;
+        }
+            
+        inline string address::write() {
+            return bitcoin_address::write(*this);
+        }
+        
+        inline string address::cashaddr() {
+            return cashaddr::write(*this);
+        }
+        
+        inline address::address(const string& s) {
+            bitcoin_address::read(s, static_cast<data::ripemd160::digest&>(*this));
+            if (valid()) return;
+            cashaddr::read(s, static_cast<data::ripemd160::digest&>(*this));
         }
     }
 }

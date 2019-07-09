@@ -17,6 +17,24 @@ namespace abstractions {
         pointer<program> less_equal256();
         pointer<program> greater_equal256();
         
+        pointer<program> split256_to_32();
+        
+        inline pointer<program> subtract(N n) {
+            return sequence({push(n), op(program::OP_SUB)});
+        }
+        
+        inline pointer<program> split256_to_32() {
+            return sequence({repeat(sequence({repeat(sequence({split(-4), to_alt_stack(), swap()}), 2)}), 7)});
+        }
+        
+        inline pointer<program> less256() {
+            return sequence({split256_to_32()});
+        }
+        
+        inline pointer<program> greater256() {
+            return sequence({split256_to_32()});
+        }
+        
         inline pointer<program> less_equal256() {
             return sequence({op(program::OP_SWAP), greater256()});
         }

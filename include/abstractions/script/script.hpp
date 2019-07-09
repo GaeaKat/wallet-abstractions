@@ -17,6 +17,7 @@ namespace abstractions {
             virtual N length() const = 0;
             virtual void write(ostream&) const = 0;
             bytes compile() const;
+            
             operator bytes() const {
                 return compile();
             }
@@ -215,7 +216,7 @@ namespace abstractions {
             }
             
             N length() const final override {
-                return data::fold([](pointer<program> p, N len)->N{return len + p->length();}, 0, *this);
+                return data::fold([](uint len, pointer<program> p)->uint{return len + p->length();}, 0, *this);
             }
         };
         
