@@ -15,7 +15,7 @@ namespace abstractions {
         typename point, 
         typename tx,
         typename machine>
-    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx, machine>&> patterns, vertex<key, out, point> v) {
+    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx, machine>&> patterns, vertex<key, out, point> v) noexcept {
         using pattern = pattern::abstract::recognizable<key, script, tag, tx, machine>&;
         using vertex = vertex<key, out, point>;
         using input = typename input<point, script>::representation;
