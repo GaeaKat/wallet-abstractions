@@ -11,7 +11,7 @@
 
 namespace abstractions::timechain::transaction {
     
-    template <typename tx, typename in, typename out, typename digest>
+    template <typename tx, typename in, typename out>
     struct interface {
     
         slice<out> outputs(tx t) const {
@@ -22,12 +22,12 @@ namespace abstractions::timechain::transaction {
             return t.inputs();
         }
         
-        digest hash(tx t) const {
-            return t.hash();
-        }
-        
         uint32 locktime(tx t) const {
             return t.locktime();
+        }
+        
+        int32 version(tx t) const {
+            return t.version();
         }
     
     };

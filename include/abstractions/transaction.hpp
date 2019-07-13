@@ -5,12 +5,13 @@
 #define ABSTRACTIONS_TRANSACTION
 
 #include <abstractions/timechain/transaction.hpp>
+#include <abstractions/timechain/outpoint.hpp>
 #include <abstractions/crypto/hash/sha512.hpp>
 
 namespace abstractions {
     
     template <typename ops> 
-    struct output : public bytes {
+    struct output : public std::vector<byte> {
         class representation {
             bool Valid;
         public:
@@ -18,8 +19,9 @@ namespace abstractions {
             ops ScriptPubKey;
             
             representation(satoshi v, ops o) : Valid{true}, Value{v}, ScriptPubKey{o} {}
-            representation(output);
+            representation(const output&) noexcept;
             representation() : Valid{false}, Value{}, ScriptPubKey{} {}
+            representation& operator=(const representation& o);
             
             ops script() const {
                 return ScriptPubKey;
@@ -28,25 +30,36 @@ namespace abstractions {
             bool valid() const {
                 return Valid;
             }
+            
+            satoshi value() const {
+                return Value;
+            }
         };
         
         bool valid() const {
             return representation{*this}.Valid;
         }
         
-        satoshi value() const;
-        slice<byte>& script() const;
+        satoshi value() const {
+            return representation{*this}.Value;
+        }
         
-        output();
-        output(bytes);
-        output(representation);
+        const slice<byte> script() const;
         
-        constexpr static timechain::output::interface<output::representation, ops> representation_is_output{};
-        constexpr static timechain::output::interface<output, slice<byte>&> is_output{};
+        output() : std::vector<byte>{} {}
+        output(bytes& b) : std::vector<byte>{b} {}
+        output(const representation&) noexcept;
+        
+        output& operator=(const output& o) {
+            std::vector<byte>::operator=(static_cast<bytes&>(o));
+            return *this;
+        }
+        
+        constexpr static timechain::output::interface<output<ops>::representation, ops> representation_is_output{};
     };
     
     template <typename txid>
-    struct outpoint : public bytes {
+    struct outpoint : public std::vector<byte> {
         using tx_index = abstractions::index;
         
         struct representation {
@@ -56,8 +69,9 @@ namespace abstractions {
             tx_index Index;
             
             representation(txid tx, tx_index i) : Valid{true}, Reference{tx}, Index{i} {}
-            representation(outpoint);
+            representation(const outpoint&) noexcept;
             representation() : Valid{false}, Reference{}, Index{} {}
+            representation& operator=(const representation& o);
             
             bool valid() const {
                 return Valid;
@@ -76,18 +90,20 @@ namespace abstractions {
             return representation{*this}.Valid;
         }
         
-        txid& reference() const;
-        tx_index index() const;
+        outpoint() : std::vector<byte>{} {}
+        outpoint(bytes& b) : std::vector<byte>{b} {}
+        outpoint(const representation&) noexcept;
         
-        outpoint();
-        outpoint(bytes);
-        outpoint(representation);
+        outpoint& operator=(const outpoint& o) {
+            std::vector<byte>::operator=(static_cast<bytes&>(o));
+            return *this;
+        }
         
-        outpoint& operator=(outpoint);
+        constexpr static timechain::outpoint::interface<outpoint::representation, txid&, tx_index> is_outpoint{};
     };
     
     template <typename txid, typename ops>
-    struct input : public bytes {
+    struct input : public std::vector<byte> {
         using point = typename outpoint<txid>::representation;
         
         struct representation {
@@ -97,10 +113,11 @@ namespace abstractions {
             ops ScriptSignature;
             uint32 Sequence;
             
-            representation(point p, ops s, N n) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
+            representation(point p, ops s, uint32 n) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
             representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
-            representation(input);
+            representation(const input&) noexcept;
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
+            representation& operator=(const representation& i);
             
             ops& script() const {
                 return ScriptSignature;
@@ -119,26 +136,23 @@ namespace abstractions {
             return representation{*this}.Valid;
         }
         
-        slice<byte> script() const;
-        uint32 sequence() const;
-        outpoint<txid>& outpoint() const;
+        input() : std::vector<byte>{} {}
+        input(bytes& b) : std::vector<byte>{b} {}
+        input(const representation&) noexcept;
         
-        input();
-        input(bytes);
-        input(representation);
-        
-        input& operator=(input);
+        input& operator=(const input& i) {
+            std::vector<byte>::operator=(static_cast<bytes&>(i));
+            return *this;
+        }
     };
     
-    template <typename txid, typename ops>
-    struct transaction : public bytes {
-        
-        using in = typename input<txid, ops>::representation;
-        using out = typename output<ops>::representation;
+    template <typename in, typename out>
+    struct transaction : public std::vector<byte> {
         
         struct representation {
             bool Valid;
         public:
+            uint32 Version;
             uint32 Locktime;
             list<in> Inputs;
             list<out> Outputs;
@@ -149,8 +163,9 @@ namespace abstractions {
             representation(list<in> i, list<out> o) :
                 Valid{true}, Locktime{0}, Inputs{i}, Outputs{o} {}
                 
-            representation(transaction);
+            representation(const transaction&) noexcept;
             representation() : Valid{false}, Locktime{}, Inputs{}, Outputs{} {}
+            representation& operator=(const representation& i);
             
             bool valid() const {
                 return Valid;
@@ -164,38 +179,32 @@ namespace abstractions {
                 return Inputs;
             }
             
-            txid hash() const {
-                return transaction{*this}.hash();
-            }
-            
             uint32 locktime() const {
                 return Locktime;
+            }
+            
+            uint32 version() const {
+                return Version;
             }
         
         };
         
-        transaction();
-        transaction(bytes);
-        transaction(representation);
+        transaction() : std::vector<byte>{} {}
+        transaction(bytes& b) : std::vector<byte>{b} {}
+        transaction(const representation&) noexcept;
         transaction(N l, vector<in> i, vector<out> o) : transaction{representation{l, i, o}} {}
         transaction(vector<in> i, vector<out> o) : transaction{representation{i, o}} {}
         
-        transaction& operator=(transaction);
+        transaction& operator=(const transaction& t) {
+            std::vector<byte>::operator=(static_cast<bytes&>(t));
+            return *this;
+        }
         
         bool valid() const {
             return representation{*this}.Valid;
         }
-            
-        sha512::digest hash() const {
-            return sha512::hash(static_cast<bytes&>(*this));
-        }
-    
-        slice<output<ops>> outputs() const;
-        slice<input<txid, ops>> inputs() const;
-        uint32 locktime() const;
         
-        //constexpr static timechain::transaction::interface<transaction::representation, in, out, txid> representation_is_tx{};
-        constexpr static timechain::transaction::interface<transaction, input<txid, ops>, output<ops>, txid> is_tx{};
+        constexpr static timechain::transaction::interface<transaction::representation, in, out> is_tx{};
     };
     
 } 

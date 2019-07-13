@@ -14,8 +14,8 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        struct transaction : public abstractions::transaction<txid, script> {
-            using parent = abstractions::transaction<txid, script>;
+        struct transaction : public abstractions::transaction<input, output> {
+            using parent = abstractions::transaction<input, output>;
             
             struct representation : public parent::representation {
                 using parent::representation::Locktime;
@@ -36,6 +36,11 @@ namespace abstractions {
                     
                 representation(list<input> i, list<output> o, op_return d) :
                     parent::representation{i, o}, OpReturn{d} {}
+            
+                txid id() const {
+                    return transaction{*this}.id();
+                }
+                
             private:
                 static bool is_op_return(output o);
                 op_return get_op_return_data() {
@@ -49,7 +54,7 @@ namespace abstractions {
                     return {};
                 } 
                 
-                parent::representation deconvert() {
+                parent::representation deconvert() const {
                     if (OpReturn.valid()) return parent::representation{Locktime, Inputs, Outputs.prepend(OpReturn)};
                     return *this;
                 }
@@ -59,7 +64,6 @@ namespace abstractions {
                 friend struct transaction;
             };
             
-            txid id() const;
             transaction& operator=(transaction);
             
             transaction(hex s) : transaction{s.valid() ? bytes(s) : bytes{}} {}
@@ -67,13 +71,17 @@ namespace abstractions {
         
             transaction() : parent{} {};
             transaction(bytes b) : parent{b} {};
-            transaction(representation r) : parent{r.deconvert()} {}
+            transaction(const representation& r) : parent{r.deconvert()} {}
             
             transaction(uint32 l, vector<input> i, vector<output> o) : transaction{representation{l, i, o}} {}
             transaction(vector<input> i, vector<output> o) : transaction{representation{i, o}} {}
             transaction(uint32 l, vector<input> i, vector<output> o, op_return d)
                 : transaction{representation{l, i, o, d}} {}
             transaction(vector<input> i, vector<output> o, op_return d) : transaction{representation{i, o, d}} {}
+            
+            txid id() const {
+                return sha512::hash(static_cast<bytes&>(*this));
+            }
             
         };
     
@@ -84,12 +92,6 @@ namespace abstractions {
     namespace sha512 {
         inline bitcoin::txid hash(const bitcoin::transaction& b) {
             return data::sha512::hash(static_cast<bytes&>(b));
-        }
-    }
-    
-    namespace bitcoin {
-        inline txid transaction::id() const {
-            return sha512::hash(*this);
         }
     }
 

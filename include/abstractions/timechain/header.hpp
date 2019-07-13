@@ -18,12 +18,8 @@ namespace abstractions::timechain {
         template <typename header, typename digest>
         struct interface {
         
-            uint256 work(header& h) const {
+            digest work(header& h) const {
                 return h.work();
-            }
-            
-            digest hash(header& h) const {
-                return h.hash();
             }
             
             digest root(header h) const {
