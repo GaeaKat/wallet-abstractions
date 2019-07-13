@@ -4,8 +4,8 @@
 #ifndef ABSTRACTIONS_TRANSACTION
 #define ABSTRACTIONS_TRANSACTION
 
-#include <data/function.hpp>
-#include <abstractions/abstractions.hpp>
+#include <abstractions/timechain/transaction.hpp>
+#include <abstractions/crypto/hash/sha512.hpp>
 
 namespace abstractions {
     
@@ -35,27 +35,40 @@ namespace abstractions {
         }
         
         satoshi value() const;
-        ops script() const;
+        slice<byte>& script() const;
         
         output();
         output(bytes);
         output(representation);
+        
+        constexpr static timechain::output::interface<output::representation, ops> representation_is_output{};
+        constexpr static timechain::output::interface<output, slice<byte>&> is_output{};
     };
     
     template <typename txid>
     struct outpoint : public bytes {
+        using tx_index = abstractions::index;
+        
         struct representation {
             bool Valid;
         public:
             txid Reference;
-            index Index;
+            tx_index Index;
             
-            representation(txid tx, index i) : Valid{true}, Reference{tx}, Index{i} {}
+            representation(txid tx, tx_index i) : Valid{true}, Reference{tx}, Index{i} {}
             representation(outpoint);
             representation() : Valid{false}, Reference{}, Index{} {}
             
             bool valid() const {
                 return Valid;
+            }
+            
+            txid& reference() const {
+                return Reference;
+            }
+            
+            tx_index index() const {
+                return Index;
             }
         };
         
@@ -63,8 +76,8 @@ namespace abstractions {
             return representation{*this}.Valid;
         }
         
-        txid reference() const;
-        index index() const;
+        txid& reference() const;
+        tx_index index() const;
         
         outpoint();
         outpoint(bytes);
@@ -73,26 +86,32 @@ namespace abstractions {
         outpoint& operator=(outpoint);
     };
     
-    template <typename point, typename ops>
+    template <typename txid, typename ops>
     struct input : public bytes {
+        using point = typename outpoint<txid>::representation;
+        
         struct representation {
             bool Valid;
         public:
             point Outpoint;
             ops ScriptSignature;
-            N Sequence;
+            uint32 Sequence;
             
             representation(point p, ops s, N n) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
             representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
             representation(input);
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
             
-            ops script() const {
+            ops& script() const {
                 return ScriptSignature;
             }
             
             bool valid() const {
                 return Valid;
+            }
+            
+            uint32 sequence() const {
+                return Sequence;
             }
         };
         
@@ -100,9 +119,9 @@ namespace abstractions {
             return representation{*this}.Valid;
         }
         
-        ops script() const;
-        N sequence() const;
-        point outpoint() const;
+        slice<byte> script() const;
+        uint32 sequence() const;
+        outpoint<txid>& outpoint() const;
         
         input();
         input(bytes);
@@ -111,20 +130,23 @@ namespace abstractions {
         input& operator=(input);
     };
     
-    template <typename input, typename output>
+    template <typename txid, typename ops>
     struct transaction : public bytes {
+        
+        using in = typename input<txid, ops>::representation;
+        using out = typename output<ops>::representation;
         
         struct representation {
             bool Valid;
         public:
-            N Locktime;
-            list<input> Inputs;
-            list<output> Outputs;
+            uint32 Locktime;
+            list<in> Inputs;
+            list<out> Outputs;
                 
-            representation(N l, list<input> i, list<output> o) :
+            representation(uint32 l, list<in> i, list<out> o) :
                 Valid{true}, Locktime{l}, Inputs{i}, Outputs{o} {}
                 
-            representation(list<input> i, list<output> o) :
+            representation(list<in> i, list<out> o) :
                 Valid{true}, Locktime{0}, Inputs{i}, Outputs{o} {}
                 
             representation(transaction);
@@ -133,19 +155,47 @@ namespace abstractions {
             bool valid() const {
                 return Valid;
             }
-        };
+    
+            slice<out> outputs() const {
+                return Outputs;
+            }
+            
+            slice<in> inputs() const {
+                return Inputs;
+            }
+            
+            txid hash() const {
+                return transaction{*this}.hash();
+            }
+            
+            uint32 locktime() const {
+                return Locktime;
+            }
         
-        bool valid() const {
-            return representation{*this}.Valid;
-        }
+        };
         
         transaction();
         transaction(bytes);
         transaction(representation);
-        transaction(N l, list<input> i, list<output> o) : transaction{representation{l, i, o}} {}
-        transaction(list<input> i, list<output> o) : transaction{representation{i, o}} {}
+        transaction(N l, vector<in> i, vector<out> o) : transaction{representation{l, i, o}} {}
+        transaction(vector<in> i, vector<out> o) : transaction{representation{i, o}} {}
         
         transaction& operator=(transaction);
+        
+        bool valid() const {
+            return representation{*this}.Valid;
+        }
+            
+        sha512::digest hash() const {
+            return sha512::hash(static_cast<bytes&>(*this));
+        }
+    
+        slice<output<ops>> outputs() const;
+        slice<input<txid, ops>> inputs() const;
+        uint32 locktime() const;
+        
+        //constexpr static timechain::transaction::interface<transaction::representation, in, out, txid> representation_is_tx{};
+        constexpr static timechain::transaction::interface<transaction, input<txid, ops>, output<ops>, txid> is_tx{};
     };
     
 } 

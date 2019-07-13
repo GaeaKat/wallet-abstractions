@@ -14,8 +14,8 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        struct transaction : public abstractions::transaction<input, output> {
-            using parent = abstractions::transaction<input, output>;
+        struct transaction : public abstractions::transaction<txid, script> {
+            using parent = abstractions::transaction<txid, script>;
             
             struct representation : public parent::representation {
                 using parent::representation::Locktime;
@@ -25,13 +25,13 @@ namespace abstractions {
                 
                 representation() : parent::representation{}, OpReturn{} {}
                 
-                representation(N l, list<input> i, list<output> o) :
+                representation(uint32 l, list<input> i, list<output> o) :
                     parent::representation{l, i, o}, OpReturn{} {}
                     
                 representation(list<input> i, list<output> o) :
                     parent::representation{i, o}, OpReturn{} {}
                 
-                representation(N l, list<input> i, list<output> o, op_return d) :
+                representation(uint32 l, list<input> i, list<output> o, op_return d) :
                     parent::representation{l, i, o}, OpReturn{d} {}
                     
                 representation(list<input> i, list<output> o, op_return d) :
@@ -40,7 +40,7 @@ namespace abstractions {
                 static bool is_op_return(output o);
                 op_return get_op_return_data() {
                     if (!Outputs.empty()) {
-                        op_return o{Outputs.first()};
+                        op_return o{Outputs[0]};
                         if (o.valid()) {
                             Outputs = Outputs.rest();
                             return o;
@@ -69,10 +69,11 @@ namespace abstractions {
             transaction(bytes b) : parent{b} {};
             transaction(representation r) : parent{r.deconvert()} {}
             
-            transaction(N l, list<input> i, list<output> o) : transaction{representation{l, i, o}} {}
-            transaction(list<input> i, list<output> o) : transaction{representation{i, o}} {}
-            transaction(N l, list<input> i, list<output> o, op_return d) : transaction{representation{l, i, o, d}} {}
-            transaction(list<input> i, list<output> o, op_return d) : transaction{representation{i, o, d}} {}
+            transaction(uint32 l, vector<input> i, vector<output> o) : transaction{representation{l, i, o}} {}
+            transaction(vector<input> i, vector<output> o) : transaction{representation{i, o}} {}
+            transaction(uint32 l, vector<input> i, vector<output> o, op_return d)
+                : transaction{representation{l, i, o, d}} {}
+            transaction(vector<input> i, vector<output> o, op_return d) : transaction{representation{i, o, d}} {}
             
         };
     

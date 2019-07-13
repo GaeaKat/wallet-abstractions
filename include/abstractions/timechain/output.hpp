@@ -1,31 +1,38 @@
-#ifndef ABSTRACTIONS_BITCOIN_OUTPUT_HPP
-#define ABSTRACTIONS_BITCOIN_OUTPUT_HPP
+// Copyright (c) 2018-2019 Daniel Krawisz
+// Distributed under the Open BSV software license, see the accompanying file LICENSE.
+
+#ifndef ABSTRACTIONS_BITCOIN_OUTPUT
+#define ABSTRACTIONS_BITCOIN_OUTPUT
 
 #include <abstractions/abstractions.hpp>
 
-namespace abstractions 
-{
+namespace abstractions::timechain::output {
     
-    namespace bitcoin
-    {
+    template <typename output, typename ops>
+    struct interface {
     
-        namespace output
-        {
-            
-            // How much is stored in a given output?
-            template <typename output>
-            inline N value(output o) {
-                return o.value();
-            }
-                
-            // What is the script defining how this output is redeemed. 
-            template <typename output, typename scr>
-            inline scr script(output o) {
-                return o.script();
-            }
-        
+        // How much is stored in a given output?
+        static satoshi value(output o) {
+            return o.value();
         }
+            
+        // What is the script defining how this output is redeemed. 
+        static ops script(output o) {
+            return o.script();
+        }
+        
+    };
     
+    // How much is stored in a given output?
+    template <typename output, typename ops>
+    inline satoshi value(output o) {
+        return interface<output, ops>::value(o);
+    }
+            
+    // What is the script defining how this output is redeemed. 
+    template <typename output, typename ops>
+    inline ops script(output o) {
+        return interface<output, ops>::script(o);
     }
     
 } 

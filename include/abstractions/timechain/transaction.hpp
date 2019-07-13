@@ -7,68 +7,56 @@
 
 #include <abstractions/abstractions.hpp>
 #include <abstractions/association.hpp>
-#include <abstractions/transaction.hpp>
+#include <abstractions/timechain/output.hpp>
 
-namespace abstractions::timechain {
+namespace abstractions::timechain::transaction {
     
-    namespace transaction {
+    template <typename tx, typename in, typename out, typename digest>
+    struct interface {
     
-        // outputs of a transaction. 
-        template <typename tx, typename out>
-        inline slice<out> outputs(tx t) {
+        slice<out> outputs(tx t) const {
             return t.outputs();
         }
         
-        // inputs of a transaction.
-        template <typename tx, typename in>
-        inline slice<in> inputs(tx t) {
+        slice<in> inputs(tx t) const {
             return t.inputs();
         }
         
-        // inputs of a transaction.
-        template <typename tx, typename digest>
-        inline digest hash(tx t) {
+        digest hash(tx t) const {
             return t.hash();
         }
         
-        template <typename point, typename tx>
-        using index = association<point, tx>;
-        
-        template <typename tx, typename index, typename point, typename out>
-        N redeemed(index b, tx t) {
-            int r = 0;
-            for (point p : outpoints(t)) {
-                out prevout = b(p);
-                
-                if (prevout == out{}) return aleph_0;
-                    
-                r += output::value(prevout);
-            }
-            
-            return r;
-        }
-            
-        template <typename tx, typename point, typename out>
-        inline N spent(tx t) {
-            int r = 0;
-            for (out p : outputs(t)) r += output::value(p);
-            return r;
-        }
-        
-        template <typename tx, typename index>
-        inline Z fee(index b, tx t) {
-            Z redeemed = redeemed(b, t);
-            if (redeemed == Z{}) return Z{};
-            return redeemed - spent(t);
-        }
-
-        template <typename tx, typename index>
-        inline bool positive(tx t, index b) {
-            return fee(t, b) > 0;
+        uint32 locktime(tx t) const {
+            return t.locktime();
         }
     
+    };
+        
+    template <typename point, typename tx>
+    using index = association<point, tx>;
+    
+    template <typename tx, typename point, typename out>
+    satoshi redeemed(index<point, tx>& b, tx t);
+    
+    template <typename tx, typename point, typename out>
+    inline satoshi spent(tx t) {
+        int r = 0;
+        for (out p : outputs(t)) r += timechain::output::value(p);
+        return r;
     }
     
+    template <typename tx, typename index>
+    inline Z fee(index b, tx t) {
+        Z redeemed = redeemed(b, t);
+        if (redeemed == Z{}) return Z{};
+        return redeemed - spent(t);
+    }
+
+    template <typename tx, typename index>
+    inline bool positive(tx t, index b) {
+        return fee(t, b) > 0;
+    }
+
 }   
 
 #endif

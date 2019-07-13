@@ -38,6 +38,7 @@ namespace abstractions {
     const satoshi empty = 0;
     
     using index = uint32_t;
+    using uint32 = uint32_t;
     
     using uint256 = data::uint256;
     using uint512 = data::uint512;
