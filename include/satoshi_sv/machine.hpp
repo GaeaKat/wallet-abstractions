@@ -4,8 +4,8 @@
 #ifndef SATOSHI_SV_MACHINE
 #define SATOSHI_SV_MACHINE
 
-#include <abstractions/machine.hpp>
 #include <abstractions/abstractions.hpp>
+#include <abstractions/script/machine.hpp>
 
 #include <satoshi_sv/src/script/bitcoinconsensus.h>
 #include <satoshi_sv/src/script/script.h>
@@ -35,7 +35,7 @@ namespace abstractions::sv {
         
     };
     
-    constexpr static abstractions::machine::definition<machine, CScript&, const CTransaction&> is_script_machine{};
+    constexpr static abstractions::script::machine::interface<machine, CScript&, const CTransaction&> is_script_machine{};
     
 } 
 

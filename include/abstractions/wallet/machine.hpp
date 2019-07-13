@@ -4,7 +4,7 @@
 #ifndef ABSTRACTIONS_WALLET_MACHINE
 #define ABSTRACTIONS_WALLET_MACHINE
 
-#include <abstractions/machine.hpp>
+#include <abstractions/script/machine.hpp>
 #include <abstractions/wallet/transaction.hpp>
 
 namespace abstractions {
@@ -20,7 +20,7 @@ namespace abstractions {
             
             bool run(const script output, const script input) const;
         
-            constexpr static abstractions::machine::definition<machine, const script, const transaction&> is_script_machine{};
+            constexpr static abstractions::script::machine::interface<machine, const script, const transaction&> is_script_machine{};
             
         };
         
