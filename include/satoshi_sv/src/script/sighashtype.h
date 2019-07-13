@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <stdexcept>
 
-namespace satoshi_sv {
+namespace sv {
 
 /** Signature hash types/flags */
 enum {

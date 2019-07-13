@@ -14,8 +14,6 @@
 
 #include <satoshi_sv/src/compat/endian.h>
 
-namespace satoshi_sv {
-
 static inline uint16_t ReadLE16(const uint8_t *ptr) {
     uint16_t x;
     memcpy((char *)&x, ptr, 2);
@@ -92,8 +90,6 @@ uint64_t static inline CountBits(uint64_t x) {
         ++ret;
     }
     return ret;
-}
-
 }
 
 #endif // BITCOIN_CRYPTO_COMMON_H

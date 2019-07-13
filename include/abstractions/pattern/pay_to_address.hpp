@@ -1,6 +1,5 @@
 // Copyright (c) 2018-2019 Daniel Krawisz
-// Distributed under the MIT software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+// Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #ifndef ABSTRACTIONS_PATTERN_PAY_TO_ADDRESS
 #define ABSTRACTIONS_PATTERN_PAY_TO_ADDRESS

@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-namespace satoshi_sv {
+namespace sv {
 
 class CPubKey;
 class CScript;

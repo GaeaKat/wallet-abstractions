@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2016 The Bitcoin Core developers
 // Copyright (c) 2018 The Bitcoin SV developers
 // Copyright (c) 2019 Daniel Krawisz
-// Distributed under the MIT software license. 
+// Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #ifndef ABSTRACTIONS_SCRIPT_SCRIPT
 #define ABSTRACTIONS_SCRIPT_SCRIPT
