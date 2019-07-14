@@ -5,7 +5,7 @@
 #define ABSTRACTIONS_PATTERN
 
 #include <data/crypto/keypair.hpp>
-#include <abstractions/machine.hpp>
+#include <abstractions/script/machine.hpp>
 #include <abstractions/transaction.hpp>
 
 namespace abstractions {
@@ -22,7 +22,7 @@ namespace abstractions {
                 typename Script, 
                 typename Tx, 
                 typename Machine>
-            struct pattern : public virtual machine::definition<Machine, Script, Tx> {
+        struct pattern : public virtual script::machine::interface<Machine, Script, Tx> {
                 
                 // make a script pubkey. 
                 virtual Script pay(Key) const = 0;
