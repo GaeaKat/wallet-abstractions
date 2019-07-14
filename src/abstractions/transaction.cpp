@@ -152,47 +152,90 @@ namespace abstractions {
         w << t.Locktime;
     }
     
+    template <typename txid>
+    uint serialized_size(const typename outpoint<txid>::representation& o);
+    
+    template <typename ops>
+    uint serialized_size(const typename output<ops>::representation& o);
+    
+    template <typename txid, typename ops>
+    uint serialized_size(const typename input<txid, ops>::representation& i);
+    
+    template <typename in, typename out>
+    uint serialized_size(const typename transaction<in, out>::representation& t);
+    
     template <typename txid> outpoint<txid>::representation::representation(const outpoint& o) noexcept {
         try {
            reader r{static_cast<std::vector<byte>&>(o)}; 
-           *this = read_outpoint<txid>(r);
+           read_outpoint<txid>(r, *this);
         } catch (...) {
             *this = {};
         }
     }
     
-    template <typename txid> outpoint<txid>::outpoint(const representation&) noexcept {
+    template <typename txid> outpoint<txid>::outpoint(const representation& o) noexcept : std::vector<byte>{serialized_size(o)} {
         try {
-            // TODO
+            writer w{static_cast<std::vector<byte>&>(o)};
+            write_outpoint(w, *this);
         } catch (...) {
             *this = {};
         }
     }
     
     template <typename ops> output<ops>::representation::representation(const output& o) noexcept {
-        throw 0;
+        try {
+           reader r{static_cast<std::vector<byte>&>(o)}; 
+           read_output(r, *this);
+        } catch (...) {
+            *this = {};
+        }
     }
     
-    template <typename ops> output<ops>::output(const representation&) noexcept {
-        throw 0;
+    template <typename ops> output<ops>::output(const representation& o) noexcept : std::vector<byte>{serialized_size(o)} {
+        try {
+            writer w{static_cast<std::vector<byte>&>(o)};
+            write_output(w, *this);
+        } catch (...) {
+            *this = {};
+        }
     }
         
     template <typename txid, typename ops> input<txid, ops>::representation::representation(const input& i) noexcept {
-        throw 0;
+        try {
+           reader r{static_cast<std::vector<byte>&>(i)}; 
+           read_input(r, *this);
+        } catch (...) {
+            *this = {};
+        }
     }
         
-    template <typename txid, typename ops> input<txid, ops>::input(const representation&) noexcept {
-        throw 0;
+    template <typename txid, typename ops> input<txid, ops>::input(const representation& i) noexcept : std::vector<byte>{serialized_size(i)} {
+        try {
+            writer w{static_cast<std::vector<byte>&>(i)};
+            write_input(w, *this);
+        } catch (...) {
+            *this = {};
+        }
     }
     
     template <typename in, typename out>
-    transaction<in, out>::representation::representation(const transaction&) noexcept {
-        throw 0;
+    transaction<in, out>::representation::representation(const transaction& t) noexcept {
+        try {
+           reader r{static_cast<std::vector<byte>&>(t)}; 
+           read_transaction<in, out>(r, *this);
+        } catch (...) {
+            *this = {};
+        }
     }
         
     template <typename in, typename out>
-    transaction<in, out>::transaction(const representation&) noexcept {
-        throw 0;
+    transaction<in, out>::transaction(const representation& t) noexcept : std::vector<byte>{serialized_size(t)} {
+        try {
+            writer w{static_cast<std::vector<byte>&>(t)};
+            write_transaction(w, *this);
+        } catch (...) {
+            *this = {};
+        }
     }
     
     template <typename txid>
