@@ -1,113 +1,124 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.1...3.14)
 
-project(abstractions)
-
-option(BUILD_VERBOSE       "Verbose build output." ON)
-
-option(BUILD_TESTS         "Build the unit tests." ON)
-
-SET(CMAKE_C_COMPILER g++-8)
-SET(CMAKE_CXX_COMPILER g++-8)
-
-#set(CMAKE_CXX_FLAGS "-fpermissive")
-
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH  ${CMAKE_CURRENT_BINARY_DIR}/lib)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-
-if(BUILD_VERBOSE)
-  set(CMAKE_VERBOSE_MAKEFILE true)
+# Back compatibility for VERSION range
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
-#-----------------------------------------------------------------------------
-# Check which compiler to use
+project(wallet-abstractions 	VERSION 1.0
+		DESCRIPTION "Experimental project containing ideas about wallets."
+		LANGUAGES CXX)
 
-INCLUDE(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG(-std=c++17 HAVE_STD17)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-
-if(${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
-  set(GCC_WARN_FLAGS "-Wnoexcept -Wstrict-null-sentinel -Wlogical-op")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
-  if(ANDROID)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions -frtti")
-  endif()
-elseif(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
-  set(CMAKE_COMPILER_IS_CLANGXX 1)
-
-  if(APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -stdlib=libc++")
-  else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-  endif()
+# Set cmake as import path for Find*.cmake files
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+### Require out-of-source builds
+file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
+if(EXISTS "${LOC_PATH}")
+    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
 
-if(WIN32)
-  add_definitions(-D_UNICODE)
-else()
-  if(OT_STRICT)
-    set(PEDANTIC_CXX_FLAGS "-Wall -Werror -Wextra -pedantic -Wno-missing-braces -Wcast-align -Wctor-dtor-privacy -Wdisabled-optimization -Winit-self -Wmissing-include-dirs -Wswitch-default -Wold-style-cast -Woverloaded-virtual -Wmissing-declarations -Wunused-macros -Wundef -Wformat=2 -Wno-format-nonliteral ${GCC_WARN_FLAGS}")
-  else()
-    set(PEDANTIC_CXX_FLAGS "")
-  endif()
+## Check if GTests is installed. If not, install it
+
+option(PACKAGE_TESTS "Build the tests" ON)
+if(NOT TARGET gtest_main AND PACKAGE_TESTS)
+	# Download and unpack googletest at configure time
+	configure_file(cmake/gtests.txt.in googletest-download/CMakeLists.txt)
+	execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+			RESULT_VARIABLE result
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+	if(result)
+		message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+	endif()
+	execute_process(COMMAND ${CMAKE_COMMAND} --build .
+			RESULT_VARIABLE result
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+	if(result)
+		message(FATAL_ERROR "Build step for googletest failed: ${result}")
+	endif()
+
+	# Prevent overriding the parent project's compiler/linker
+	# settings on Windows
+	set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+	
+	# Add googletest directly to our build. This defines
+	# the gtest and gtest_main targets.
+	add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+			${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 endif()
 
-if(ANDROID)
-  set(PEDANTIC_CXX_FLAGS "${PEDANTIC_CXX_FLAGS} -Wno-useless-cast -Wno-missing-field-initializers")
-  add_definitions(-D__STDC_LIMIT_MACROS)
+## Enable testing
+include(CTest)
+
+if(PACKAGE_TESTS)
+    enable_testing()
+    add_subdirectory(test)
 endif()
 
-if(CMAKE_COMPILER_IS_CLANGXX)
-  set(PEDANTIC_CXX_FLAGS "${PEDANTIC_CXX_FLAGS} -Wno-unused-parameter -Wno-old-style-cast")
+# Check Git submodules
+
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+        message(STATUS "Submodule update")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+        endif()
+    endif()
 endif()
 
-message(STATUS "C++ Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "C Flags:         ${CMAKE_C_FLAGS}")
-message(STATUS "C++ Flags:       ${CMAKE_CXX_FLAGS}")
-message(STATUS "C++ link flags:  ${CMAKE_CXX_LINK_FLAGS}")
 
-#-----------------------------------------------------------------------------
-# Build Unit tests
+# Include libraries
 
-if(BUILD_TESTS)
-  set(GTEST_ROOT ${opentxs_SOURCE_DIR}/deps/gtest)
-  set(GTEST_FOUND ON)
-  set(GTEST_INCLUDE_DIRS ${GTEST_ROOT}/include)
-  set(GTEST_LIBRARY gtest)
-  set(GTEST_MAIN_LIBRARY gtest_main)
-  set(GTEST_BOTH_LIBRARIES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
+# Boost settings
+set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
+set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
+set(Boost_USE_STATIC_LIBS       ON          CACHE BOOL "")
+set(Boost_USE_STATIC_RUNTIME    ON          CACHE BOOL "") # '-s' tag
+set(Boost_USE_DEBUG_RUNTIME     ON          CACHE BOOL "") # '-g' tag
+set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
-  enable_testing()
+# Include Boost
+find_package(Boost 1.60.0 COMPONENTS system  REQUIRED)
+
+if(Boost_FOUND)
+
+    message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+    message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
+    message(STATUS "Boost_VERSION: ${Boost_VERSION}")
+
+    include_directories(${Boost_INCLUDE_DIRS})
+    add_definitions("-DHAS_BOOST")
+
 endif()
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+# Find LibBitcoin
+set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../abstractions/include")
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIB_BITCOIN REQUIRED libbitcoin-system)
+include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+# Check data library
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/data/CMakeLists.txt")
+    message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
 
-add_library(abstractions SHARED 
-    include/libbitcoin/secp256k1.hpp
-    include/abstractions/redeem/libbitcoin/words.hpp
-    include/abstractions/colored/libbitcoin/epboc.hpp
-    src/abstractions/secp256k1.cpp
-    src/abstractions/hd/secp256k1.cpp
+add_subdirectory("${PROJECT_SOURCE_DIR}/extern/data/")
+
+add_library(wallet-abstractions STATIC 
+	src/abstractions/wallet.cpp
+	src/abstractions/redeem.cpp
+	src/abstractions/script/script.cpp
 )
+target_link_libraries(wallet-abstractions PUBLIC data)
 
-# Locate libraries
-find_package(libbitcoin REQUIRED)
-include_directories(${LIBBITCOIN_INCLUDE_DIRS})
+target_include_directories(wallet-abstractions PUBLIC include)
 
-target_link_libraries(abstractions ${LIBBITCOIN_LIBRARIES})
-
-find_package(Boost 1.67.0 COMPONENTS system REQUIRED)
-
-# Locate libraries
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
-
-#add_test(tests ${PROJECT_BINARY_DIR}/tests/${name} --gtest_output=xml:gtestresults.xml)
-
+# Set C++ version
+target_compile_features(wallet-abstractions PUBLIC cxx_std_17)
+set_target_properties(wallet-abstractions PROPERTIES CXX_EXTENSIONS OFF)
