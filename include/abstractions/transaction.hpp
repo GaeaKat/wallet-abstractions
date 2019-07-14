@@ -152,16 +152,16 @@ namespace abstractions {
         struct representation {
             bool Valid;
         public:
-            uint32 Version;
-            uint32 Locktime;
+            int32 Version;
             list<in> Inputs;
             list<out> Outputs;
+            uint32 Locktime;
                 
-            representation(uint32 l, list<in> i, list<out> o) :
-                Valid{true}, Locktime{l}, Inputs{i}, Outputs{o} {}
+            representation(list<in> i, list<out> o,uint32 l) :
+                Valid{true}, Version{2}, Inputs{i}, Outputs{o}, Locktime{l} {}
                 
             representation(list<in> i, list<out> o) :
-                Valid{true}, Locktime{0}, Inputs{i}, Outputs{o} {}
+                Valid{true}, Version{2}, Locktime{0}, Inputs{i}, Outputs{o} {}
                 
             representation(const transaction&) noexcept;
             representation() : Valid{false}, Locktime{}, Inputs{}, Outputs{} {}
@@ -183,7 +183,7 @@ namespace abstractions {
                 return Locktime;
             }
             
-            uint32 version() const {
+            int32 version() const {
                 return Version;
             }
         
@@ -192,8 +192,8 @@ namespace abstractions {
         transaction() : std::vector<byte>{} {}
         transaction(bytes& b) : std::vector<byte>{b} {}
         transaction(const representation&) noexcept;
-        transaction(N l, vector<in> i, vector<out> o) : transaction{representation{l, i, o}} {}
         transaction(vector<in> i, vector<out> o) : transaction{representation{i, o}} {}
+        transaction(vector<in> i, vector<out> o, uint32 l) : transaction{representation{i, o, l}} {}
         
         transaction& operator=(const transaction& t) {
             std::vector<byte>::operator=(static_cast<bytes&>(t));

@@ -21,6 +21,8 @@ namespace abstractions {
         void operator>>(uint256& d) {
             for (byte& b : d) operator>>(b);
         }
+        
+        void operator>>(int32&);
 
     }; 
     
@@ -32,6 +34,8 @@ namespace abstractions {
         void operator<<(uint256& d) {
             for (byte b : d) operator<<(b);
         }
+        
+        void operator<<(int32);
     }; 
     
     uint read_var_int(reader r) {
@@ -45,7 +49,7 @@ namespace abstractions {
             return x;
         }
         
-        if (b == 0xfd) {
+        if (b == 0xfe) {
             uint32_t x;
             r >> x;
             return x;
@@ -84,19 +88,68 @@ namespace abstractions {
         w << b;
     }
     
-    template <typename txid> typename outpoint<txid>::representation read_outpoint(reader r) {
-        typename outpoint<txid>::representation o{};
+    template <typename ops>
+    void write_script(writer w, ops b);
+    
+    template <typename ops>
+    void read_script(reader r, ops);
+    
+    template <typename txid> void read_outpoint(reader r, typename outpoint<txid>::representation& o) {
         r >> o.Reference;
         r >> o.Index;
         o.Valid = o.Reference.valid();
-        return o;
     }
     
-    template <typename txid> void write_outpoint(writer w, typename outpoint<txid>::representation o) {
+    template <typename txid> void write_outpoint(writer w, typename outpoint<txid>::representation& o) {
         if (!o.valid()) throw invalid_value{};
         w << o.Reference;
         w << o.Index;
-        return o;
+    }
+    
+    template <typename ops> void read_output(reader r, typename output<ops>::representation& o) {
+        r >> o.Value;
+        read_script<ops>(r, o.ScriptPubKey);
+        o.Valid = o.ScriptPubKey.valid();
+    }
+    
+    template <typename ops> void write_output(writer w, typename output<ops>::representation& o) {
+        if (!o.valid()) throw invalid_value{};
+        w << o.Value;
+        write_script(w, o.ScriptPubKey);
+    }
+    
+    template <typename txid, typename ops> void read_input(reader r, typename input<txid, ops>::representation& i) {
+        read_outpoint(r, i.Outpoint);
+        i.ScriptSignature = read_script<ops>(r);
+    }
+    
+    template <typename txid, typename ops> void write_input(writer w, typename input<txid, ops>::representation i) {
+        if (!i.valid()) throw invalid_value{};
+        write_outpoint(w, i.Outpoint);
+        write_script(w, i.ScriptPubKey);
+    }
+    
+    template <typename in, typename out> void read_transaction(reader r, typename transaction<in, out>::representation& t) {
+        r >> t.Version;
+        uint num_inputs = read_var_int(r);
+        vector<in> inputs{num_inputs};
+        for (in& i : inputs) read_input(r, i);
+        t.Inputs = inputs;
+        uint num_outputs = read_var_int(r);
+        vector<out> outputs{num_outputs};
+        for (out& o : outputs) read_input(r, o);
+        t.Outputs = outputs;
+        r >> t.Locktime;
+    }
+    
+    template <typename in, typename out> void write_transaction(writer w, typename transaction<in, out>::representation t) {
+        if (!t.valid()) throw invalid_value{};
+        w << t.Version;
+        write_var_int(w, t.Inputs.size());
+        for (in& i : t.Inputs) write_input(w, i);
+        write_var_int(w, t.Outputs.size());
+        for (out& o : t.Outputs) write_input(w, o);
+        w << t.Locktime;
     }
     
     template <typename txid> outpoint<txid>::representation::representation(const outpoint& o) noexcept {
@@ -109,7 +162,37 @@ namespace abstractions {
     }
     
     template <typename txid> outpoint<txid>::outpoint(const representation&) noexcept {
+        try {
+            // TODO
+        } catch (...) {
+            *this = {};
+        }
+    }
+    
+    template <typename ops> output<ops>::representation::representation(const output& o) noexcept {
+        throw 0;
+    }
+    
+    template <typename ops> output<ops>::output(const representation&) noexcept {
+        throw 0;
+    }
         
+    template <typename txid, typename ops> input<txid, ops>::representation::representation(const input& i) noexcept {
+        throw 0;
+    }
+        
+    template <typename txid, typename ops> input<txid, ops>::input(const representation&) noexcept {
+        throw 0;
+    }
+    
+    template <typename in, typename out>
+    transaction<in, out>::representation::representation(const transaction&) noexcept {
+        throw 0;
+    }
+        
+    template <typename in, typename out>
+    transaction<in, out>::transaction(const representation&) noexcept {
+        throw 0;
     }
     
     template <typename txid>
@@ -121,22 +204,6 @@ namespace abstractions {
         return *this;
     }
     
-    template <typename ops> typename output<ops>::representation read_output(reader r) {
-        throw 0;
-    }
-    
-    template <typename ops> output<ops>::representation::representation(const output& o) noexcept {
-        throw 0;
-    }
-    
-    template <typename ops> const slice<byte> output<ops>::script() const {
-        throw 0;
-    }
-    
-    template <typename ops> output<ops>::output(const representation&) noexcept {
-        throw 0;
-    }
-    
     template <typename ops>
     typename output<ops>::representation&
     output<ops>::representation::operator=(const representation& o) {
@@ -144,14 +211,6 @@ namespace abstractions {
         Value = o.Value;
         ScriptPubKey = o.ScriptPubKey;
         return *this;
-    }
-        
-    template <typename txid, typename ops> input<txid, ops>::representation::representation(const input& i) noexcept {
-        throw 0;
-    }
-        
-    template <typename txid, typename ops> input<txid, ops>::input(const representation&) noexcept {
-        throw 0;
     }
     
     template <typename txid, typename ops>
@@ -165,22 +224,13 @@ namespace abstractions {
     }
     
     template <typename in, typename out>
-    transaction<in, out>::representation::representation(const transaction&) noexcept {
-        throw 0;
-    }
-        
-    template <typename in, typename out>
-    transaction<in, out>::transaction(const representation&) noexcept {
-        throw 0;
-    }
-    
-    template <typename in, typename out>
     typename transaction<in, out>::representation&
     transaction<in, out>::representation::operator=(const representation& t) {
         Valid = t.Valid;
-        Locktime = t.Locktime;
+        Version = t.Version;
         Inputs = t.Inputs;
         Outputs = t.Outputs;
+        Locktime = t.Locktime;
         return *this;
     }
     
