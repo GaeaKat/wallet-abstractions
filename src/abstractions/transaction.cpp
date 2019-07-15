@@ -152,17 +152,39 @@ namespace abstractions {
         w << t.Locktime;
     }
     
+    uint var_int_size(uint x) {
+        if (x < 0xfd) return 1;
+        if (x <= 0xffff) return 3;
+        if (x <= 0xffffffff) return 5;
+        return 9;
+    }
+    
+    const uint outpoint_size = 36;
+    
     template <typename txid>
-    uint serialized_size(const typename outpoint<txid>::representation& o);
+    uint serialized_size(const typename outpoint<txid>::representation&) {
+        return outpoint_size;
+    }
     
     template <typename ops>
-    uint serialized_size(const typename output<ops>::representation& o);
+    uint serialized_size(const typename output<ops>::representation& o) {
+        uint script_size = o.ScriptPubKey.size();
+        return 8 + var_int_size(script_size) + script_size;
+    }
     
     template <typename txid, typename ops>
-    uint serialized_size(const typename input<txid, ops>::representation& i);
+    uint serialized_size(const typename input<txid, ops>::representation& i) {
+        uint script_size = i.ScriptSignature.size();
+        return outpoint_size + 4 + var_int_size(script_size) + script_size;
+    }
     
     template <typename in, typename out>
-    uint serialized_size(const typename transaction<in, out>::representation& t);
+    uint serialized_size(const typename transaction<in, out>::representation& t) {
+        uint size = 8 + var_int_size(t.Inputs.size()) + var_int_size(t.Outputs.size());
+        for (in& i : t.Inputs) size += serialized_size(i);
+        for (out& o : t.Outputs) size += serialized_size(o);
+        return size;
+    }
     
     template <typename txid> outpoint<txid>::representation::representation(const outpoint& o) noexcept {
         try {
