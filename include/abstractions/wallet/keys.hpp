@@ -32,7 +32,7 @@ namespace abstractions {
             
             signature sign(const sha256::digest&) const;
             
-            secret(string wif);
+            explicit secret(string wif);
         };
         
         struct pubkey : public data::secp256k1::pubkey, public tag {
@@ -46,7 +46,7 @@ namespace abstractions {
             
             bool verify(const sha256::digest&, const signature&) const;
             
-            pubkey(string wif);
+            explicit pubkey(string wif);
         };
         
         constexpr data::math::module<pubkey, secret> is_module{};
@@ -66,6 +66,42 @@ namespace abstractions {
         
         inline address hash(pubkey& b) {
             return ripemd160::hash<data::secp256k1::pubkey_size>(static_cast<std::array<byte, data::secp256k1::pubkey_size>&>(b));
+        }
+            
+        inline pubkey secret::to_public() const {
+            throw 0;
+        }
+            
+        inline secret secret::operator+(const secret&) const {
+            throw 0;
+        }
+        
+        inline secret secret::operator*(const secret&) const {
+            throw 0;
+        }
+            
+        inline secret& secret::operator=(const secret& s) {
+            throw 0;
+        }
+            
+        inline signature secret::sign(const sha256::digest&) const {
+            throw 0;
+        }
+            
+        inline pubkey pubkey::operator+(const pubkey&) const {
+            throw 0;
+        }
+        
+        inline pubkey pubkey::operator*(const secret&) const {
+            throw 0;
+        }
+            
+        inline pubkey& pubkey::operator=(const pubkey& p) {
+            throw 0;
+        }
+            
+        inline bool pubkey::verify(const sha256::digest&, const signature&) const {
+            throw 0;
         }
         
     }

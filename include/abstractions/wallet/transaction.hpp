@@ -25,14 +25,14 @@ namespace abstractions {
                 
                 representation() : parent::representation{}, OpReturn{} {}
                 
-                representation(uint32 l, list<input> i, list<output> o) :
-                    parent::representation{l, i, o}, OpReturn{} {}
+                representation(list<input> i, list<output> o, uint32 l) :
+                    parent::representation{i, o, l}, OpReturn{} {}
                     
                 representation(list<input> i, list<output> o) :
                     parent::representation{i, o}, OpReturn{} {}
                 
-                representation(uint32 l, list<input> i, list<output> o, op_return d) :
-                    parent::representation{l, i, o}, OpReturn{d} {}
+                representation(list<input> i, list<output> o, op_return d, uint32 l) :
+                    parent::representation{i, o, l}, OpReturn{d} {}
                     
                 representation(list<input> i, list<output> o, op_return d) :
                     parent::representation{i, o}, OpReturn{d} {}
@@ -55,7 +55,7 @@ namespace abstractions {
                 } 
                 
                 parent::representation deconvert() const {
-                    if (OpReturn.valid()) return parent::representation{Locktime, Inputs, Outputs.prepend(OpReturn)};
+                    if (OpReturn.valid()) return parent::representation{Inputs, Outputs.prepend(OpReturn), Locktime};
                     return *this;
                 }
             public:
