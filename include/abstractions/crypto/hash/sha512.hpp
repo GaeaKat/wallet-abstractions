@@ -18,7 +18,7 @@ namespace abstractions {
         
         template <N n>
         inline digest hash(const std::array<byte, n>& b) {
-            return data::sha512::hash(b);
+            return data::sha512::hash<n>(b);
         }
     }
 

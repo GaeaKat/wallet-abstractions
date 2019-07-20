@@ -30,9 +30,9 @@ namespace abstractions {
             
             secret& operator=(const secret& s);
             
-            signature sign(const sha256::digest&) const;
-            
             explicit secret(string wif);
+            
+            bitcoin::address address() const;
         };
         
         struct pubkey : public data::secp256k1::pubkey, public tag {
@@ -44,9 +44,9 @@ namespace abstractions {
             
             pubkey& operator=(const pubkey& p);
             
-            bool verify(const sha256::digest&, const signature&) const;
-            
             explicit pubkey(string wif);
+            
+            bitcoin::address address() const;
         };
         
         constexpr data::math::module<pubkey, secret> is_module{};
@@ -64,45 +64,48 @@ namespace abstractions {
             void write(secret&, stringstream&);
         }
         
-        inline address hash(pubkey& b) {
-            return ripemd160::hash<data::secp256k1::pubkey_size>(static_cast<std::array<byte, data::secp256k1::pubkey_size>&>(b));
+        inline address address_hash(const pubkey& b) {
+            return ripemd160::hash<data::secp256k1::pubkey_size>(
+                static_cast<const std::array<byte, data::secp256k1::pubkey_size>&>(b));
         }
             
         inline pubkey secret::to_public() const {
-            throw 0;
+            return secret::parent::to_public();
         }
             
-        inline secret secret::operator+(const secret&) const {
-            throw 0;
+        inline secret secret::operator+(const secret& s) const {
+            return parent::operator+(static_cast<const parent&>(s));
         }
         
-        inline secret secret::operator*(const secret&) const {
-            throw 0;
+        inline secret secret::operator*(const secret& s) const {
+            return parent::operator+(static_cast<const parent&>(s));
         }
             
         inline secret& secret::operator=(const secret& s) {
-            throw 0;
+            parent::operator=(static_cast<const parent&>(s));
+            return *this;
         }
             
-        inline signature secret::sign(const sha256::digest&) const {
-            throw 0;
-        }
-            
-        inline pubkey pubkey::operator+(const pubkey&) const {
-            throw 0;
+        inline pubkey pubkey::operator+(const pubkey& p) const {
+            return parent::operator+(static_cast<const parent&>(p));
         }
         
-        inline pubkey pubkey::operator*(const secret&) const {
-            throw 0;
+        inline pubkey pubkey::operator*(const secret& s) const {
+            return parent::operator*(static_cast<const secret::parent&>(s));
         }
             
         inline pubkey& pubkey::operator=(const pubkey& p) {
-            throw 0;
+            parent::operator=(static_cast<const parent&>(p));
+            return *this;
         }
-            
-        inline bool pubkey::verify(const sha256::digest&, const signature&) const {
-            throw 0;
-        }
+        
+        inline bitcoin::address pubkey::address() const {
+            return address_hash(*this);
+        };
+        
+        inline bitcoin::address secret::address() const {
+            return to_public().address();
+        };
         
     }
     
