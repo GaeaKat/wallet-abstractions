@@ -14,6 +14,8 @@ namespace abstractions {
     
     namespace bitcoin {
         
+        const int BSVTxVersion = 2;
+        
         struct transaction : public abstractions::transaction<input, output> {
             using parent = abstractions::transaction<input, output>;
             
@@ -21,6 +23,7 @@ namespace abstractions {
                 using parent::representation::Locktime;
                 using parent::representation::Inputs;
                 using parent::representation::Outputs;
+                using parent::representation::Version;
                 op_return OpReturn; 
                 
                 representation() : parent::representation{}, OpReturn{} {}
@@ -31,7 +34,7 @@ namespace abstractions {
                 representation(list<input> i, list<output> o) :
                     parent::representation{i, o}, OpReturn{} {}
                 
-                representation(list<input> i, list<output> o, op_return d, uint32 l) :
+                representation(list<input> i, op_return d, list<output> o, uint32 l) :
                     parent::representation{i, o, l}, OpReturn{d} {}
                     
                 representation(list<input> i, list<output> o, op_return d) :
@@ -39,6 +42,10 @@ namespace abstractions {
             
                 txid id() const {
                     return transaction{*this}.id();
+                }
+                
+                bool valid() const {
+                    return parent::representation::valid() && Version == BSVTxVersion;
                 }
                 
             private:
@@ -73,10 +80,10 @@ namespace abstractions {
             transaction(bytes b) : parent{b} {};
             transaction(const representation& r) : parent{r.deconvert()} {}
             
-            transaction(uint32 l, vector<input> i, vector<output> o) : transaction{representation{l, i, o}} {}
+            transaction(vector<input> i, vector<output> o, uint32 l) : transaction{representation{i, o, l}} {}
             transaction(vector<input> i, vector<output> o) : transaction{representation{i, o}} {}
-            transaction(uint32 l, vector<input> i, vector<output> o, op_return d)
-                : transaction{representation{l, i, o, d}} {}
+            transaction(vector<input> i, op_return d, vector<output> o, uint32 l)
+                : transaction{representation{i, d, o, l}} {}
             transaction(vector<input> i, vector<output> o, op_return d) : transaction{representation{i, o, d}} {}
             
             txid id() const {
