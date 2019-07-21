@@ -20,14 +20,23 @@ namespace abstractions {
             
             txid& operator=(const txid& a);
             
-            txid(hex s) : txid{s.valid() ? bytes(s) : bytes{}} {}
-            txid(string hex_string) : txid{hex{hex_string}} {}
-            txid(bytes b);
+            explicit txid(hex s);
+            explicit txid(string hex_string);
             
-            txid(const txid&);
-            txid(txid&&);
-            txid(parent);
+            txid(const txid& t);
+            txid(txid&& t);
+            txid(parent p);
         };
+            
+        inline txid::txid(const txid& t) : parent{static_cast<const parent&>(t)} {}
+        
+        inline txid::txid(txid&& t) : parent{static_cast<parent&&>(t)} {}
+        
+        inline txid::txid(parent p) : parent{p} {}
+        
+        inline txid::txid(hex s) : txid{s.valid() ? s.operator bytes() : bytes{}} {}
+        
+        inline txid::txid(string hex_string) : txid{hex{hex_string}} {}
         
         inline bool txid::operator==(const txid& a) const {
             return uint512::operator==(static_cast<const uint512&>(a));

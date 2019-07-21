@@ -29,7 +29,7 @@ namespace abstractions {
             address(address&&);
             address(pubkey&);
             address(secret&);
-            address(string&);
+            explicit address(const string&);
             
             string write();
             string cashaddr();

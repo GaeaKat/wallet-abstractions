@@ -157,20 +157,21 @@ namespace abstractions {
             list<out> Outputs;
             uint32 Locktime;
                 
-            representation(list<in> i, list<out> o,uint32 l) :
-                Valid{true}, Version{2}, Inputs{i}, Outputs{o}, Locktime{l} {}
+            representation(int32 v, list<in> i, list<out> o,uint32 l) :
+                Valid{true}, Version{v}, Inputs{i}, Outputs{o}, Locktime{l} {}
                 
-            representation(list<in> i, list<out> o) :
-                Valid{true}, Version{2}, Locktime{0}, Inputs{i}, Outputs{o} {}
-                
+            representation(int32 v, list<in> i, list<out> o) : representation{v, i, o, 0} {}
+            representation(list<in> i, list<out> o,uint32 l) : representation{2, i, o, l} {}
+            representation(list<in> i, list<out> o) : representation{2, i, o} {}
+            
             representation(const transaction&) noexcept;
-            representation() : Valid{false}, Locktime{}, Inputs{}, Outputs{} {}
+            representation() : Valid{false}, Inputs{}, Outputs{}, Locktime{} {}
             representation& operator=(const representation& i);
             
             bool valid() const {
                 return Valid;
             }
-    
+            
             slice<out> outputs() const {
                 return Outputs;
             }

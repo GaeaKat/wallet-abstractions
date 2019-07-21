@@ -18,7 +18,7 @@ namespace abstractions {
         
         template <N n>
         inline digest hash(const std::array<byte, n>& b) {
-            return data::sha256::hash(b);
+            return data::sha256::hash<n>(b);
         }
         
         inline digest double_hash(const bytes& b);
