@@ -8,29 +8,21 @@ namespace abstractions {
     namespace bitcoin {
     
         namespace wif {
-            bool read(string&, secret&) {
+            bool read(const string&, secret&) {
                 throw 0;
             }
             
             string write(secret&) {
-                throw 0;
-            }
-            
-            void write(secret&, stringstream&) {
                 throw 0;
             }
         }
         
         namespace wif_compressed {
-            bool read(string&, secret&) {
+            bool read(const string&, secret&) {
                 throw 0;
             }
             
             string write(secret&) {
-                throw 0;
-            }
-            
-            void write(secret&, stringstream&) {
                 throw 0;
             }
         }

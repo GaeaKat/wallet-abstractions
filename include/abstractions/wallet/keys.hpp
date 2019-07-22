@@ -53,15 +53,13 @@ namespace abstractions {
         constexpr data::crypto::signature_scheme<secret, pubkey, const sha256::digest, signature> is_signature_scheme{};
     
         namespace wif {
-            bool read(string&, secret&);
+            bool read(const string&, secret&);
             string write(secret&);
-            void write(secret&, stringstream&);
         }
         
         namespace wif_compressed {
-            bool read(string&, secret&);
+            bool read(const string&, secret&);
             string write(secret&);
-            void write(secret&, stringstream&);
         }
         
         inline address address_hash(const pubkey& b) {

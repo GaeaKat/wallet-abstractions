@@ -25,10 +25,10 @@ namespace abstractions {
             
             address& operator=(const address& a);
             
-            address(const address&);
+            address(const address& a) : parent{static_cast<const parent&>(a)} {}
+            address(const pubkey&);
+            address(const secret&);
             address(address&&);
-            address(pubkey&);
-            address(secret&);
             explicit address(const string&);
             
             string write();
@@ -37,12 +37,12 @@ namespace abstractions {
         
         namespace bitcoin_address {
             bool read(const string&, ::data::ripemd160::digest&);
-            string write(address&);
+            string write(const address&);
         }
         
         namespace cashaddr {
             bool read(const string&, ::data::ripemd160::digest&);
-            string write(address&);
+            string write(const address&);
         }
         
         inline bool address::operator==(const address& a) const {

@@ -14,6 +14,7 @@
 #include <data/map/rb.hpp>
 #include <data/tools/map_set.hpp>
 #include <data/queue/functional_queue.hpp>
+#include <data/math/number/bounded.hpp>
 #include <data/slice.hpp>
 
 #include <data/encoding/hex.hpp>
