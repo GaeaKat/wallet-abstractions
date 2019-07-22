@@ -21,7 +21,7 @@ namespace abstractions {
         satoshi spent = fee + 
             data::reduce(
                 [](satoshi p, data::map::entry<tag, satoshi> e)->satoshi{
-                    p + e.Value;
+                    return p + e.Value;
                 }, to);
         if (spent > Funds.Balance) return {};
         

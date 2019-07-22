@@ -26,9 +26,10 @@ namespace abstractions {
             address& operator=(const address& a);
             
             address(const address& a) : parent{static_cast<const parent&>(a)} {}
+            address(address&& a) : parent{static_cast<parent&&>(a)} {}
+            address(const parent& p) : parent{p} {}
             address(const pubkey&);
             address(const secret&);
-            address(address&&);
             explicit address(const string&);
             
             string write();

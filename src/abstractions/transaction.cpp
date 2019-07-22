@@ -19,10 +19,8 @@ namespace abstractions {
         reader(std::vector<byte>& v) : slice_reader{v, boost::endian::order::little} {}
         
         void operator>>(uint256& d) {
-            for (byte& b : d) operator>>(b);
+            for (uint32& x : data::math::number::bounded::words(d)) operator>>(x);
         }
-        
-        void operator>>(int32&);
 
     }; 
     
@@ -32,10 +30,8 @@ namespace abstractions {
         writer(std::vector<byte>& v) : slice_writer{v, boost::endian::order::little} {}
         
         void operator<<(uint256& d) {
-            for (byte b : d) operator<<(b);
+            for (uint32 x : data::math::number::bounded::words(d)) operator<<(x);
         }
-        
-        void operator<<(int32);
     }; 
     
     uint read_var_int(reader r) {
