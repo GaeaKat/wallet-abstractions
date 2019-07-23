@@ -15,6 +15,14 @@ namespace abstractions {
             string write(secret&) {
                 throw 0;
             }
+            
+            bool read(const string&, pubkey&) {
+                throw 0;
+            }
+            
+            string write(pubkey&) {
+                throw 0;
+            }
         }
         
         namespace wif_compressed {
@@ -23,6 +31,13 @@ namespace abstractions {
             }
             
             string write(secret&) {
+                throw 0;
+            }
+            bool read(const string&, pubkey&) {
+                throw 0;
+            }
+            
+            string write(pubkey&) {
                 throw 0;
             }
         }

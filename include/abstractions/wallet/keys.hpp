@@ -55,11 +55,15 @@ namespace abstractions {
         namespace wif {
             bool read(const string&, secret&);
             string write(secret&);
+            bool read(const string&, pubkey&);
+            string write(pubkey&);
         }
         
         namespace wif_compressed {
             bool read(const string&, secret&);
             string write(secret&);
+            bool read(const string&, pubkey&);
+            string write(pubkey&);
         }
         
         inline address address_hash(const pubkey& b) {

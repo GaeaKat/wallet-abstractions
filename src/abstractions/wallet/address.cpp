@@ -4,6 +4,7 @@
 #include <abstractions/wallet/address.hpp>
 #include <abstractions/wallet/keys.hpp>
 #include <bitcoin/system/wallet/payment_address.hpp>
+#include <abc/src/cashaddr.h>
 
 namespace abstractions {
     
@@ -27,12 +28,18 @@ namespace abstractions {
         }
         
         namespace cashaddr {
-            bool read(const string&, ::data::ripemd160::digest&) {
-                throw 0;
+            string prefix = "prefix";
+            bool read(const string& s, ::data::ripemd160::digest& d) {
+                auto p = abc::cashaddr::Decode(s, prefix);
+                if (p.first == "") return false;
+                d = ::data::ripemd160::digest{p.second};
+                return true;
             }
             
-            string write(const address&) {
-                throw 0;
+            string write(const address& a) {
+                std::vector<byte> v{20};
+                std::copy(a.begin(), a.end(), v.begin());
+                return abc::cashaddr::Encode("", v);
             }
         }
     }
