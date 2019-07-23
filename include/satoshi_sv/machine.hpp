@@ -42,15 +42,15 @@ namespace abstractions::sv {
         machine() : Machine{} {}
         
         // Run the machine with checking signatures. 
-        machine(bitcoin::transaction& tx, index i, satoshi amount) : Machine{convert(tx), i, amount} {}
+        machine(const bitcoin::transaction& tx, index i, satoshi amount) : Machine{convert(tx), i, amount} {}
         
-        bool run(bitcoin::script& output, bitcoin::script& input) const {
+        bool run(const bitcoin::script& output, const bitcoin::script& input) const {
             return Machine.run(convert(output), convert(input));
         }
         
     };
     
-    constexpr static abstractions::script::machine::interface<machine, bitcoin::script&, bitcoin::transaction&> machine_is_machine{};
+    constexpr static abstractions::script::machine::interface<machine, const bitcoin::script&, const bitcoin::transaction&> machine_is_machine{};
     
 } 
 

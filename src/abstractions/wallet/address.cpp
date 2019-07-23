@@ -17,8 +17,7 @@ namespace abstractions {
             bool read(const string& base58, ::data::ripemd160::digest& d) {
                 libbitcoin::system::wallet::payment_address addr{base58};
                 if (!addr) return false;
-                libbitcoin::system::short_hash hash{addr};
-                std::copy(hash.begin(), hash.end(), d.begin());
+                d = libbitcoin::system::short_hash{addr};
                 return true;
             }
             
