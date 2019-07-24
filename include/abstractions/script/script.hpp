@@ -10,231 +10,241 @@
 #include <abstractions/abstractions.hpp>
 #include <data/fold.hpp>
 
-namespace abstractions {
-    
-    namespace script {
-        struct program {
-            virtual N length() const = 0;
-            virtual void write(ostream&) const = 0;
-            bytes compile() const;
-            
-            operator bytes() const {
-                return compile();
-            }
-
-            enum op {
-                // push value
-                OP_0 = 0x00,
-                OP_FALSE = OP_0,
-                OP_PUSHDATA1 = 0x4c,
-                OP_PUSHDATA2 = 0x4d,
-                OP_PUSHDATA4 = 0x4e,
-                OP_1NEGATE = 0x4f,
-                OP_RESERVED = 0x50,
-                OP_1 = 0x51,
-                OP_TRUE = OP_1,
-                OP_2 = 0x52,
-                OP_3 = 0x53,
-                OP_4 = 0x54,
-                OP_5 = 0x55,
-                OP_6 = 0x56,
-                OP_7 = 0x57,
-                OP_8 = 0x58,
-                OP_9 = 0x59,
-                OP_10 = 0x5a,
-                OP_11 = 0x5b,
-                OP_12 = 0x5c,
-                OP_13 = 0x5d,
-                OP_14 = 0x5e,
-                OP_15 = 0x5f,
-                OP_16 = 0x60,
-
-                // control
-                OP_NOP = 0x61,
-                OP_VER = 0x62,
-                OP_IF = 0x63,
-                OP_NOTIF = 0x64,
-                OP_VERIF = 0x65,
-                OP_VERNOTIF = 0x66,
-                OP_ELSE = 0x67,
-                OP_ENDIF = 0x68,
-                OP_VERIFY = 0x69,
-                OP_RETURN = 0x6a,
-
-                // stack ops
-                OP_TOALTSTACK = 0x6b,
-                OP_FROMALTSTACK = 0x6c,
-                OP_2DROP = 0x6d,
-                OP_2DUP = 0x6e,
-                OP_3DUP = 0x6f,
-                OP_2OVER = 0x70,
-                OP_2ROT = 0x71,
-                OP_2SWAP = 0x72,
-                OP_IFDUP = 0x73,
-                OP_DEPTH = 0x74,
-                OP_DROP = 0x75,
-                OP_DUP = 0x76,
-                OP_NIP = 0x77,
-                OP_OVER = 0x78,
-                OP_PICK = 0x79,
-                OP_ROLL = 0x7a,
-                OP_ROT = 0x7b,
-                OP_SWAP = 0x7c,
-                OP_TUCK = 0x7d,
-
-                // splice ops
-                OP_CAT = 0x7e,
-                OP_SPLIT = 0x7f,   // after monolith upgrade (May 2018)
-                OP_NUM2BIN = 0x80, // after monolith upgrade (May 2018)
-                OP_BIN2NUM = 0x81, // after monolith upgrade (May 2018)
-                OP_SIZE = 0x82,
-
-                // bit logic
-                OP_INVERT = 0x83,
-                OP_AND = 0x84,
-                OP_OR = 0x85,
-                OP_XOR = 0x86,
-                OP_EQUAL = 0x87,
-                OP_EQUALVERIFY = 0x88,
-                OP_RESERVED1 = 0x89,
-                OP_RESERVED2 = 0x8a,
-
-                // numeric
-                OP_1ADD = 0x8b,
-                OP_1SUB = 0x8c,
-                OP_2MUL = 0x8d,
-                OP_2DIV = 0x8e,
-                OP_NEGATE = 0x8f,
-                OP_ABS = 0x90,
-                OP_NOT = 0x91,
-                OP_0NOTEQUAL = 0x92,
-
-                OP_ADD = 0x93,
-                OP_SUB = 0x94,
-                OP_MUL = 0x95,
-                OP_DIV = 0x96,
-                OP_MOD = 0x97,
-                OP_LSHIFT = 0x98,
-                OP_RSHIFT = 0x99,
-
-                OP_BOOLAND = 0x9a,
-                OP_BOOLOR = 0x9b,
-                OP_NUMEQUAL = 0x9c,
-                OP_NUMEQUALVERIFY = 0x9d,
-                OP_NUMNOTEQUAL = 0x9e,
-                OP_LESSTHAN = 0x9f,
-                OP_GREATERTHAN = 0xa0,
-                OP_LESSTHANOREQUAL = 0xa1,
-                OP_GREATERTHANOREQUAL = 0xa2,
-                OP_MIN = 0xa3,
-                OP_MAX = 0xa4,
-
-                OP_WITHIN = 0xa5,
-
-                // crypto
-                OP_RIPEMD160 = 0xa6,
-                OP_SHA1 = 0xa7,
-                OP_SHA256 = 0xa8,
-                OP_HASH160 = 0xa9,
-                OP_HASH256 = 0xaa,
-                OP_CODESEPARATOR = 0xab,
-                OP_CHECKSIG = 0xac,
-                OP_CHECKSIGVERIFY = 0xad,
-                OP_CHECKMULTISIG = 0xae,
-                OP_CHECKMULTISIGVERIFY = 0xaf,
-
-                // expansion
-                OP_NOP1 = 0xb0,
-                OP_CHECKLOCKTIMEVERIFY = 0xb1,
-                OP_NOP2 = OP_CHECKLOCKTIMEVERIFY,
-                OP_CHECKSEQUENCEVERIFY = 0xb2,
-                OP_NOP3 = OP_CHECKSEQUENCEVERIFY,
-                OP_NOP4 = 0xb3,
-                OP_NOP5 = 0xb4,
-                OP_NOP6 = 0xb5,
-                OP_NOP7 = 0xb6,
-                OP_NOP8 = 0xb7,
-                OP_NOP9 = 0xb8,
-                OP_NOP10 = 0xb9,
-
-                // The first op_code value after all defined opcodes
-                FIRST_UNDEFINED_OP_VALUE,
-
-                // template matching params
-                OP_SMALLINTEGER = 0xfa,
-                OP_PUBKEYS = 0xfb,
-                OP_PUBKEYHASH = 0xfd,
-                OP_PUBKEY = 0xfe,
-
-                OP_INVALIDOPCODE = 0xff,
-            };
-            
-            struct noop;
-            struct push;
-            struct op_code;
-            struct sequence;
-            struct repeated;
+namespace abstractions::script {
+    struct program {
+        virtual N length() const = 0;
+        virtual void write(ostream&) const = 0;
+        bytes compile() const;
         
-        };
-            
-        struct program::noop : public program {
-            void write(ostream&) const final override {}
-            
-            N length() const final override {
-                return 0;
-            }
-            
-            noop() {}
-        };
-            
-        struct program::push : public program {
-            bytes Data;
-            
-            void write(ostream&) const final override;
-            N length() const final override;
-            
-            push(bytes data) : Data{data} {}
-        };
-            
-        struct program::op_code : public program {
-            op OpCode;
-            void write(ostream& o) const final override {
-                o << byte(OpCode);
-            }
-            
-            N length() const final override {
-                return 1;
-            }
-            
-            op_code(op o) : OpCode{o} {}
-        };
-            
-        struct program::sequence : public list<pointer<program>>, public program {
-            using list<pointer<program>>::list;
-            void write(ostream& o) const final override {
-                for (pointer<program> p : *this) p->write(o);
-            }
-            
-            N length() const final override {
-                return data::fold([](uint len, pointer<program> p)->uint{return len + p->length();}, 0, *this);
-            }
-        };
+        operator bytes() const {
+            return compile();
+        }
         
-        struct program::repeated : public program {
-            N Repetitions;
-            pointer<program> Repeated;
-            void write(ostream& o) const final override {
-                for (int i = 0; i < Repetitions; i++) Repeated->write(o);
-            }
+        enum op {
+            // push value
+            OP_0 = 0x00,
+            OP_FALSE = OP_0,
+            OP_PUSHDATA1 = 0x4c,
+            OP_PUSHDATA2 = 0x4d,
+            OP_PUSHDATA4 = 0x4e,
+            OP_1NEGATE = 0x4f,
+            OP_RESERVED = 0x50,
+            OP_1 = 0x51,
+            OP_TRUE = OP_1,
+            OP_2 = 0x52,
+            OP_3 = 0x53,
+            OP_4 = 0x54,
+            OP_5 = 0x55,
+            OP_6 = 0x56,
+            OP_7 = 0x57,
+            OP_8 = 0x58,
+            OP_9 = 0x59,
+            OP_10 = 0x5a,
+            OP_11 = 0x5b,
+            OP_12 = 0x5c,
+            OP_13 = 0x5d,
+            OP_14 = 0x5e,
+            OP_15 = 0x5f,
+            OP_16 = 0x60,
+
+            // control
+            OP_NOP = 0x61,
+            OP_VER = 0x62,
+            OP_IF = 0x63,
+            OP_NOTIF = 0x64,
+            OP_VERIF = 0x65,
+            OP_VERNOTIF = 0x66,
+            OP_ELSE = 0x67,
+            OP_ENDIF = 0x68,
+            OP_VERIFY = 0x69,
+            OP_RETURN = 0x6a,
+
+            // stack ops
+            OP_TOALTSTACK = 0x6b,
+            OP_FROMALTSTACK = 0x6c,
+            OP_2DROP = 0x6d,
+            OP_2DUP = 0x6e,
+            OP_3DUP = 0x6f,
+            OP_2OVER = 0x70,
+            OP_2ROT = 0x71,
+            OP_2SWAP = 0x72,
+            OP_IFDUP = 0x73,
+            OP_DEPTH = 0x74,
+            OP_DROP = 0x75,
+            OP_DUP = 0x76,
+            OP_NIP = 0x77,
+            OP_OVER = 0x78,
+            OP_PICK = 0x79,
+            OP_ROLL = 0x7a,
+            OP_ROT = 0x7b,
+            OP_SWAP = 0x7c,
+            OP_TUCK = 0x7d,
+
+            // splice ops
+            OP_CAT = 0x7e,
+            OP_SPLIT = 0x7f,   // after monolith upgrade (May 2018)
+            OP_NUM2BIN = 0x80, // after monolith upgrade (May 2018)
+            OP_BIN2NUM = 0x81, // after monolith upgrade (May 2018)
+            OP_SIZE = 0x82,
             
-            N length() const final override {
-                return Repetitions * Repeated->length();
-            }
-            
-            repeated(N n, pointer<program> r) : Repetitions{n}, Repeated{r} {}
+            // bit logic
+            OP_INVERT = 0x83,
+            OP_AND = 0x84,
+            OP_OR = 0x85,
+            OP_XOR = 0x86,
+            OP_EQUAL = 0x87,
+            OP_EQUALVERIFY = 0x88,
+            OP_RESERVED1 = 0x89,
+            OP_RESERVED2 = 0x8a,
+
+            // numeric
+            OP_1ADD = 0x8b,
+            OP_1SUB = 0x8c,
+            OP_2MUL = 0x8d,
+            OP_2DIV = 0x8e,
+            OP_NEGATE = 0x8f,
+            OP_ABS = 0x90,
+            OP_NOT = 0x91,
+            OP_0NOTEQUAL = 0x92,
+
+            OP_ADD = 0x93,
+            OP_SUB = 0x94,
+            OP_MUL = 0x95,
+            OP_DIV = 0x96,
+            OP_MOD = 0x97,
+            OP_LSHIFT = 0x98,
+            OP_RSHIFT = 0x99,
+
+            OP_BOOLAND = 0x9a,
+            OP_BOOLOR = 0x9b,
+            OP_NUMEQUAL = 0x9c,
+            OP_NUMEQUALVERIFY = 0x9d,
+            OP_NUMNOTEQUAL = 0x9e,
+            OP_LESSTHAN = 0x9f,
+            OP_GREATERTHAN = 0xa0,
+            OP_LESSTHANOREQUAL = 0xa1,
+            OP_GREATERTHANOREQUAL = 0xa2,
+            OP_MIN = 0xa3,
+            OP_MAX = 0xa4,
+
+            OP_WITHIN = 0xa5,
+
+            // crypto
+            OP_RIPEMD160 = 0xa6,
+            OP_SHA1 = 0xa7,
+            OP_SHA256 = 0xa8,
+            OP_HASH160 = 0xa9,
+            OP_HASH256 = 0xaa,
+            OP_CODESEPARATOR = 0xab,
+            OP_CHECKSIG = 0xac,
+            OP_CHECKSIGVERIFY = 0xad,
+            OP_CHECKMULTISIG = 0xae,
+            OP_CHECKMULTISIGVERIFY = 0xaf,
+
+            // expansion
+            OP_NOP1 = 0xb0,
+            OP_CHECKLOCKTIMEVERIFY = 0xb1,
+            OP_NOP2 = OP_CHECKLOCKTIMEVERIFY,
+            OP_CHECKSEQUENCEVERIFY = 0xb2,
+            OP_NOP3 = OP_CHECKSEQUENCEVERIFY,
+            OP_NOP4 = 0xb3,
+            OP_NOP5 = 0xb4,
+            OP_NOP6 = 0xb5,
+            OP_NOP7 = 0xb6,
+            OP_NOP8 = 0xb7,
+            OP_NOP9 = 0xb8,
+            OP_NOP10 = 0xb9,
+
+            // The first op_code value after all defined opcodes
+            FIRST_UNDEFINED_OP_VALUE,
+
+            // template matching params
+            OP_SMALLINTEGER = 0xfa,
+            OP_PUBKEYS = 0xfb,
+            OP_PUBKEYHASH = 0xfd,
+            OP_PUBKEY = 0xfe,
+
+            OP_INVALIDOPCODE = 0xff,
         };
+            
+        struct noop;
+        struct push;
+        struct op_code;
+        struct sequence;
+        struct string;
+        struct repeated;
+        
+    };
     
-    }
+    struct program::noop : public program {
+        void write(ostream&) const final override {}
+        
+        N length() const final override {
+            return 0;
+        }
+        
+        noop() {}
+    };
+    
+    struct program::push : public program {
+        bytes Data;
+        
+        void write(ostream&) const final override;
+        N length() const final override;
+        
+        push(bytes data) : Data{data} {}
+    };
+    
+    struct program::op_code : public program {
+        op OpCode;
+        void write(ostream& o) const final override {
+            o << byte(OpCode);
+        }
+        
+        N length() const final override {
+            return 1;
+        }
+        
+        op_code(op o) : OpCode{o} {}
+    };
+    
+    struct program::string : public program {
+        std::vector<op> String;
+        void write(ostream& o) const final override {
+            for (op code: String) o << byte(code);
+        }
+        
+        N length() const final override {
+            return String.size();
+        }
+        
+        string(std::vector<op>& s) : String{s} {}
+    };
+        
+    struct program::sequence : public list<pointer<program>>, public program {
+        using list<pointer<program>>::list;
+        void write(ostream& o) const final override {
+            for (pointer<program> p : *this) p->write(o);
+        }
+        
+        N length() const final override {
+            return data::fold([](uint len, pointer<program> p)->uint{return len + p->length();}, 0, *this);
+        }
+    };
+    
+    struct program::repeated : public program {
+        N Repetitions;
+        pointer<program> Repeated;
+        void write(ostream& o) const final override {
+            for (int i = 0; i < Repetitions; i++) Repeated->write(o);
+        }
+        
+        N length() const final override {
+            return Repetitions * Repeated->length();
+        }
+        
+        repeated(N n, pointer<program> r) : Repetitions{n}, Repeated{r} {}
+    };
     
 }
 

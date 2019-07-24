@@ -118,6 +118,9 @@ add_library(wallet-abstractions STATIC
 	src/abstractions/wallet/address.cpp
 	src/abstractions/wallet/keys.cpp
 	src/abstractions/script/script.cpp
+	src/abstractions/script/functions.cpp
+	src/abstractions/script/math.cpp
+	src/abstractions/script/pow.cpp
 )
 target_link_libraries(wallet-abstractions PUBLIC data)
 

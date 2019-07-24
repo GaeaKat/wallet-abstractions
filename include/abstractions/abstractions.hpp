@@ -40,6 +40,7 @@ namespace abstractions {
     
     using index = uint32_t;
     using uint32 = uint32_t;
+    using uint64 = uint64_t;
     using int32 = int32_t;
     
     using uint256 = data::uint256;
