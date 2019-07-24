@@ -12,7 +12,7 @@ namespace abstractions::script {
     pointer<program> op(program::op);
     pointer<program> sequence(std::vector<pointer<program>>);
     pointer<program> push_data(bytes&);
-    pointer<program> push_data(string&);
+    pointer<program> push_data(hex);
     pointer<program> push(bitcoin::signature&);
     pointer<program> push(bitcoin::pubkey&);
     pointer<program> push(bitcoin::address&);
