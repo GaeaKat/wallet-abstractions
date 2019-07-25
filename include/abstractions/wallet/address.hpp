@@ -32,8 +32,7 @@ namespace abstractions {
             address(const secret&);
             explicit address(const string&);
             
-            string write();
-            string cashaddr();
+            string encode();
         };
         
         namespace bitcoin_address {

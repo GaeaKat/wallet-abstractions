@@ -9,13 +9,22 @@
 namespace abstractions {
     
     namespace bitcoin {
-        inline sha256::digest hash(const bytes& b) {
+        inline sha256::digest hash256(const bytes& b) {
             return sha256::double_hash(b);
         }
         
         template <N n>
-        inline sha256::digest hash(const std::array<byte, n>& b) {
+        inline sha256::digest hash256(const std::array<byte, n>& b) {
             return sha256::double_hash(b);
+        }
+        
+        inline sha512::digest hash512(const bytes& b) {
+            return sha512::double_hash(b);
+        }
+        
+        template <N n>
+        inline sha512::digest hash512(const std::array<byte, n>& b) {
+            return sha512::double_hash(b);
         }
     }
 

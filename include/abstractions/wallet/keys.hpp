@@ -33,6 +33,7 @@ namespace abstractions {
             explicit secret(string wif);
             
             bitcoin::address address() const;
+            string encode();
         };
         
         struct pubkey : public data::secp256k1::pubkey, public tag {
@@ -47,6 +48,7 @@ namespace abstractions {
             explicit pubkey(string wif);
             
             bitcoin::address address() const;
+            string encode();
         };
         
         constexpr data::math::module<pubkey, secret> is_module{};
@@ -70,11 +72,11 @@ namespace abstractions {
             return ripemd160::hash<data::secp256k1::pubkey_size>(
                 static_cast<const std::array<byte, data::secp256k1::pubkey_size>&>(b));
         }
-            
+        
         inline pubkey secret::to_public() const {
             return secret::parent::to_public();
         }
-            
+        
         inline secret secret::operator+(const secret& s) const {
             return parent::operator+(static_cast<const parent&>(s));
         }
@@ -82,12 +84,12 @@ namespace abstractions {
         inline secret secret::operator*(const secret& s) const {
             return parent::operator+(static_cast<const parent&>(s));
         }
-            
+        
         inline secret& secret::operator=(const secret& s) {
             parent::operator=(static_cast<const parent&>(s));
             return *this;
         }
-            
+        
         inline pubkey pubkey::operator+(const pubkey& p) const {
             return parent::operator+(static_cast<const parent&>(p));
         }
@@ -95,7 +97,7 @@ namespace abstractions {
         inline pubkey pubkey::operator*(const secret& s) const {
             return parent::operator*(static_cast<const secret::parent&>(s));
         }
-            
+        
         inline pubkey& pubkey::operator=(const pubkey& p) {
             parent::operator=(static_cast<const parent&>(p));
             return *this;

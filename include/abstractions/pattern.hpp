@@ -5,14 +5,10 @@
 #define ABSTRACTIONS_PATTERN
 
 #include <data/crypto/keypair.hpp>
-#include <abstractions/script/machine.hpp>
 #include <abstractions/transaction.hpp>
 
 namespace abstractions {
     
-    // Two patterns are currently suported. 
-    //   pay to address (public key hash)
-    //   pay to public key
     namespace pattern {
         
         namespace abstract {
@@ -20,16 +16,24 @@ namespace abstractions {
             template <
                 typename Key,
                 typename Script, 
-                typename Tx, 
-                typename Machine>
-        struct pattern : public virtual script::machine::interface<Machine, Script, Tx> {
+                typename Tx>
+            struct redeemer {
+                
+                // make a script signature.
+                virtual Script redeem(satoshi, Script, Tx, index, Key) const = 0;
+                
+            };
+        
+            template <
+                typename Key,
+                typename Script, 
+                typename Tx>
+            struct pattern : public redeemer<Key, Script, Tx> {
                 
                 // make a script pubkey. 
                 virtual Script pay(Key) const = 0;
                 
-                // make a script signature.
-                virtual Script redeem(satoshi, Script, Tx, N, Key) const = 0;
-                
+                template <typename Machine>
                 void pattern_definition(Key k, Tx t, Machine i) const {
                     assert(i.run(pay(k), redeem(k, t), t));
                 }
@@ -43,16 +47,15 @@ namespace abstractions {
                 typename Key,
                 typename Script, 
                 typename Tag, 
-                typename Tx, 
-                typename Machine>
+                typename Tx>
             struct recognizable : 
-                public virtual pattern<Key, Script, Tx, Machine>, 
+                public virtual pattern<Key, Script, Tx>, 
                 public virtual tagged<Key, Tag> {
                 
                 virtual list<Tag> recognize(Script) const = 0;
                 
                 void recognizable_pattern_definition(Key k) const {
-                    if (tagged<Key, Tag>::tag(k) != recognize(pattern<Key, Script, Tx, Machine>::pay(k))) throw 0;
+                    if (tagged<Key, Tag>::tag(k) != recognize(pattern<Key, Script, Tx>::pay(k))) throw 0;
                 }
                 
             };
@@ -61,10 +64,9 @@ namespace abstractions {
                 typename Key,
                 typename Script, 
                 typename Tag, 
-                typename Tx, 
-                typename Machine>
+                typename Tx>
             struct addressable : 
-                public virtual pattern<Key, Script, Tx, Machine>, 
+                public virtual pattern<Key, Script, Tx>, 
                 public virtual tagged<Key, Tag> {
                 
                 virtual Script pay(Tag) const = 0;
@@ -80,12 +82,11 @@ namespace abstractions {
                 typename Pk, 
                 typename Script, 
                 typename Tag, 
-                typename Tx, 
-                typename Machine>
+                typename Tx>
             struct standard : 
                 public virtual data::crypto::keypair<Sk, Pk>, 
-                public virtual recognizable<Sk, Script, Tag, Tx, Machine>, 
-                public virtual addressable<Sk, Script, Tag, Tx, Machine> {
+                public virtual recognizable<Sk, Script, Tag, Tx>, 
+                public virtual addressable<Sk, Script, Tag, Tx> {
                     
                 virtual Tag tag(Pk) const = 0;
                 

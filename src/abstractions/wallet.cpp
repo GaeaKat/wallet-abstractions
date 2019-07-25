@@ -15,9 +15,9 @@ namespace abstractions {
         typename script,
         typename out, 
         typename point, 
-        typename tx,
-        typename machine>     
-    typename wallet<key, tag, script, out, point, tx, machine>::spent wallet<key, tag, script, out, point, tx, machine>::spend(list<data::map::entry<tag, satoshi>> to, satoshi fee) const {
+        typename tx>
+    typename wallet<key, tag, script, out, point, tx>::spent
+    wallet<key, tag, script, out, point, tx>::spend(list<data::map::entry<tag, satoshi>> to, satoshi fee) const {
         satoshi spent = fee + 
             data::reduce(
                 [](satoshi p, data::map::entry<tag, satoshi> e)->satoshi{

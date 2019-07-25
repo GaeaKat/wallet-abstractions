@@ -13,7 +13,7 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        struct pay_to_pubkey final : public pattern::abstract::standard<secret, pubkey, script, pubkey, transaction, machine> {
+        struct pay_to_pubkey final : public pattern::abstract::standard<secret, pubkey, script, pubkey, transaction> {
             
             pubkey tag(pubkey k) const final override {
                 return k;
@@ -23,7 +23,7 @@ namespace abstractions {
             
             list<pubkey> recognize(script s) const final override;
             
-            script redeem(satoshi amount, script s, transaction t, secret k) const final override;
+            script redeem(satoshi amount, script s, transaction t, index i, secret k) const final override;
         
         };
             

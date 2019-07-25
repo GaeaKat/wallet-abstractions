@@ -67,8 +67,6 @@ namespace abstractions {
                 }
             public:
                 representation(transaction t) : parent::representation{t}, OpReturn{get_op_return_data()} {};
-                
-                friend struct transaction;
             };
             
             transaction& operator=(transaction);
@@ -87,19 +85,13 @@ namespace abstractions {
             transaction(vector<input> i, vector<output> o, op_return d) : transaction{representation{i, o, d}} {}
             
             txid id() const {
-                return sha512::hash(static_cast<bytes&>(*this));
+                return hash512(static_cast<bytes&>(*this));
             }
             
         };
     
         signature sign(output, transaction, N, secret);
         
-    }
-    
-    namespace sha512 {
-        inline bitcoin::txid hash(const bitcoin::transaction& b) {
-            return data::sha512::hash(static_cast<bytes&>(b));
-        }
     }
 
 }

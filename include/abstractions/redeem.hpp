@@ -4,32 +4,37 @@
 #ifndef ABSTRACTIONS_REDEEM
 #define ABSTRACTIONS_REDEEM
 
-#include <abstractions/abstractions.hpp>
 #include <abstractions/pattern.hpp>
+#include <abstractions/transaction.hpp>
 
 namespace abstractions {
     
     // A vertex is simply a transaction without input scripts. 
     // In other words, it represents a transaction that can
     // be signed to generate input scripts. 
-    template <typename key, typename out, typename point>
+    template <typename key, typename script, typename txid>
     struct vertex {
+        using output = typename abstractions::output<script>::representation;
+        using outpoint = typename abstractions::outpoint<txid>::representation;
     
         struct spendable {
             key Key;
-            out Output;
-            point Point;
+            output Output;
+            outpoint Outpoint;
             
             bool valid() const {
-                return Key.valid() && Output.valid() && Point.valid();
+                return Key.valid() && Output.valid() && Outpoint.valid();
             }
+            
+            spendable() : Key{}, Output{}, Outpoint{} {}
+            spendable(key k, output o, outpoint p) : Key{k}, Output{o}, Outpoint{p} {}
         };
     
         list<spendable> Inputs;
-        list<out> Outputs;
+        list<output> Outputs;
         
-        vertex(list<spendable> i, list<out> o) : Inputs{i}, Outputs{o} {}
-        vertex(std::initializer_list<spendable>, std::initializer_list<out>);
+        vertex(list<spendable> i, list<output> o) : Inputs{i}, Outputs{o} {}
+        vertex(std::initializer_list<spendable>, std::initializer_list<output>);
         
         uint expected_size() const;
         
@@ -43,9 +48,8 @@ namespace abstractions {
         typename script,
         typename out, 
         typename point, 
-        typename tx,
-        typename machine>
-    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx, machine>&> patterns, vertex<key, out, point> v) noexcept;
+        typename tx>
+    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx>&> patterns, vertex<key, out, point> v) noexcept;
     
 }
 
