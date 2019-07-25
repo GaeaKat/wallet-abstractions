@@ -26,6 +26,7 @@ namespace abstractions::script {
         pointer<program> lock_by_pow(sha256::digest m, work::target t) {
             // The input that redeems this script will push a signature, a nonce, and a pubkey. 
             return sequence({
+                swap(),              // swap nonce and pubkey. 
                 to_alt(),            // move pubkey to alt stack
                 push(m),
                 push_zero_bytes(3),

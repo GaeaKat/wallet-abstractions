@@ -8,14 +8,15 @@
 #include <abstractions/work/work.hpp>
 #include <abstractions/crypto/hash/sha256.hpp>
 #include <abstractions/abstractions.hpp>
+#include <abstractions/wallet/keys.hpp>
 
 namespace abstractions::script {
     pointer<program> lock_by_pow(sha256::digest, work::target);
-    pointer<program> unlock_with_pow(bitcoin::signature&, uint64 nonce, bitcoin::pubkey&);
+    pointer<program> unlock_with_pow(bitcoin::signature&, bitcoin::pubkey&, uint64 nonce);
     
     struct pow_lock : public program {
         bytes Script;
-        work::candidate Candidate; 
+        work::order Order; 
         
         static bool valid(bytes& s);
         bool valid() const {
@@ -26,11 +27,34 @@ namespace abstractions::script {
         pow_lock() {}
         
     private :
-        pow_lock(bytes s, work::candidate c) : Script{s}, Candidate{c} {} 
+        pow_lock(bytes s, work::order o) : Script{s}, Order{c} {} 
     };
     
-    inline pointer<program> unlock_with_pow(bitcoin::signature& x, uint64 nonce, bitcoin::pubkey& p) {
-        return sequence({push(x), push(nonce), push(p)});
+    struct pow_key : public program {
+        bytes Script;
+        bitcoin::signature Signature;
+        bitcoin::pubkey Pubkey;
+        uint64 Nonce;
+        
+        static bool valid(bytes& s);
+        bool valid() const {
+            return valid(Script);
+        }
+        
+        pow_key(bytes& s);
+        pow_key() {}
+        
+    private :
+        pow_key(bytes b, 
+        bitcoin::signature s,
+        bitcoin::pubkey p,
+        uint64 n) : Script{b}, Signature{s}, Pubkey{p}, Nonce{n} {} 
+    };
+    
+    work::candidate unlock(pow_lock& l, pow_key& k);
+    
+    inline pointer<program> unlock_with_pow(bitcoin::signature& x, bitcoin::pubkey& p, uint64 nonce) {
+        return sequence({push(x), push(p), push(nonce)});
     }
     
 }
