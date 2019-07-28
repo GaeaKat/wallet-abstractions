@@ -6,19 +6,9 @@
 
 #include <abstractions/pattern.hpp>
 #include <abstractions/wallet/transaction.hpp>
-#include <abstractions/redeem.hpp>
+#include <abstractions/wallet/spendable.hpp>
 
 namespace abstractions::bitcoin::test {
-    using redeemer = abstractions::pattern::abstract::pattern<const secret&, const script, const transaction&>;
-    using pattern = abstractions::pattern::abstract::pattern<const secret&, const script, const transaction&>;
-    
-    struct spendable : public vertex<secret, output, outpoint>::spendable {
-        redeemer& Redeemer;
-        
-        script redeem(const transaction& t, index i) const {
-            return Redeemer.redeem(Output.Value, Output.ScriptPubKey, t, i, Key);
-        };
-    };
     
     struct test_step {
         secret Key;

@@ -45,7 +45,7 @@ namespace abstractions {
             
             pubkey& operator=(const pubkey& p);
             
-            explicit pubkey(string wif);
+            explicit pubkey(string hex);
             
             bitcoin::address address() const;
             string encode();
@@ -55,17 +55,9 @@ namespace abstractions {
         constexpr data::crypto::signature_scheme<secret, pubkey, const sha256::digest, signature> is_signature_scheme{};
     
         namespace wif {
+            // 52 characters base58, starts with a 'K' or 'L'
             bool read(const string&, secret&);
             string write(secret&);
-            bool read(const string&, pubkey&);
-            string write(pubkey&);
-        }
-        
-        namespace wif_compressed {
-            bool read(const string&, secret&);
-            string write(secret&);
-            bool read(const string&, pubkey&);
-            string write(pubkey&);
         }
         
         inline address address_hash(const pubkey& b) {

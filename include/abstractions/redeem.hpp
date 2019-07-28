@@ -16,6 +16,9 @@ namespace abstractions {
     struct vertex {
         using output = typename abstractions::output<script>::representation;
         using outpoint = typename abstractions::outpoint<txid>::representation;
+        
+        template <typename tx>
+        using redeemer = typename pattern::abstract::redeemer<key, script, tx>&;
     
         struct spendable {
             key Key;
@@ -28,13 +31,17 @@ namespace abstractions {
             
             spendable() : Key{}, Output{}, Outpoint{} {}
             spendable(key k, output o, outpoint p) : Key{k}, Output{o}, Outpoint{p} {}
+            
+            template <typename tx> 
+            script redeem(redeemer<tx> r, tx t, index i) const {
+                return r.redeem(Output.Value, Output.ScriptPubKey, t, i, Key);
+            }
         };
     
         list<spendable> Inputs;
         list<output> Outputs;
         
         vertex(list<spendable> i, list<output> o) : Inputs{i}, Outputs{o} {}
-        vertex(std::initializer_list<spendable>, std::initializer_list<output>);
         
         uint expected_size() const;
         

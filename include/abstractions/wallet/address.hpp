@@ -32,11 +32,11 @@ namespace abstractions {
             address(const secret&);
             explicit address(const string&);
             
-            string encode();
-
             string write();
-
-            string cashaddr();
+            
+            bool valid() const {
+                return operator!=(0);
+            }
         };
         
         namespace bitcoin_address {
@@ -60,14 +60,6 @@ namespace abstractions {
         inline address& address::operator=(const address& a) {
             parent::operator=(static_cast<const parent&>(a));
             return *this;
-        }
-            
-        inline string address::write() {
-            return bitcoin_address::write(*this);
-        }
-        
-        inline string address::cashaddr() {
-            return cashaddr::write(*this);
         }
         
         inline address::address(const string& s) {
