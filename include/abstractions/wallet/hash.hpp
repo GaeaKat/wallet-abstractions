@@ -5,6 +5,7 @@
 #define ABSTRACTIONS_WALLET_HASH
 
 #include <abstractions/crypto/hash/sha256.hpp>
+#include <abstractions/crypto/hash/sha512.hpp>
 
 namespace abstractions {
     
