@@ -38,19 +38,19 @@ namespace abstractions::script {
     pointer<program> check_signature(); 
     
     inline pointer<program> op(program::op o) {
-        return std::make_shared<program>(new program::op_code{o});
+        return std::make_shared<program::op_code>(o);
     }
     
     inline pointer<program> sequence(std::vector<pointer<program>> v) {
-        return std::make_shared<program>(new program::sequence{v});
+        return std::make_shared<program::sequence>(v);
     }
     
     inline pointer<program> push_data(bytes& b) {
-        return std::make_shared<program>(new program::push{b});
+        return std::make_shared<program::push>(b);
     }
     
     inline pointer<program> repeat(pointer<program> p, N n) {
-        return std::make_shared<program>(new program::repeated{n, p});
+        return std::make_shared<program::repeated>(n, p);
     }
     
     inline pointer<program> dup() {
