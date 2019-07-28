@@ -6,6 +6,7 @@
 
 #include <abstractions/abstractions.hpp>
 #include <abstractions/crypto/hash/sha256.hpp>
+#include <abstractions/wallet/keys.hpp>
 
 namespace abstractions::work {
     
@@ -27,17 +28,17 @@ namespace abstractions::work {
                 return e >= 3 && e <= 32 && v != 0;
             } (exponent(), value());
         }
-        
+
     private:
-        target() : Encoded{} {}
-        target(uint32 x) : Encoded{x} {}
+
         static uint32 encode(byte e, uint24 v) {
            if (e < 3 || e > 32 || v == 0 || v > 0x00ffffff) return 0;
            return (uint32(e) << 24) + v;
         }
         
     public:
-        
+        target() : Encoded{} {}
+        target(uint32 x) : Encoded{x} {}
         target(byte e, uint24 v) : Encoded{encode(e, v)} {}
         
         sha256::digest expand() const {
@@ -96,7 +97,7 @@ namespace abstractions::work {
         
         work::order order() const;
         
-        target target() const {
+        work::target target() const {
             return uint640::words_type::make(*this)[18];
         }
         
