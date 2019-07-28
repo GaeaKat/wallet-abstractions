@@ -27,7 +27,7 @@ namespace abstractions::script {
         pow_lock() {}
         
     private :
-        pow_lock(bytes s, work::order o) : Script{s}, Order{c} {} 
+        pow_lock(bytes s, work::order o) : Script{s}, Order{o} {} 
     };
     
     struct pow_key : public program {

@@ -127,7 +127,7 @@ namespace abstractions::work {
     inline message public_key(const bitcoin::pubkey& d) {
         message m{};
         message::words_type::make(m)[0] = 0;
-        std::copy(d.begin(), d.end(), m.at(3));
+        std::copy(d.begin(), d.end(), m.begin() + 3);
         return m;
     };
     
