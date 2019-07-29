@@ -9,17 +9,13 @@
 
 namespace abstractions::bitcoin {
 
-    using redeemer = abstractions::pattern::abstract::redeemer<const secret&, const script, const transaction&>;
-    using pattern = abstractions::pattern::abstract::pattern<const secret&, const script, const transaction&>;
+    using redeemer = abstractions::pattern::abstract::redeemer<const secret&, const script,
+        const abstractions::transaction<input, output>&>&;
+    using pattern = abstractions::pattern::abstract::pattern<const secret&, const script,
+        const abstractions::transaction<input, output>&>&;
     
-    struct spendable : public vertex<const secret&, const script, txid>::spendable {
-        using parent = vertex<const secret&, const script, txid>::spendable;
-        redeemer& Redeemer;
-        
-        script redeem(const transaction& t, index i) const {
-            return parent::redeem<const transaction&>(Redeemer, t, i);
-        };
-    };
+    using vertex = vertex<const secret&, const script, txid>;
+    using spendable = vertex::spendable;
     
 }
 

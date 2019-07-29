@@ -5,34 +5,13 @@
 #include <abstractions/transaction.hpp>
 
 namespace abstractions {
-    
-    template <
-        typename key,
-        typename tag,
-        typename script,
-        typename out, 
-        typename point, 
-        typename tx>
-    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx>&> patterns, vertex<key, out, point> v) noexcept {
-        using pattern = pattern::abstract::recognizable<key, script, tag, tx>&;
-        using vertex = vertex<key, out, point>;
-        using input = typename input<point, script>::representation;
-        
-        tx invalid{v.write()};
-        
-        list<input> inputs = {};
-        for(typename vertex::spendable s : v.Inputs) {
-            input in{};
-            for (pattern p : patterns) {
-                list<tag> tags = p.recognize(s.Output.script());
-                if (tags.empty()) continue;
-                in = p.redeem(s.Output, invalid, s.Key);
-            }
-            if (!in.Valid) return {};
-            inputs = inputs + in;
-        }
-        
-        return tx{inputs, v.Outputs};
-    };
+    template <typename key, typename script, typename txid>
+    typename vertex<key, script, txid>::tx vertex<key, script, txid>::redeem() const {
+        tx incomplete = write(); 
+        uint size = Inputs.size();
+        vector<input> inputs{size};
+        for (index i = 0; i < size; i++) inputs[i] = Inputs[i].redeem(incomplete, i);
+        return tx::representation{inputs, Outputs};
+    }
     
 }

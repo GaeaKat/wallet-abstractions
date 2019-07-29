@@ -33,7 +33,7 @@ namespace abstractions {
             explicit secret(string wif);
             
             bitcoin::address address() const;
-            string encode();
+            string write();
         };
         
         struct pubkey : public data::secp256k1::pubkey, public tag {
@@ -48,7 +48,7 @@ namespace abstractions {
             explicit pubkey(string hex);
             
             bitcoin::address address() const;
-            string encode();
+            string write();
         };
         
         constexpr data::math::module<pubkey, secret> is_module{};

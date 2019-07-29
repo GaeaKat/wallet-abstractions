@@ -7,7 +7,7 @@
 #include "stage_2.hpp"
 #include <abstractions/work/work.hpp>
 
-namespace abstractions::bitcoin::test {
+namespace abstractions::bitcoin::cosmos::test {
     struct lock_pow final : public pattern {
         work::order Order;
         
@@ -15,7 +15,7 @@ namespace abstractions::bitcoin::test {
         const script pay(const secret&) const final override;
         
         // make a script signature.
-        const script redeem(satoshi, const script, const transaction&, index, const secret&) const final override;
+        const script redeem(satoshi, const script, const abstractions::transaction<input, output>&, index, const secret&) const final override;
     };
     
 }

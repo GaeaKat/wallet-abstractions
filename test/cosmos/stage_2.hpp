@@ -7,15 +7,24 @@
 #include <abstractions/pattern.hpp>
 #include <abstractions/wallet/transaction.hpp>
 #include <abstractions/wallet/spendable.hpp>
+#include "stage_1.hpp"
 
-namespace abstractions::bitcoin::test {
+namespace abstractions::bitcoin::cosmos::test {
     
-    struct test_step {
+    struct step {
         secret Key;
         pattern& Pattern;
     };
     
-    spendable tx_test(spendable input, test_step next); // TODO
+    satoshi expected_cost(vertex v);
+    
+    bool valid_scripts(vector<spendable> prevout, const transaction& tx);
+    
+    bool reasonable_fee(const transaction& tx); 
+    
+    bool test_tx(vector<spendable> prevout, const transaction& tx);
+    
+    spendable round(spendable spend, step next);
     
 }
 

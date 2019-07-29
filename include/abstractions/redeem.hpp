@@ -9,54 +9,50 @@
 
 namespace abstractions {
     
-    // A vertex is simply a transaction without input scripts. 
-    // In other words, it represents a transaction that can
-    // be signed to generate input scripts. 
+    // vertex is used to construct Bitcoin transactions.     
     template <typename key, typename script, typename txid>
     struct vertex {
         using output = typename abstractions::output<script>::representation;
         using outpoint = typename abstractions::outpoint<txid>::representation;
-        
-        template <typename tx>
+        using input = typename input<txid, script>::representation;
+        using tx = const transaction<input, output>&;
         using redeemer = typename pattern::abstract::redeemer<key, script, tx>&;
     
         struct spendable {
             key Key;
             output Output;
             outpoint Outpoint;
+            redeemer Redeemer;
             
             bool valid() const {
                 return Key.valid() && Output.valid() && Outpoint.valid();
             }
             
             spendable() : Key{}, Output{}, Outpoint{} {}
-            spendable(key k, output o, outpoint p) : Key{k}, Output{o}, Outpoint{p} {}
+            spendable(key k, output o, outpoint p, redeemer r) : Key{k}, Output{o}, Outpoint{p}, Redeemer{r} {}
             
-            template <typename tx> 
-            script redeem(redeemer<tx> r, tx t, index i) const {
-                return r.redeem(Output.Value, Output.ScriptPubKey, t, i, Key);
+            input redeem(tx t, index i) const {
+                return input{Outpoint, Redeemer.redeem(Output.value(), Output.script(), t, i, Key)};
             }
         };
     
-        list<spendable> Inputs;
-        list<output> Outputs;
+        vector<spendable> Inputs;
+        vector<output> Outputs;
         
-        vertex(list<spendable> i, list<output> o) : Inputs{i}, Outputs{o} {}
+        vertex(vector<spendable> i, vector<output> o) : Inputs{i}, Outputs{o} {}
         
         uint expected_size() const;
+        satoshi redeemed() const;
+        satoshi spent() const ;
         
-        bytes write() const;
+        satoshi fee() const {
+            return [](satoshi r, satoshi s)->satoshi{if (s > r) return 0; return r - s;}(redeemed(), spent());
+        }
         
+        tx redeem() const;
+    private:
+        tx write() const;
     };
-    
-    template <
-        typename key,
-        typename tag,
-        typename script,
-        typename out, 
-        typename point, 
-        typename tx>
-    tx redeem(list<pattern::abstract::recognizable<key, script, tag, tx>&> patterns, vertex<key, out, point> v) noexcept;
     
 }
 
