@@ -5,7 +5,6 @@
 #define ABSTRACTIONS_WALLET_ADDRESS
 
 #include <abstractions/crypto/hash/ripemd160.hpp>
-#include <data/crypto/secp256k1.hpp>
 #include <abstractions/abstractions.hpp>
 #include "tag.hpp"
 
@@ -16,8 +15,8 @@ namespace abstractions {
         struct pubkey;
         struct secret;
         
-        struct address : public ::data::ripemd160::digest, public tag {
-            using parent = ::data::ripemd160::digest;
+        struct address : public ripemd160::digest, public tag {
+            using parent = ripemd160::digest;
             using parent::digest;
             
             bool operator==(const address& a) const;
@@ -40,12 +39,12 @@ namespace abstractions {
         };
         
         namespace bitcoin_address {
-            bool read(const string&, ::data::ripemd160::digest&);
+            bool read(const string&, ripemd160::digest&);
             string write(const address&);
         }
         
         namespace cashaddr {
-            bool read(const string&, ::data::ripemd160::digest&);
+            bool read(const string&, ripemd160::digest&);
             string write(const address&);
         }
         
@@ -63,9 +62,9 @@ namespace abstractions {
         }
         
         inline address::address(const string& s) {
-            bitcoin_address::read(s, static_cast<data::ripemd160::digest&>(*this));
+            bitcoin_address::read(s, static_cast<ripemd160::digest&>(*this));
             if (valid()) return;
-            cashaddr::read(s, static_cast<data::ripemd160::digest&>(*this));
+            cashaddr::read(s, static_cast<ripemd160::digest&>(*this));
         }
     }
 }

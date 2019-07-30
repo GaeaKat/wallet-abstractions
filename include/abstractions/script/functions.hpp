@@ -15,6 +15,8 @@ namespace abstractions::script {
     pointer<program> push_data(hex);
     pointer<program> push(bitcoin::signature&);
     pointer<program> push(bitcoin::pubkey&);
+    pointer<program> push(secp256k1::uncompressed_pubkey&);
+    pointer<program> push(secp256k1::compressed_pubkey&);
     pointer<program> push(bitcoin::address&);
     pointer<program> push(sha256::digest&);
     pointer<program> push(uint64);

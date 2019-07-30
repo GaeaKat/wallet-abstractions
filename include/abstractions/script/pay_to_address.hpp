@@ -9,7 +9,7 @@
 
 namespace abstractions::script {
     pointer<program> pay_to(bitcoin::address&);
-    pointer<program> redeem_from_pay_to_address(bitcoin::signature, bitcoin::pubkey);
+    pointer<program> redeem_from_pay_to_address(bitcoin::signature&, bitcoin::pubkey&);
     
     struct pay_to_address : public program {
         bytes Script;
@@ -44,7 +44,7 @@ namespace abstractions::script {
         return sequence({dup(), address_hash(), push(a), equal_verify(), check_signature()});
     }
     
-    inline pointer<program> redeem_from_pay_to_address(bitcoin::signature x, bitcoin::pubkey p) {
+    inline pointer<program> redeem_from_pay_to_address(bitcoin::signature& x, bitcoin::pubkey p) {
         return sequence({push(x), push(p)});
     }
     

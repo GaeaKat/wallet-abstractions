@@ -4,7 +4,7 @@
 #ifndef ABSTRACTIONS_WALLET_KEYS
 #define ABSTRACTIONS_WALLET_KEYS
 
-#include <data/crypto/secp256k1.hpp>
+#include <abstractions/crypto/secp256k1.hpp>
 #include <abstractions/crypto/hash/sha256.hpp>
 #include <abstractions/crypto/hash/ripemd160.hpp>
 #include "tag.hpp"
@@ -17,11 +17,12 @@ namespace abstractions {
         
         struct pubkey;
         
-        using signature = data::secp256k1::signature;
+        using signature = secp256k1::signature;
         
-        struct secret : public data::secp256k1::secret {
-            using parent = data::secp256k1::secret;
+        struct secret : public secp256k1::compressed_secret {
+            using parent = secp256k1::compressed_secret;
             using parent::secret;
+            using pubkey = bitcoin::pubkey;
             
             pubkey to_public() const;
             
@@ -36,9 +37,10 @@ namespace abstractions {
             string write();
         };
         
-        struct pubkey : public data::secp256k1::pubkey, public tag {
-            using parent = data::secp256k1::pubkey;
+        struct pubkey : public secp256k1::compressed_pubkey, public tag {
+            using parent = secp256k1::compressed_pubkey;
             using parent::pubkey;
+            using secret = bitcoin::secret;
             
             pubkey operator+(const pubkey&) const;
             pubkey operator*(const secret&) const;
@@ -58,11 +60,6 @@ namespace abstractions {
             // 52 characters base58, starts with a 'K' or 'L'
             bool read(const string&, secret&);
             string write(secret&);
-        }
-        
-        inline address address_hash(const pubkey& b) {
-            return ripemd160::hash<data::secp256k1::pubkey_size>(
-                static_cast<const std::array<byte, data::secp256k1::pubkey_size>&>(b));
         }
         
         inline pubkey secret::to_public() const {
@@ -96,11 +93,11 @@ namespace abstractions {
         }
         
         inline bitcoin::address pubkey::address() const {
-            return address_hash(*this);
+            return secp256k1::address(*this);
         };
         
         inline bitcoin::address secret::address() const {
-            return to_public().address();
+            return secp256k1::address(*this);
         };
         
     }
