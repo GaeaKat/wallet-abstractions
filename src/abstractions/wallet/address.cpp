@@ -15,30 +15,28 @@ namespace abstractions {
         address::address(const secret& s) : address{s.address()} {};
         
         namespace bitcoin_address {
-            bool read(const string& base58, ::data::ripemd160::digest& d) {
+            address read(const string& base58) {
                 libbitcoin::system::wallet::payment_address addr{base58};
-                if (!addr) return false;
-                d = libbitcoin::system::short_hash{addr};
-                return true;
+                if (!addr) return {};
+                return {address::digest{data::uint<data::ripemd160::size>{libbitcoin::system::short_hash{addr}}}};
             }
             
             string write(const address& a) {
-                return libbitcoin::system::wallet::payment_address{a}.encoded();
+                return libbitcoin::system::wallet::payment_address{(const std::array<byte, 20>&)(a)}.encoded();
             }
         }
         
         namespace cashaddr {
             string prefix = "prefix";
-            bool read(const string& s, ::data::ripemd160::digest& d) {
+            address read(const string& s) {
                 auto p = abc::cashaddr::Decode(s, prefix);
-                if (p.first == "") return false;
-                d = ::data::ripemd160::digest{p.second};
-                return true;
+                if (p.first == "") return {};
+                return {address::digest{data::uint<data::ripemd160::size>{p.second}}};
             }
             
-            string write(const address& a) {
+            string write(const address a) {
                 std::vector<byte> v{20};
-                std::copy(a.begin(), a.end(), v.begin());
+                std::copy(a.Digest.Digest.begin(), a.Digest.Digest.end(), v.begin());
                 return abc::cashaddr::Encode("", v);
             }
         }

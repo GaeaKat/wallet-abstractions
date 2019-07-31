@@ -46,9 +46,9 @@ namespace abstractions::timechain::transaction {
     }
     
     template <typename tx, typename index>
-    inline Z fee(index b, tx t) {
-        Z redeemed = redeemed(b, t);
-        if (redeemed == Z{}) return Z{};
+    inline int32 fee(index b, tx t) {
+        int32 redeemed = redeemed(b, t);
+        if (redeemed == 0) return 0;
         return redeemed - spent(t);
     }
 

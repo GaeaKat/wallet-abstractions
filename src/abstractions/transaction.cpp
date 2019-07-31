@@ -2,6 +2,7 @@
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #include <abstractions/transaction.hpp>
+#include <data/encoding/words.hpp>
 
 namespace abstractions {
     
@@ -19,7 +20,7 @@ namespace abstractions {
         reader(std::vector<byte>& v) : slice_reader{v, boost::endian::order::little} {}
         
         void operator>>(uint256& d) {
-            for (uint32& x : data::math::number::bounded::words(d)) operator>>(x);
+            for (uint32& x : d.words()) operator>>(x);
         }
 
     }; 
@@ -30,7 +31,7 @@ namespace abstractions {
         writer(std::vector<byte>& v) : slice_writer{v, boost::endian::order::little} {}
         
         void operator<<(uint256& d) {
-            for (uint32 x : data::math::number::bounded::words(d)) operator<<(x);
+            for (uint32 x : d.words()) operator<<(x);
         }
     }; 
     

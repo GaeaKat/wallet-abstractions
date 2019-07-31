@@ -14,14 +14,17 @@ namespace abstractions {
         
         using output = typename abstractions::output<script>::representation;
         
-        struct op_return : public output {
-            op_return() : output{} {}
-            op_return(output o) : output{o} {}
-            op_return(op_return& o) : output{static_cast<output&>(o)} {}
+        struct op_return {
+            const output* Output;
+            
+            op_return() : Output{} {}
+            op_return(const output* const o) : Output{o} {}
+            op_return(const op_return& o) : Output{o.Output} {}
             op_return(bytes data);
-            bool valid() const {
-                return output::valid() && output::ScriptPubKey.size() > 0 && ScriptPubKey[0] == abstractions::script::program::OP_RETURN;
-            }
+            
+            static bool valid_old(const output& o);
+            
+            static bool valid(const output&);
         };
 
     }

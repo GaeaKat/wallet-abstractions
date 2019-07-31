@@ -10,27 +10,27 @@
 
 namespace abstractions::script {
     pointer<program> op(program::op);
-    pointer<program> sequence(std::vector<pointer<program>>);
-    pointer<program> push_data(bytes&);
+    pointer<program> sequence(vector<pointer<program>>);
+    pointer<program> push_data(const bytes&);
     pointer<program> push_data(hex);
-    pointer<program> push(bitcoin::signature&);
-    pointer<program> push(bitcoin::pubkey&);
-    pointer<program> push(secp256k1::uncompressed_pubkey&);
-    pointer<program> push(secp256k1::compressed_pubkey&);
-    pointer<program> push(bitcoin::address&);
-    pointer<program> push(sha256::digest&);
+    pointer<program> push(const bitcoin::signature&);
+    pointer<program> push(const bitcoin::pubkey&);
+    pointer<program> push(const secp256k1::uncompressed_pubkey&);
+    pointer<program> push(const secp256k1::compressed_pubkey&);
+    pointer<program> push(const bitcoin::address&);
+    pointer<program> push(const sha256::digest&);
     pointer<program> push(uint64);
-    pointer<program> push(N);
+    pointer<program> push(uint32);
     pointer<program> noop();
-    pointer<program> repeat(pointer<program>, N);
+    pointer<program> repeat(pointer<program>, uint32);
     pointer<program> dup();
     pointer<program> swap();
     pointer<program> to_alt();
     pointer<program> from_alt();
-    pointer<program> cat(N);
-    pointer<program> concat(N);
-    pointer<program> rotate_bytes_left(N);
-    pointer<program> split(N);
+    pointer<program> cat(uint32);
+    pointer<program> concat(uint32);
+    pointer<program> rotate_bytes_left(uint32);
+    pointer<program> split(uint32);
     pointer<program> equal();
     pointer<program> verify();
     pointer<program> equal_verify();
@@ -43,7 +43,7 @@ namespace abstractions::script {
         return std::make_shared<program::op_code>(o);
     }
     
-    inline pointer<program> sequence(std::vector<pointer<program>> v) {
+    inline pointer<program> sequence(vector<pointer<program>> v) {
         return std::make_shared<program::sequence>(v);
     }
     
@@ -51,7 +51,7 @@ namespace abstractions::script {
         return std::make_shared<program::push>(b);
     }
     
-    inline pointer<program> repeat(pointer<program> p, N n) {
+    inline pointer<program> repeat(pointer<program> p, uint32 n) {
         return std::make_shared<program::repeated>(n, p);
     }
     
@@ -71,15 +71,15 @@ namespace abstractions::script {
         return op(program::OP_CAT);
     }
     
-    inline pointer<program> concat(N n) {
+    inline pointer<program> concat(uint32 n) {
         return repeat(cat(), n - 1);
     }
     
-    inline pointer<program> rotate_bytes_left(N n) {
+    inline pointer<program> rotate_bytes_left(uint32 n) {
         return sequence({split(n), cat()});
     }
     
-    inline pointer<program> split(N n) {
+    inline pointer<program> split(uint32 n) {
         return sequence({push(n), op(program::OP_SPLIT)});
     }
     

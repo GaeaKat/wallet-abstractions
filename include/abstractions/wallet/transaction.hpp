@@ -50,23 +50,24 @@ namespace abstractions {
                 
             private:
                 static bool is_op_return(output o);
-                op_return get_op_return_data() {
+                op_return get_op_return_data(); /* {
                     if (!Outputs.empty()) {
-                        op_return o{Outputs[0]};
+                        op_return o{&Outputs.first()};
                         if (o.valid()) {
                             Outputs = Outputs.rest();
                             return o;
                         }
                     }
                     return {};
-                } 
+                } */
                 
                 parent::representation deconvert() const {
-                    if (OpReturn.valid()) return parent::representation{Inputs, Outputs.prepend(OpReturn), Locktime};
                     return *this;
                 }
             public:
                 representation(transaction t) : parent::representation{t}, OpReturn{get_op_return_data()} {};
+                
+                friend struct transaction;
             };
             
             transaction& operator=(transaction);
@@ -90,7 +91,7 @@ namespace abstractions {
             
         };
     
-        signature sign(output, transaction, N, secret);
+        signature sign(output, const transaction&, uint32, secret);
         
     }
 

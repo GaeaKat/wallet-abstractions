@@ -9,9 +9,9 @@
 #include <abstractions/crypto/secp256k1.hpp>
 
 namespace abstractions::script {
-    pointer<program> pay_to(secp256k1::compressed_pubkey&);
-    pointer<program> pay_to(secp256k1::uncompressed_pubkey&);
-    pointer<program> redeem_from_pay_to_pubkey(bitcoin::signature&);
+    pointer<program> pay_to(const secp256k1::compressed_pubkey&);
+    pointer<program> pay_to(const secp256k1::uncompressed_pubkey&);
+    pointer<program> redeem_from_pay_to_pubkey(const bitcoin::signature&);
     
     template <typename pubkey>
     struct pay_to_pubkey : public program {
@@ -30,7 +30,7 @@ namespace abstractions::script {
             return Pubkey;
         }
         
-        N length() const final override {
+        uint32 length() const final override {
             return Script.size();
         }
         
@@ -43,15 +43,15 @@ namespace abstractions::script {
         
     };
     
-    inline pointer<program> pay_to(secp256k1::compressed_pubkey& p) {
+    inline pointer<program> pay_to(const secp256k1::compressed_pubkey& p) {
         return sequence({push(p), check_signature()});
     }
     
-    inline pointer<program> pay_to(secp256k1::uncompressed_pubkey& p) {
+    inline pointer<program> pay_to(const secp256k1::uncompressed_pubkey& p) {
         return sequence({push(p), check_signature()});
     }
     
-    inline pointer<program> redeem_from_pay_to_address(bitcoin::signature& x) {
+    inline pointer<program> redeem_from_pay_to_address(const bitcoin::signature& x) {
         return sequence({push(x)});
     }
     

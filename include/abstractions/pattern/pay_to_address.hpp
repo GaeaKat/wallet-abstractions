@@ -8,34 +8,31 @@
 #include <abstractions/pattern.hpp>
 #include <abstractions/script/pay_to_address.hpp>
 
-namespace abstractions {
+namespace abstractions::pattern {
+        
+    template <typename secret, typename pubkey, typename address, typename tx>
+    struct pay_to_address final : public pattern::abstract::standard<secret, pubkey, bytes, address, tx> {
+        using script = bytes;
+        
+        address tag(pubkey k) const final override {
+            return k.address();
+        }
+        
+        script pay(address a) const final override {
+            return abstractions::script::pay_to(a)->compile();
+        }
+        
+        list<address> recognize(script s) const final override {
+            return {abstractions::script::pay_to_address::to(s)};
+        }
+        
+        script redeem(satoshi amount, script script_pubkey, tx t, index i, secret k) const final override {
+            return abstractions::script::redeem_from_pay_to_address(
+                bitcoin::sign(bitcoin::output{amount, script_pubkey}, t, i, k), k.to_public())->compile();
+        }
+        
+    };
     
-    namespace pattern {
-        
-        template <typename secret, typename pubkey, typename address>
-        struct pay_to_address final : public pattern::abstract::standard<secret, pubkey, bytes, address, bytes&> {
-            using script = bytes;
-            using tx = bytes&;
-            
-            address tag(pubkey k) const final override {
-                return k.address();
-            }
-            
-            script pay(address a) const final override {
-                return abstractions::script::pay_to(a)->compile();
-            }
-            
-            list<address> recognize(script s) const final override {
-                return {abstractions::script::pay_to_address::to(s)};
-            }
-            
-            script redeem(satoshi amount, script script_pubkey, tx t, index i, secret k) const final override {
-                return abstractions::script::redeem_from_pay_to_address(bitcoin::sign(bitcoin::output{amount, script_pubkey}, t, i, k), k.to_public())->compile();
-            }
-        
-        };
-            
-    }
 }
 
 #endif

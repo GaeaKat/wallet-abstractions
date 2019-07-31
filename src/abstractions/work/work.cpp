@@ -5,10 +5,6 @@
 
 namespace abstractions::work {
     
-    work::order candidate::order() const {
-        throw 0;
-    }
-    
     // roughly 1/16 odds. 
     const target minimum{32, 0x000fffff};
     
@@ -16,7 +12,7 @@ namespace abstractions::work {
         if (o.Target < minimum) return {};
         uint64 nonce = 0;
         while (true) {
-            candidate c{data::lesser(nonce), o, data::greater(nonce)};
+            candidate c{data::endian::halves<uint32, uint64, boost::endian::order::little>::lesser(nonce), o, data::endian::halves<uint32, uint64, boost::endian::order::little>::greater(nonce)};
             if (c.satisfied()) return c;
             nonce++;
         }

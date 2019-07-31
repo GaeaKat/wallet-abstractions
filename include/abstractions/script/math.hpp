@@ -10,7 +10,7 @@ namespace abstractions {
     
     namespace script {
         
-        pointer<program> subtract_32(N);
+        pointer<program> subtract_32(uint32);
         
         pointer<program> less_32();
         pointer<program> greater_32();
@@ -32,7 +32,7 @@ namespace abstractions {
         pointer<program> less_equal_256_verify();
         pointer<program> greater_equal_256_verify();
         
-        inline pointer<program> subtract_32(N n) {
+        inline pointer<program> subtract_32(uint32 n) {
             return sequence({push(n), op(program::OP_SUB)});
         }
         

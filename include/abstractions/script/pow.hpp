@@ -53,7 +53,7 @@ namespace abstractions::script {
     
     work::candidate unlock(pow_lock& l, pow_key& k);
     
-    inline pointer<program> unlock_with_pow(bitcoin::signature& x, bitcoin::pubkey& p, uint64 nonce) {
+    inline pointer<program> unlock_with_pow(const bitcoin::signature& x, const bitcoin::pubkey& p, uint64 nonce) {
         return sequence({push(x), push(p), push(nonce)});
     }
     

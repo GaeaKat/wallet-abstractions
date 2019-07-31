@@ -18,8 +18,8 @@ namespace abstractions::script {
     }
     
     pointer<program> push(bitcoin::address& y) {
-        std::vector<byte> x{static_cast<unsigned char>(y.size())};
-        std::copy(y.begin(), y.end(), x.begin());
+        std::vector<byte> x{bitcoin::address::digest::size};
+        std::copy(y.Digest.Digest.begin(), y.Digest.Digest.end(), x.begin());
         return push_data(x);
     }
 }

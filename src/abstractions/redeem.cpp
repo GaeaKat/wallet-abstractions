@@ -7,11 +7,12 @@
 namespace abstractions {
     template <typename key, typename script, typename txid>
     typename vertex<key, script, txid>::tx vertex<key, script, txid>::redeem() const {
+        using tx = vertex<key, script, txid>::tx;
         tx incomplete = write(); 
         uint size = Inputs.size();
         vector<input> inputs{size};
         for (index i = 0; i < size; i++) inputs[i] = Inputs[i].redeem(incomplete, i);
-        return tx::representation{inputs, Outputs};
+        return tx{inputs, Outputs};
     }
     
 }

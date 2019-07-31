@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include <satoshi_sv/src/compat/endian.h>
+//#include <satoshi_sv/src/compat/endian.h>
 
 static inline uint16_t ReadLE16(const uint8_t *ptr) {
     uint16_t x;

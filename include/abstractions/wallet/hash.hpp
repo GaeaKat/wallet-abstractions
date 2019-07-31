@@ -14,7 +14,7 @@ namespace abstractions {
             return sha256::double_hash(b);
         }
         
-        template <N n>
+        template <uint32 n>
         inline sha256::digest hash256(const std::array<byte, n>& b) {
             return sha256::double_hash(b);
         }
@@ -23,7 +23,7 @@ namespace abstractions {
             return sha512::double_hash(b);
         }
         
-        template <N n>
+        template <uint32 n>
         inline sha512::digest hash512(const std::array<byte, n>& b) {
             return sha512::double_hash(b);
         }

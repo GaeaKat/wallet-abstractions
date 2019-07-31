@@ -28,7 +28,7 @@ namespace abstractions::sv {
         sv_machine(const CTransaction& tx, index i, satoshi amount) : Checker{&tx, i, sv::Amount{amount}}, Flags{verify_all} {}
         
         bool run(const CScript& output, const CScript& input) const {
-            sv::VerifyScript(input, output, Flags, Checker);
+            return sv::VerifyScript(input, output, Flags, Checker);
         }
         
     };

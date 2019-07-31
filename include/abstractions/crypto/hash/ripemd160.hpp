@@ -16,7 +16,7 @@ namespace abstractions {
             return data::ripemd160::hash(b);
         }
         
-        template <N n>
+        template <uint32 n>
         inline digest hash(const std::array<byte, n>& b) {
             return data::ripemd160::hash<n>(b);
         }

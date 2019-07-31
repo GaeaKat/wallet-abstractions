@@ -30,7 +30,6 @@ namespace abstractions::work {
         }
 
     private:
-
         static uint32 encode(byte e, uint24 v) {
            if (e < 3 || e > 32 || v == 0 || v > 0x00ffffff) return 0;
            return (uint32(e) << 24) + v;
@@ -42,7 +41,7 @@ namespace abstractions::work {
         target(byte e, uint24 v) : Encoded{encode(e, v)} {}
         
         sha256::digest expand() const {
-            return uint256{value()} << ((exponent() - 3) * 8);
+            return data::math::number::bounded::uint<sha256::digest::size>{uint32(value())} << ((exponent() - 3) * 8);
         }
         
         operator uint32() const {
@@ -52,6 +51,14 @@ namespace abstractions::work {
         operator sha256::digest() const {
             return expand();
         }
+        
+        bool operator==(target t) const {
+            return expand() == t.expand();
+        } 
+        
+        bool operator!=(target t) const {
+            return expand() != t.expand();
+        } 
         
         bool operator<(target t) const {
             return expand() < t.expand();
@@ -73,7 +80,7 @@ namespace abstractions::work {
     const target easy{32, 0x00ffffff}; 
     const target hard{3, 0x00000001};
         
-    const N message_size = 36;
+    const uint32 message_size = 36;
     using message = data::math::number::bounded::uint<9>;
     
     struct order {
@@ -89,20 +96,19 @@ namespace abstractions::work {
         order() : Reference{}, Message{}, Target{} {}
     };
     
-    struct candidate : data::math::number::bounded::uint<20> {
-        using uint640 = data::math::number::bounded::uint<20>;
+    struct candidate : data::uint<80> {
         uint32 version() const {
-            return uint640::words_type::make(*this)[0];
+            return words()[0];
         }
         
         work::order order() const;
         
         work::target target() const {
-            return uint640::words_type::make(*this)[18];
+            return words()[18];
         }
         
         uint32 nonce() const {
-            return uint640::words_type::make(*this)[19];
+            return words()[19];
         }
         
         bool valid() const {
@@ -110,23 +116,23 @@ namespace abstractions::work {
         };
         
         candidate(uint32 version, struct order o, uint32 nonce);
-        candidate() : uint640{} {}
+        candidate() : data::uint<80>{} {}
         
         bool satisfied() const {
-            return sha256::hash<80>(*this) < target().expand();
+            return sha256::hash<80>(static_cast<const data::uint<80>&>(*this)) < target().expand();
         }
     };
     
     inline message bitcoin_header(const sha256::digest& d, uint32 timestamp) {
         message m{};
-        std::copy(d.begin(), d.end(), m.begin());
-        message::words_type::make(m)[8] = timestamp;
+        std::copy(d.Digest.begin(), d.Digest.end(), m.begin());
+        m.words().set(8, timestamp);
         return m;
     };
     
     inline message public_key(const bitcoin::pubkey& d) {
         message m{};
-        message::words_type::make(m)[0] = 0;
+        m.words().set(0, 0);
         std::copy(d.begin(), d.end(), m.begin() + 3);
         return m;
     };

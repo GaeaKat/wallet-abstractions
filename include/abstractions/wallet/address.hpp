@@ -15,56 +15,62 @@ namespace abstractions {
         struct pubkey;
         struct secret;
         
-        struct address : public ripemd160::digest, public tag {
-            using parent = ripemd160::digest;
-            using parent::digest;
+        struct address : public tag {
+            using digest = ripemd160::digest;
+            digest Digest;
             
-            bool operator==(const address& a) const;
-            bool operator!=(const address& a) const;
+            bool operator==(const address& a) const {
+                return Digest == a.Digest;
+            }
+            
+            bool operator!=(const address& a) const {
+                return Digest != a.Digest;
+            }
             
             address& operator=(const address& a);
             
-            address(const address& a) : parent{static_cast<const parent&>(a)} {}
-            address(address&& a) : parent{static_cast<parent&&>(a)} {}
-            address(const parent& p) : parent{p} {}
+            address();
+            address(uint32);
+            address(const address& a) : Digest{a.Digest} {}
+            
+            address(address&& a) : Digest{a.Digest} {
+                a = {};
+            }
+            
+            address(const digest& d) : Digest{d} {}
             address(const pubkey&);
             address(const secret&);
-            explicit address(const string&);
+            
+            static address read(const string);
+            
+            explicit address(const string s) : address{read(s)} {}
             
             string write();
             
             bool valid() const {
-                return operator!=(0);
+                return Digest.valid();
             }
         };
         
         namespace bitcoin_address {
-            bool read(const string&, ripemd160::digest&);
-            string write(const address&);
+            address read(const string s);
+            string write(const address);
         }
         
         namespace cashaddr {
-            bool read(const string&, ripemd160::digest&);
-            string write(const address&);
-        }
-        
-        inline bool address::operator==(const address& a) const {
-            return parent::operator==(static_cast<const parent&>(a));
-        }
-        
-        inline bool address::operator!=(const address& a) const {
-            return parent::operator!=(static_cast<const parent&>(a));
+            address read(const string s);
+            string write(const address);
         }
         
         inline address& address::operator=(const address& a) {
-            parent::operator=(static_cast<const parent&>(a));
+            Digest = a.Digest;
             return *this;
         }
         
-        inline address::address(const string& s) {
-            bitcoin_address::read(s, static_cast<ripemd160::digest&>(*this));
-            if (valid()) return;
-            cashaddr::read(s, static_cast<ripemd160::digest&>(*this));
+        address address::read(const string s) {
+            address a = bitcoin_address::read(s);
+            if (a.valid()) return a;
+            return cashaddr::read(s);
         }
     }
 }

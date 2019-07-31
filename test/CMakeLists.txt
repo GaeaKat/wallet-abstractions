@@ -6,5 +6,5 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 
-ADD_EXECUTABLE(testAbstractions  testLib.cpp )
+ADD_EXECUTABLE(testAbstractions  testLib.cpp cosmos/stage_1.cpp)
 target_link_libraries(testAbstractions wallet-abstractions ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} gmock_main)

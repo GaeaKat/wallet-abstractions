@@ -12,7 +12,7 @@ namespace abstractions::timechain::transaction {
         for (point p : outpoints(t)) {
             out prevout = b(p);
             
-            if (prevout == out{}) return aleph_0;
+            if (prevout == out{}) return 0;
                 
             r += timechain::output::value(prevout);
         }

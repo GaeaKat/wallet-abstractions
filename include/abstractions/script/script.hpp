@@ -8,11 +8,11 @@
 #define ABSTRACTIONS_SCRIPT_SCRIPT
 
 #include <abstractions/abstractions.hpp>
-#include <data/fold.hpp>
+//#include <data/fold.hpp>
 
 namespace abstractions::script {
     struct program {
-        virtual N length() const = 0;
+        virtual uint32 length() const = 0;
         virtual void write(ostream&) const = 0;
         bytes compile() const;
         
@@ -263,7 +263,7 @@ namespace abstractions::script {
     struct program::noop : public program {
         void write(ostream&) const final override {}
         
-        N length() const final override {
+        uint32 length() const final override {
             return 0;
         }
         
@@ -274,7 +274,7 @@ namespace abstractions::script {
         bytes Data;
         
         void write(ostream& o) const final override {
-            N size = Data.size();
+            uint32 size = Data.size();
             if (size == 0 || (size == 1 && Data[0] == 0)) {
                 o << program::OP_0;
                 return;
@@ -301,8 +301,8 @@ namespace abstractions::script {
             o << Data;
         }
         
-        N length() const final override {
-            N size = Data.size();
+        uint32 length() const final override {
+            uint32 size = Data.size();
             if (size == 0 || (size == 1 && Data[0] <= 16)) return 1;
             if (size > 0xffff) return size + 5;
             if (size > 0xff) return size + 3;
@@ -319,7 +319,7 @@ namespace abstractions::script {
             o << byte(OpCode);
         }
         
-        N length() const final override {
+        uint32 length() const final override {
             return 1;
         }
         
@@ -332,36 +332,42 @@ namespace abstractions::script {
             for (op code: String) o << byte(code);
         }
         
-        N length() const final override {
+        uint32 length() const final override {
             return String.size();
         }
         
         string(std::vector<op>& s) : String{s} {}
     };
         
-    struct program::sequence : public list<pointer<program>>, public program {
-        using list<pointer<program>>::list;
+    struct program::sequence : public program {
+        vector<pointer<program>> List;
+        
+        sequence() : List{} {}
+        sequence(vector<pointer<program>> l) : List{l} {}
+        
         void write(ostream& o) const final override {
-            for (pointer<program> p : *this) p->write(o);
+            for (pointer<program> p : List) p->write(o);
         }
         
-        N length() const final override {
-            return data::fold([](uint len, pointer<program> p)->uint{return len + p->length();}, 0, *this);
+        uint32 length() const final override {
+            uint32 len = 0;
+            for (pointer<program> p : List) len += p->length();
+            return len;
         }
     };
     
     struct program::repeated : public program {
-        N Repetitions;
+        uint32 Repetitions;
         pointer<program> Repeated;
         void write(ostream& o) const final override {
             for (int i = 0; i < Repetitions; i++) Repeated->write(o);
         }
         
-        N length() const final override {
+        uint32 length() const final override {
             return Repetitions * Repeated->length();
         }
         
-        repeated(N n, pointer<program> r) : Repetitions{n}, Repeated{r} {}
+        repeated(uint32 n, pointer<program> r) : Repetitions{n}, Repeated{r} {}
     };
     
 }

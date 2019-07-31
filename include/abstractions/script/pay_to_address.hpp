@@ -8,8 +8,9 @@
 #include <abstractions/wallet/address.hpp>
 
 namespace abstractions::script {
-    pointer<program> pay_to(bitcoin::address&);
-    pointer<program> redeem_from_pay_to_address(bitcoin::signature&, bitcoin::pubkey&);
+    pointer<program> pay_to(const bitcoin::address&);
+    pointer<program> redeem_from_pay_to_address(const bitcoin::signature&, const secp256k1::compressed_pubkey&);
+    pointer<program> redeem_from_pay_to_address(const bitcoin::signature&, const secp256k1::uncompressed_pubkey&);
     
     struct pay_to_address : public program {
         bytes Script;
@@ -27,7 +28,7 @@ namespace abstractions::script {
             return Address;
         }
         
-        N length() const final override {
+        uint32 length() const final override {
             return Script.size();
         }
         
@@ -40,11 +41,15 @@ namespace abstractions::script {
         
     };
     
-    inline pointer<program> pay_to(bitcoin::address& a) {
+    inline pointer<program> pay_to(const bitcoin::address& a) {
         return sequence({dup(), address_hash(), push(a), equal_verify(), check_signature()});
     }
     
-    inline pointer<program> redeem_from_pay_to_address(bitcoin::signature& x, bitcoin::pubkey p) {
+    inline pointer<program> redeem_from_pay_to_address(const bitcoin::signature& x, const secp256k1::compressed_pubkey& p) {
+        return sequence({push(x), push(p)});
+    }
+    
+    inline pointer<program> redeem_from_pay_to_address(const bitcoin::signature& x, const secp256k1::uncompressed_pubkey& p) {
         return sequence({push(x), push(p)});
     }
     
