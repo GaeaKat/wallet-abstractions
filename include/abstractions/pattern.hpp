@@ -4,7 +4,7 @@
 #ifndef ABSTRACTIONS_PATTERN
 #define ABSTRACTIONS_PATTERN
 
-#include <data/crypto/keypair.hpp>
+#include <abstractions/crypto/address.hpp>
 #include <abstractions/transaction.hpp>
 
 namespace abstractions {

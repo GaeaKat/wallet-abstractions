@@ -7,7 +7,7 @@
 #include <abstractions/crypto/secp256k1.hpp>
 #include <abstractions/crypto/hash/sha256.hpp>
 #include <abstractions/crypto/hash/ripemd160.hpp>
-#include <data/crypto/to_public.hpp>
+#include <data/crypto/one_way.hpp>
 #include "tag.hpp"
 #include "hash.hpp"
 #include "address.hpp"
@@ -19,8 +19,8 @@ namespace abstractions::bitcoin {
     
     using signature = secp256k1::signature;
     
-    struct secret : public secp256k1::compressed_secret {
-        using parent = secp256k1::compressed_secret;
+    struct secret : public secp256k1::secret {
+        using parent = secp256k1::secret;
         using parent::secret;
         using pubkey = bitcoin::pubkey;
         
@@ -96,7 +96,7 @@ namespace data::crypto {
 
 namespace abstractions::bitcoin {
     inline pubkey secret::to_public() const {
-        return secret::parent::to_public();
+        return secret::parent::to_public_compressed();
     }
     
     inline secret secret::operator+(const secret& s) const {
@@ -130,7 +130,7 @@ namespace abstractions::bitcoin {
     };
     
     inline bitcoin::address secret::address() const {
-        return secp256k1::address(*this);
+        return secp256k1::address_compressed(*this);
     };
     
 } 

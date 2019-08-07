@@ -67,7 +67,7 @@ namespace abstractions {
             return *this;
         }
         
-        address address::read(const string s) {
+        inline address address::read(const string s) {
             address a = bitcoin_address::read(s);
             if (a.valid()) return a;
             return cashaddr::read(s);
