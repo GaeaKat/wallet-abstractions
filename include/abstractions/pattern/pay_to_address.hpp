@@ -14,11 +14,11 @@ namespace abstractions::pattern {
     struct pay_to_address final : public pattern::abstract::standard<secret, pubkey, bytes, address, tx> {
         using script = bytes;
         
-        address tag(pubkey k) const final override {
+        address tag(const pubkey& k) const final override {
             return k.address();
         }
         
-        script pay(address a) const final override {
+        script pay(const address& a) const final override {
             return abstractions::script::pay_to(a)->compile();
         }
         
@@ -26,7 +26,7 @@ namespace abstractions::pattern {
             return {abstractions::script::pay_to_address::to(s)};
         }
         
-        script redeem(satoshi amount, script script_pubkey, tx t, index i, secret k) const final override {
+        script redeem(satoshi amount, script script_pubkey, const tx& t, index i, const secret& k) const final override {
             return abstractions::script::redeem_from_pay_to_address(
                 bitcoin::sign(bitcoin::output{amount, script_pubkey}, t, i, k), k.to_public())->compile();
         }

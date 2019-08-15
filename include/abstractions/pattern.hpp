@@ -20,7 +20,7 @@ namespace abstractions {
             struct redeemer {
                 
                 // make a script signature.
-                virtual Script redeem(satoshi, Script, Tx, index, Key) const = 0;
+                virtual Script redeem(satoshi, Script, const Tx&, index, const Key&) const = 0;
                 
             };
         
@@ -31,16 +31,16 @@ namespace abstractions {
             struct pattern : public redeemer<Key, Script, Tx> {
                 
                 // make a script pubkey. 
-                virtual Script pay(Key) const = 0;
+                virtual Script pay(const Key&) const = 0;
                 
                 template <typename Machine>
-                void pattern_definition(Key k, Tx t, Machine i) const {
+                void pattern_definition(const Key& k, const Tx& t, Machine i) const {
                     assert(i.run(pay(k), redeem(k, t), t));
                 }
             };
         
             template <typename Key, typename Tag> struct tagged {
-                virtual Tag tag(Key) const = 0;
+                virtual Tag tag(const Key&) const = 0;
             };
         
             template <
@@ -54,7 +54,7 @@ namespace abstractions {
                 
                 virtual list<Tag> recognize(Script) const = 0;
                 
-                void recognizable_pattern_definition(Key k) const {
+                void recognizable_pattern_definition(const Key& k) const {
                     if (tagged<Key, Tag>::tag(k) != recognize(pattern<Key, Script, Tx>::pay(k))) throw 0;
                 }
                 
@@ -69,9 +69,9 @@ namespace abstractions {
                 public virtual pattern<Key, Script, Tx>, 
                 public virtual tagged<Key, Tag> {
                 
-                virtual Script pay(Tag) const = 0;
+                virtual Script pay(const Tag&) const = 0;
                 
-                Script pay(Key k) const final override {
+                Script pay(const Key& k) const final override {
                     return pay(tagged<Key, Tag>::tag(k));
                 }
                 
@@ -88,13 +88,13 @@ namespace abstractions {
                 public virtual recognizable<Sk, Script, Tag, Tx>, 
                 public virtual addressable<Sk, Script, Tag, Tx> {
                     
-                virtual Tag tag(Pk) const = 0;
+                virtual Tag tag(const Pk&) const = 0;
                 
-                Tag tag(Sk k) const final override {
+                Tag tag(const Sk& k) const final override {
                     return tag(data::crypto::to_public<Sk, Pk>{}(k));
                 };
                 
-                Script pay(Pk k) const {
+                Script pay(const Pk& k) const {
                     return pay(tag(k));
                 }
                 

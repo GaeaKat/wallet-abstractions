@@ -54,7 +54,9 @@ namespace abstractions::bitcoin::cosmos::test {
         }
         
         sequence(queue<pattern*> p, queue<secret> k, initial i) : 
-            Init{k.first(), output{i.Amount, p.first()->pay(k.first())}, i.Outpoint, *p.first()}, 
+            Init{k.first(),
+                output{i.Amount, p.first()->pay(k.first())}, 
+                i.Outpoint, p.first()}, 
             Steps{thread(k.rest(), p.rest())} {}
     };
     

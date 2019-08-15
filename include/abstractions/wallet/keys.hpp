@@ -81,15 +81,23 @@ namespace abstractions::bitcoin {
 }
 
 namespace data::crypto {
-    // template specialization to ensure that the correct public
-    // key derivation function is used when the secret key is
-    // combined with an uncompressed pubkey.
     template <> struct to_public<
         abstractions::bitcoin::secret, 
-        abstractions::bitcoin::uncompressed_pubkey> {
+        abstractions::bitcoin::uncompressed_pubkey>
+            : function::abstract<abstractions::bitcoin::uncompressed_pubkey, const abstractions::bitcoin::secret&> {
         abstractions::bitcoin::uncompressed_pubkey operator()(
-            const abstractions::bitcoin::secret s) const {
+            const abstractions::bitcoin::secret& s) const noexcept final override {
             return s.to_public_uncompressed();
+        }
+    };
+    
+    template <> struct to_public<
+        abstractions::bitcoin::secret, 
+        abstractions::bitcoin::pubkey>
+            : function::abstract<abstractions::bitcoin::pubkey, const abstractions::bitcoin::secret&> {
+        abstractions::bitcoin::pubkey operator()(
+            const abstractions::bitcoin::secret& s) const noexcept final override {
+            return s.to_public();
         }
     };
 }

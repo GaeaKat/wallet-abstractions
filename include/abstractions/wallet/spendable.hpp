@@ -13,30 +13,30 @@
 
 namespace abstractions::bitcoin {
 
-    using redeemer = abstractions::pattern::abstract::redeemer<const secret&, const script,
-        const abstractions::transaction<input, output>&>;
-    using pattern = abstractions::pattern::abstract::pattern<const secret&, const script,
-        const abstractions::transaction<input, output>&>;
+    using redeemer = abstractions::pattern::abstract::redeemer<secret, const script,
+        abstractions::transaction<input, output>>;
+    using pattern = abstractions::pattern::abstract::pattern<secret, const script,
+        abstractions::transaction<input, output>>;
     
-    using vertex = vertex<const secret&, const script, txid>;
+    using vertex = abstractions::vertex<const secret&, const script, txid>;
     using spendable = vertex::spendable;
     
     const auto pay_to_address_compressed =
         abstractions::pattern::pay_to_address<secret,
-            const bitcoin::pubkey, bitcoin::address,
-            abstractions::transaction<input, output>&>{};
+            bitcoin::pubkey, bitcoin::address,
+            abstractions::transaction<input, output>>{};
     const auto pay_to_address_uncompressed =
         abstractions::pattern::pay_to_address<secret,
-            const bitcoin::uncompressed_pubkey, bitcoin::address, 
-            const abstractions::transaction<input, output>&>{};
+            bitcoin::uncompressed_pubkey, bitcoin::address, 
+            abstractions::transaction<input, output>>{};
     const auto pay_to_pubkey_compressed =
         abstractions::pattern::pay_to_pubkey<secret,
-            const bitcoin::pubkey,
-            abstractions::transaction<input, output>&>{};
+            bitcoin::pubkey,
+            abstractions::transaction<input, output>>{};
     const auto pay_to_pubkey_uncompressed = 
         abstractions::pattern::pay_to_pubkey<secret,
-            const bitcoin::uncompressed_pubkey,
-            const abstractions::transaction<input, output>&>{};
+            bitcoin::uncompressed_pubkey,
+            abstractions::transaction<input, output>>{};
     
 }
 
