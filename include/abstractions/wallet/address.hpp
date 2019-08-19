@@ -29,7 +29,7 @@ namespace abstractions {
             
             address& operator=(const address& a);
             
-            address();
+            address()= default;;
             address(uint32);
             address(const address& a) : Digest{a.Digest} {}
             
