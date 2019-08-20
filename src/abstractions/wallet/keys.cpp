@@ -3,11 +3,11 @@
 
 #include <abstractions/wallet/keys.hpp>
 #include <data/io/unimplemented.hpp>
-
+#include <data/encoding/base58.hpp>
 namespace abstractions::bitcoin {
 
     secret::secret(string wif) {
-        bytes sec=data::encoding::hex::string(wif);
+        bytes sec = data::encoding::base58::read(wif);
         std::copy_n(sec.begin(), 32, this->begin());
     }
         namespace wif {

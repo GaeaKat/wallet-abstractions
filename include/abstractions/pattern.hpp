@@ -55,7 +55,7 @@ namespace abstractions {
                 virtual list<Tag> recognize(Script) const = 0;
                 
                 void recognizable_pattern_definition(const Key& k) const {
-                    if (tagged<Key, Tag>::tag(k) != recognize(pattern<Key, Script, Tx>::pay(k))) throw data::method::unimplemented();
+                    if (tagged<Key, Tag>::tag(k) != recognize(pattern<Key, Script, Tx>::pay(k))) throw 0;
                 }
                 
             };
