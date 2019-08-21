@@ -135,7 +135,9 @@ namespace abstractions::bitcoin {
     
     inline bitcoin::address pubkey::address() const {
         return secp256k1::address(*this);
-    };
+    }
+
+
     
     inline bitcoin::address secret::address() const {
         return secp256k1::address_compressed(*this);
