@@ -53,13 +53,13 @@ namespace abstractions {
         };
         
         namespace bitcoin_address {
-            address read(const string s);
-            string write(const address);
+            address read(string&);
+            string write(address&);
         }
         
         namespace cashaddr {
-            address read(const string s);
-            string write(const address);
+            address read(string&);
+            string write(address&);
         }
         
         inline address& address::operator=(const address& a) {

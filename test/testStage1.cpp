@@ -30,13 +30,16 @@ public:
     abstractions::bitcoin::secret SecretWIF;
     abstractions::bitcoin::secret SecretWIFUncompressed;
     abstractions::bitcoin::pubkey PubkeyHex;
-    abstractions::bitcoin::pubkey PubkeyHexUncompressed;
+    abstractions::bitcoin::uncompressed_pubkey PubkeyHexUncompressed;
     abstractions::bitcoin::address AddressBase58;
     abstractions::bitcoin::address AddressCashaddr;
 protected:
     void SetUp() override {
         SecretWIF = abstractions::bitcoin::secret(GetParam().secret_wif);
-
+        SecretWIFUncompressed = abstractions::bitcoin::secret(GetParam().secret_wif_uncompressed);
+        PubkeyHex = abstractions::bitcoin::pubkey(GetParam().pubkey_hex);
+        PubkeyHexUncompressed = abstractions::bitcoin::uncompressed_pubkey(GetParam().pubkey_hex_uncompressed);
+        AddressBase58=abstractions::bitcoin::address(GetParam().addr_58);
     }
 
 };
@@ -45,6 +48,20 @@ TEST_P(Stage1Test,SecretWIFValid) {
     EXPECT_TRUE(this->SecretWIF.valid()) << "Secret WIF is not valid";
 }
 
+TEST_P(Stage1Test,SecretWIFUncompressedValid) {
+    EXPECT_TRUE(this->SecretWIFUncompressed.valid()) << "Uncompressed Secret Wif is not valid";
+}
+
+TEST_P(Stage1Test,PubHexValid) {
+    EXPECT_TRUE(this->PubkeyHex.valid()) << "Public Key is not valid";
+}
+
+TEST_P(Stage1Test,PubHexUncompressedValid) {
+    EXPECT_TRUE(this->PubkeyHexUncompressed.valid()) << "Uncompressed Public Key is not valid";
+}
+TEST_P(Stage1Test,Addr58Valid) {
+    EXPECT_TRUE(this->AddressBase58.valid()) << "Address in base 58 is not valid";
+}
 
 test_data test_dat[] = {
         test_data("L2rW8amvjR19iSZ1wVU9keXBqEjQ9fMSCw9bsSKSmSCXTxqfz2Bn",

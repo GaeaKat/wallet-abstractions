@@ -10,6 +10,15 @@ namespace abstractions::bitcoin {
         bytes sec = data::encoding::base58::read(wif);
         std::copy_n(sec.begin(), 32, this->begin());
     }
+    pubkey::pubkey(string hex) {
+        bytes sec = data::encoding::hex::string(hex);
+        std::copy_n(sec.begin(), 33, this->begin());
+    };
+
+    uncompressed_pubkey::uncompressed_pubkey(string hex) {
+        bytes sec = data::encoding::hex::string(hex);
+        std::copy_n(sec.begin(), 65, this->begin());
+    }
         namespace wif {
             bool read(const string&, secret&) {
                 throw data::method::unimplemented();
@@ -44,6 +53,7 @@ namespace abstractions::bitcoin {
                 throw data::method::unimplemented();
             }
         }
-        
-    }
+
+
+}
 
