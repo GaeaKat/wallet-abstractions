@@ -13,12 +13,12 @@
 
 namespace abstractions::bitcoin {
 
-    using redeemer = abstractions::pattern::abstract::redeemer<secret, const script,
+    using redeemer = abstractions::pattern::abstract::redeemer<secret, script,
         abstractions::transaction<input, output>>;
-    using pattern = abstractions::pattern::abstract::pattern<secret, const script,
+    using pattern = abstractions::pattern::abstract::pattern<secret, script,
         abstractions::transaction<input, output>>;
     
-    using vertex = abstractions::vertex<const secret&, const script, txid>;
+    using vertex = abstractions::vertex<secret, script, txid>;
     using spendable = vertex::spendable;
     
     const auto pay_to_address_compressed =

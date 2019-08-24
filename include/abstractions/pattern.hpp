@@ -95,7 +95,7 @@ namespace abstractions {
                 };
                 
                 Script pay(const Pk& k) const {
-                    return pay(tag(k));
+                    return addressable<Sk, Script, Tag, Tx>::pay(tag(k));
                 }
                 
             };

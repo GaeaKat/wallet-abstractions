@@ -14,12 +14,12 @@ namespace abstractions::bitcoin::cosmos::test {
     
     struct step {
         secret Key;
-        pattern* Pattern;
+        pattern& Pattern;
     };
     
     using steps = queue<step>;
     
-    steps thread(queue<secret> k, queue<pattern*> p) {
+    steps thread(queue<secret> k, queue<pattern&> p) {
         if (p.empty() || k.empty()) return {};
         return steps{{step{k.first(), p.first()}}}.append(thread(k.rest(), p.rest()));
     }
@@ -53,19 +53,20 @@ namespace abstractions::bitcoin::cosmos::test {
             return run(Init, Steps);
         }
         
-        sequence(queue<pattern*> p, queue<secret> k, initial i) : 
+        sequence(queue<pattern&> p, queue<secret> k, initial i) : 
             Init{k.first(),
-                output{i.Amount, p.first()->pay(k.first())}, 
-                i.Outpoint, p.first()}, 
+                output{i.Amount, p.first().pay(k.first())}, 
+                i.Outpoint,
+                static_cast<redeemer&>(p.first())}, 
             Steps{thread(k.rest(), p.rest())} {}
     };
     
     const pattern& p = pay_to_address_compressed;
     const pattern& p_a_u = pay_to_address_uncompressed;
-    const pattern& p_p_c = pay_to_address_uncompressed;
+    const pattern& p_p_c = pay_to_pubkey_compressed;
     const pattern& p_p_u = pay_to_pubkey_uncompressed;
     
-    list<queue<pattern>> test_data{{p, p, p}, {p, p_a_u, p}, {p, p_p_c, p}, {p, p_p_u, p}};
+    list<queue<pattern&>> test_data{{p, p, p}, {p, p_a_u, p}, {p, p_p_c, p}, {p, p_p_u, p}};
     
 }
 

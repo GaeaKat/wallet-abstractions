@@ -15,7 +15,7 @@ namespace abstractions {
         using output = typename abstractions::output<script>::representation;
         using outpoint = typename abstractions::outpoint<txid>::representation;
         using input = typename input<txid, script>::representation;
-        using tx = const transaction<input, output>&;
+        using tx = transaction<input, output>;
         using redeemer = typename pattern::abstract::redeemer<key, script, tx>&;
     
         struct spendable {
