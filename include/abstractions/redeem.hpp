@@ -16,7 +16,7 @@ namespace abstractions {
         using outpoint = typename abstractions::outpoint<txid>::representation;
         using input = typename input<txid, script>::representation;
         using tx = transaction<input, output>;
-        using redeemer = typename pattern::abstract::redeemer<key, script, tx>&;
+        using redeemer = const typename pattern::abstract::redeemer<key, script, tx>&;
     
         struct spendable {
             key Key;
@@ -28,7 +28,6 @@ namespace abstractions {
                 return Key.valid() && Output.valid() && Outpoint.valid();
             }
             
-            spendable() : Key{}, Output{}, Outpoint{} {}
             spendable(key k, output o, outpoint p, redeemer r) : Key{k}, Output{o}, Outpoint{p}, Redeemer{r} {}
             
             input redeem(tx t, index i) const {

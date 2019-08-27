@@ -24,7 +24,7 @@ namespace abstractions {
         typename tx>
     struct funds {
         using spendable = data::map::entry<tag, debit<out, point>>;
-        using recognizable = pattern::abstract::recognizable<key, script, tag, tx>&;
+        using recognizable = pattern::abstract::recognizable<key, script, tag>&;
         
         satoshi Balance;
         
@@ -55,7 +55,7 @@ namespace abstractions {
         typename tx> 
     struct wallet {
         using funds = abstractions::funds<key, tag, script, out, point, tx>; 
-        using payable = pattern::abstract::addressable<key, script, tag, tx>&;
+        using payable = pattern::abstract::addressable<key, script, tag>&;
         using recognizable = typename funds::recognizable;
         
         // funds available to spend in this wallet. 

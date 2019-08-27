@@ -13,12 +13,11 @@
 namespace abstractions::pattern {
         
     template <typename secret, typename pubkey, typename tx>
-    struct pay_to_pubkey final : public pattern::abstract::standard<secret, pubkey, bytes, pubkey, tx> {
+    struct pay_to_pubkey final : public pattern::abstract::pay_to_pubkey<secret, pubkey, bytes, tx> {
         using script = bytes;
-        
-        pubkey tag(const pubkey& k) const final override {
-            return k;
-        }
+        using parent = pattern::abstract::pay_to_pubkey<secret, pubkey, script, tx>;
+        using parent::tag;
+        using parent::pay;
         
         script pay(const pubkey& k) const final override {
             return abstractions::script::pay_to(k)->compile();

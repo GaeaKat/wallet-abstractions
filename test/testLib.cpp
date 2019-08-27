@@ -3,7 +3,7 @@
 //
 
 #include <gtest/gtest.h>
-#include "cosmos/stage_1.hpp"
+#include "cosmos/stage_2.hpp"
 
 int main(int argc, char *argv[]){
 

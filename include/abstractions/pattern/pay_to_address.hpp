@@ -11,8 +11,11 @@
 namespace abstractions::pattern {
         
     template <typename secret, typename pubkey, typename address, typename tx>
-    struct pay_to_address final : public pattern::abstract::standard<secret, pubkey, bytes, address, tx> {
+    struct pay_to_address final : public pattern::abstract::pay_to_address<secret, pubkey, bytes, address, tx> {
         using script = bytes;
+        using parent = pattern::abstract::pay_to_address<secret, pubkey, script, address, tx>;
+        using parent::tag;
+        using parent::pay;
         
         address tag(const pubkey& k) const final override {
             return k.address();
@@ -23,7 +26,7 @@ namespace abstractions::pattern {
         }
         
         list<address> recognize(script s) const final override {
-            return {abstractions::script::pay_to_address::to(s)};
+            return list<address>{abstractions::script::pay_to_address::to(s)};
         }
         
         script redeem(satoshi amount, script script_pubkey, const tx& t, index i, const secret& k) const final override {

@@ -20,7 +20,7 @@ namespace abstractions::bitcoin::cosmos::test {
         output out{spent - fee, pay};
         transaction tx = vertex{{spend}, {out}}.redeem();
         if (!test_tx({spend}, tx)) throw failure{};
-        return spendable{next.Key, out, outpoint{tx.id(), 0}, static_cast<redeemer&>(next.Pattern)};
+        return spendable{next.Key, out, outpoint{tx.id(), 0}, static_cast<redeemer>(next.Pattern)};
     }
     
 }

@@ -11,7 +11,8 @@
 namespace abstractions::bitcoin::cosmos::test {
     static const work::target minimum_target{31, 0x00ffffff};
     
-    struct lock_pow final : pattern {
+    struct lock_pow final : public abstractions::pattern::abstract::pattern<secret, script,
+        abstractions::transaction<input, output>> {
         work::order Order;
         
         lock_pow(work::order o) : Order{o.Target < minimum_target ? work::order{} : o} {}
@@ -40,7 +41,7 @@ namespace abstractions::bitcoin::cosmos::test {
     
     const lock_pow lock_pow_pattern{work::order{/* arbitrary test data here */, minimum_target}};
     
-    const pattern& l_p = lock_pow_pattern;
+    pattern l_p = lock_pow_pattern;
     
 }
 
