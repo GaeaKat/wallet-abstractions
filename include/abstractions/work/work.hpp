@@ -9,6 +9,8 @@
 #include <abstractions/wallet/keys.hpp>
 
 namespace abstractions::work {
+        
+    using uint24 = uint32;
     
     struct target {
         uint32 Encoded;
@@ -16,8 +18,6 @@ namespace abstractions::work {
         byte exponent() const {
             return byte(Encoded >> 24);
         }
-        
-        using uint24 = uint32;
         
         uint24 value() const {
             return Encoded & 0x00ffffff;
@@ -77,8 +77,8 @@ namespace abstractions::work {
         } 
     };
     
-    const target easy{32, 0x00ffffff}; 
-    const target hard{3, 0x00000001};
+    const target easy{32, 0xffffff}; 
+    const target hard{3, 0x000001};
         
     const uint32 message_size = 36;
     using message = data::math::number::bounded::uint<9>;

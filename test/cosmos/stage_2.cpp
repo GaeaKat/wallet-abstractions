@@ -12,6 +12,10 @@ namespace abstractions::bitcoin::cosmos::test {
         return true;
     }
     
+    spendable run(spendable init, queue<step> steps) {
+        return data::fold(&round, init, steps);
+    }
+    
     spendable round(spendable spend, step next) {
         satoshi spent = spend.Output.Value;
         script pay = next.Pattern.pay(next.Key);

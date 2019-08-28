@@ -9,7 +9,12 @@
 #include "stage_2.hpp"
 
 namespace abstractions::bitcoin::cosmos::test {
-    static const work::target minimum_target{31, 0x00ffffff};
+    static const work::target     minimum_target{31, 0xffffff};
+    
+    static const work::target       success_half{32, 0x800000};
+    static const work::target    success_quarter{32, 0x400000};
+    static const work::target     success_eighth{32, 0x200000};
+    static const work::target  success_sixteenth{32, 0x100000};
     
     struct lock_pow final : public abstractions::pattern::abstract::pattern<secret, script,
         abstractions::transaction<input, output>> {
@@ -29,6 +34,7 @@ namespace abstractions::bitcoin::cosmos::test {
         const script redeem(satoshi amount, const script s, const abstractions::transaction<input, output>& t, index i, const secret& k) const final override {
             if (Order.Target < minimum_target) throw failure{};
             work::candidate candidate = work::work(Order);
+            // Get number of trials and check that it is reasonable. 
             return abstractions::script::unlock_with_pow(
                 bitcoin::sign(bitcoin::output{amount, s}, t, i, k), 
                 k.to_public(),
@@ -39,9 +45,16 @@ namespace abstractions::bitcoin::cosmos::test {
         
     };
     
-    const lock_pow lock_pow_pattern{work::order{/* arbitrary test data here */, minimum_target}};
+    const lock_pow lock_pow_pattern_02{work::order{{}, {}, success_half}};
+    const lock_pow lock_pow_pattern_04{work::order{{}, {}, success_quarter}};
+    const lock_pow lock_pow_pattern_08{work::order{{}, {}, success_eighth}};
+    const lock_pow lock_pow_pattern_16{work::order{{}, {}, success_sixteenth}};
     
-    pattern l_p = lock_pow_pattern;
+    list<queue<pattern>> test_data_3{
+        list<pattern>::make(&p, &lock_pow_pattern_02, &p), 
+        list<pattern>::make(&p, &lock_pow_pattern_04, &p), 
+        list<pattern>::make(&p, &lock_pow_pattern_08, &p), 
+        list<pattern>::make(&p, &lock_pow_pattern_16, &p)};
     
 }
 

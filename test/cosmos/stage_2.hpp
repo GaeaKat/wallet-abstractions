@@ -34,9 +34,7 @@ namespace abstractions::bitcoin::cosmos::test {
     
     spendable round(spendable spend, step next);
     
-    spendable run(spendable init, queue<step> steps) {
-        return data::fold(&round, init, steps);
-    }
+    spendable run(spendable init, queue<step> steps);
     
     struct initial {
         satoshi Amount;
@@ -66,7 +64,7 @@ namespace abstractions::bitcoin::cosmos::test {
     pattern p_p_c = pay_to_pubkey_compressed;
     pattern p_p_u = pay_to_pubkey_uncompressed;
     
-    list<queue<pattern>> test_data{
+    list<queue<pattern>> test_data_2{
         list<pattern>::make(&p, &p, &p), 
         list<pattern>::make(&p, &p_a_u, &p), 
         list<pattern>::make(&p, &p_p_c, &p), 
