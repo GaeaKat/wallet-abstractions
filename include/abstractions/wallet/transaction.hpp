@@ -86,7 +86,7 @@ namespace abstractions {
             transaction(vector<input> i, vector<output> o, op_return d) : transaction{representation{i, o, d}} {}
             
             txid id() const {
-                return hash512(static_cast<bytes&>(*this));
+                return abstractions::crypto::hash512(static_cast<bytes&>(*this));
             }
             
         };

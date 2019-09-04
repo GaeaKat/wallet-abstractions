@@ -8,9 +8,7 @@
 #include <abstractions/abstractions.hpp>
 #include "tag.hpp"
 
-namespace abstractions {
-    
-    namespace bitcoin {
+namespace abstractions::bitcoin {
         
         struct pubkey;
         struct secret;
@@ -54,12 +52,13 @@ namespace abstractions {
         
         namespace bitcoin_address {
             address read(string&);
-            string write(address&);
+            data::string write(const address&);
+
         }
         
         namespace cashaddr {
             address read(string&);
-            string write(address&);
+            data::string write(const address&);
         }
         
         inline address& address::operator=(const address& a) {
@@ -72,7 +71,9 @@ namespace abstractions {
             if (a.valid()) return a;
             return cashaddr::read(s);
         }
+        inline string address::write() {
+            return  bitcoin_address::write(*this);
+        };
     }
-}
 
 #endif
