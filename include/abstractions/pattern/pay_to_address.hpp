@@ -31,7 +31,7 @@ namespace abstractions::pattern {
         
         script redeem(satoshi amount, script script_pubkey, const tx& t, index i, const secret& k) const final override {
             return abstractions::script::redeem_from_pay_to_address(
-                bitcoin::sign(bitcoin::output{amount, script_pubkey}, t, i, k), k.to_public())->compile();
+                bitcoin::sign(bitcoin::output{amount, script_pubkey}, t, i, k), k.to_public().Pubkey)->compile();
         }
         
     };

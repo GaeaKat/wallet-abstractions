@@ -19,10 +19,14 @@ namespace abstractions::bitcoin {
     
     using signature = secp256k1::signature;
     
-    struct secret : public secp256k1::secret {
-        using parent = secp256k1::secret;
-        using parent::secret;
-        using pubkey = bitcoin::pubkey;
+    struct secret {
+        secp256k1::secret Secret;
+        secret() : Secret{} {}
+        secret(const secp256k1::secret& s) : Secret{s} {}
+        
+        bool valid() const {
+            return Secret.valid();
+        }
         
         pubkey to_public() const;
         uncompressed_pubkey to_public_uncompressed() const;
@@ -38,10 +42,14 @@ namespace abstractions::bitcoin {
         string write();
     };
     
-    struct pubkey : public secp256k1::compressed_pubkey, public tag {
-        using parent = secp256k1::compressed_pubkey;
-        using parent::pubkey;
-        using secret = bitcoin::secret;
+    struct pubkey : public tag {
+        secp256k1::compressed_pubkey Pubkey;
+        pubkey() : Pubkey{} {}
+        pubkey(const secp256k1::compressed_pubkey p) : Pubkey{p} {}
+        
+        bool valid() const {
+            return Pubkey.valid();
+        }
         
         pubkey operator+(const pubkey&) const;
         pubkey operator*(const secret&) const;
@@ -54,15 +62,17 @@ namespace abstractions::bitcoin {
         string write();
     };
     
-    struct uncompressed_pubkey : public secp256k1::uncompressed_pubkey, public tag {
-        using parent = secp256k1::uncompressed_pubkey;
-        using parent::pubkey;
-        using secret = bitcoin::secret;
+    struct uncompressed_pubkey : public tag {
+        secp256k1::uncompressed_pubkey Pubkey;
+        uncompressed_pubkey() : Pubkey{} {}
+        uncompressed_pubkey(const secp256k1::uncompressed_pubkey p) : Pubkey{p} {}
         
-        pubkey operator+(const pubkey&) const;
-        pubkey operator*(const secret&) const;
+        bool valid() const {
+            return Pubkey.valid();
+        }
         
-        pubkey& operator=(const pubkey& p);
+        uncompressed_pubkey operator+(const uncompressed_pubkey&) const;
+        uncompressed_pubkey operator*(const secret&) const;
         
         explicit uncompressed_pubkey(string hex);
         
@@ -104,43 +114,43 @@ namespace data::crypto {
 
 namespace abstractions::bitcoin {
     inline pubkey secret::to_public() const {
-        return secret::parent::to_public_compressed();
+        return pubkey{Secret.to_public_compressed()};
     }
     
     inline secret secret::operator+(const secret& s) const {
-        return parent::operator+(static_cast<const parent&>(s));
+        return secret{Secret + s.Secret};
     }
     
     inline secret secret::operator*(const secret& s) const {
-        return parent::operator+(static_cast<const parent&>(s));
-    }
-    
-    inline secret& secret::operator=(const secret& s) {
-        parent::operator=(static_cast<const parent&>(s));
-        return *this;
+        return secret{Secret * s.Secret};
     }
     
     inline pubkey pubkey::operator+(const pubkey& p) const {
-        return parent::operator+(static_cast<const parent&>(p));
+        return pubkey{Pubkey + p.Pubkey};
     }
     
     inline pubkey pubkey::operator*(const secret& s) const {
-        return parent::operator*(static_cast<const secret::parent&>(s));
+        return pubkey{Pubkey * s.Secret};
     }
     
-    inline pubkey& pubkey::operator=(const pubkey& p) {
-        parent::operator=(static_cast<const parent&>(p));
-        return *this;
+    inline uncompressed_pubkey uncompressed_pubkey::operator+(const uncompressed_pubkey& p) const {
+        return uncompressed_pubkey{Pubkey + p.Pubkey};
+    }
+    
+    inline uncompressed_pubkey uncompressed_pubkey::operator*(const secret& s) const {
+        return uncompressed_pubkey{Pubkey * s.Secret};
     }
     
     inline bitcoin::address pubkey::address() const {
-        return secp256k1::address(*this);
+        return secp256k1::address(Pubkey);
     }
-
-
+    
+    inline bitcoin::address uncompressed_pubkey::address() const {
+        return secp256k1::address(Pubkey);
+    }
     
     inline bitcoin::address secret::address() const {
-        return secp256k1::address_compressed(*this);
+        return secp256k1::address_compressed(Secret);
     }
 
 

@@ -8,16 +8,17 @@ namespace abstractions::bitcoin {
 
     secret::secret(string wif) {
         bytes sec = data::encoding::base58::read(wif);
-        std::copy_n(sec.begin(), 32, this->begin());
+        std::copy_n(sec.begin(), 32, Secret.begin());
     }
+    
     pubkey::pubkey(string hex) {
         bytes sec = data::encoding::hex::string(hex);
-        std::copy_n(sec.begin(), 33, this->begin());
+        std::copy_n(sec.begin(), 33, Pubkey.begin());
     };
 
     uncompressed_pubkey::uncompressed_pubkey(string hex) {
         bytes sec = data::encoding::hex::string(hex);
-        std::copy_n(sec.begin(), 65, this->begin());
+        std::copy_n(sec.begin(), 65, Pubkey.begin());
     }
         namespace wif {
             bool read(const string&, secret&) {

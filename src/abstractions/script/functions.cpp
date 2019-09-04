@@ -12,8 +12,8 @@ namespace abstractions::script {
     }
     
     pointer<program> push(bitcoin::pubkey& y) {
-        std::vector<byte> x{static_cast<unsigned char>(y.size())};
-        std::copy(y.begin(), y.end(), x.begin());
+        std::vector<byte> x{static_cast<unsigned char>(y.Pubkey.size())};
+        std::copy(y.Pubkey.begin(), y.Pubkey.end(), x.begin());
         return push_data(x);
     }
     

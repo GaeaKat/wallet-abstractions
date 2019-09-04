@@ -20,7 +20,7 @@ namespace abstractions::pattern {
         using parent::pay;
         
         script pay(const pubkey& k) const final override {
-            return abstractions::script::pay_to(k)->compile();
+            return abstractions::script::pay_to(k.Pubkey)->compile();
         }
         
         list<pubkey> recognize(script s) const final override {
