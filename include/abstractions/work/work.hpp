@@ -41,7 +41,7 @@ namespace abstractions::work {
         target(byte e, uint24 v) : Encoded{encode(e, v)} {}
         
         sha256::digest expand() const {
-            return data::math::number::bounded::uint<sha256::digest::size>{uint32(value())} << ((exponent() - 3) * 8);
+            return data::uint<sha256::digest::size>{uint32(value())} << ((exponent() - 3) * 8);
         }
         
         operator uint32() const {
@@ -81,7 +81,7 @@ namespace abstractions::work {
     const target hard{3, 0x000001};
         
     const uint32 message_size = 36;
-    using message = data::math::number::bounded::uint<9>;
+    using message = data::uint<9>;
     
     struct order {
         sha256::digest Reference;
