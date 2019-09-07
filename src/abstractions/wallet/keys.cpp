@@ -7,8 +7,7 @@
 namespace abstractions::bitcoin {
 
     secret::secret(string wif) {
-        bytes sec = data::encoding::base58::read(wif);
-        std::copy_n(sec.begin(), 32, Secret.begin());
+        if (!wif::read(wif, *this)) if (!wif_uncompressed::read(wif, *this) *this = {};
     }
     
     pubkey::pubkey(string hex) {
@@ -20,40 +19,42 @@ namespace abstractions::bitcoin {
         bytes sec = data::encoding::hex::string(hex);
         std::copy_n(sec.begin(), 65, Pubkey.begin());
     }
-        namespace wif {
-            bool read(const string&, secret&) {
-                throw data::method::unimplemented();
-            }
-            
-            string write(secret&) {
-                throw data::method::unimplemented();
-            }
-            
-            bool read(const string&, pubkey&) {
-                throw data::method::unimplemented();
-            }
-            
-            string write(pubkey&) {
-                throw data::method::unimplemented();
-            }
+    
+    namespace wif {
+        bool read(const string&, secret&) {
+            throw data::method::unimplemented();
         }
         
-        namespace wif_compressed {
-            bool read(const string&, secret&) {
-                throw data::method::unimplemented();
-            }
-            
-            string write(secret&) {
-                throw data::method::unimplemented();
-            }
-            bool read(const string&, pubkey&) {
-                throw data::method::unimplemented();
-            }
-            
-            string write(pubkey&) {
-                throw data::method::unimplemented();
-            }
+        string write(const secret&) {
+            throw data::method::unimplemented();
         }
+        
+        bool read(const string&, pubkey&) {
+            throw data::method::unimplemented();
+        }
+        
+        string write(const pubkey&) {
+            throw data::method::unimplemented();
+        }
+    }
+        
+    namespace wif_uncompressed {
+        bool read(const string&, secret&) {
+            throw data::method::unimplemented();
+        }
+        
+        string write(const secret&) {
+            throw data::method::unimplemented();
+        }
+    
+        bool read(const string&, uncompressed_pubkey&) {
+            throw data::method::unimplemented();
+        }
+        
+        string write(const uncompressed_pubkey&) {
+            throw data::method::unimplemented();
+        }
+    }
 
 
 }
