@@ -5,6 +5,9 @@
 #define ABSTRACTIONS_CRYPTO_ADDRESS
 
 #include <data/crypto/one_way.hpp>
+#include <abstractions/crypto/hash/ripemd160.hpp>
+#include <abstractions/crypto/hash/sha256.hpp>
+#include <abstractions/crypto/hash/sha512.hpp>
 
 namespace abstractions::crypto {
     
@@ -21,6 +24,28 @@ namespace abstractions::crypto {
     struct address_scheme : public data::crypto::keypair<sk, pk> {
         addr address(const pk s) const;
     };
+    
+    inline sha256::digest hash256(const bytes& b) {
+        return sha256::double_hash(b);
+    }
+    
+    template <uint32 n>
+    inline sha256::digest hash256(const std::array<byte, n>& b) {
+        return sha256::double_hash(b);
+    }
+    
+    inline sha512::digest hash512(const bytes& b) {
+        return sha512::double_hash(b);
+    }
+    
+    template <uint32 n>
+    inline sha512::digest hash512(const std::array<byte, n>& b) {
+        return sha512::double_hash(b);
+    }
+    
+    std::array<byte, 4> checksum(const slice<byte>&);
+    
+    bool verify_checksum(const slice<byte>&);
     
 } 
 
