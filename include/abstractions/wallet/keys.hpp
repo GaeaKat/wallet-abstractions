@@ -81,23 +81,6 @@ namespace abstractions::bitcoin {
     constexpr data::math::module<pubkey, secret> is_module{};
     constexpr data::crypto::signature_scheme<secret, pubkey, const sha256::digest, signature> is_signature_scheme{};
     
-    namespace wif {
-        // 52 characters base58, starts with a 'K' or 'L'
-        bool read(const string&, secret&);
-        string write(secret&);
-        
-        bool read(const string&, pubkey&);
-        string write(pubkey&);
-    }
-    
-    namespace wif_uncompressed {
-        // 52 characters base58, starts with a 'K' or 'L'
-        bool read(const string&, secret&);
-        string write(secret&);
-        
-        bool read(const string&, uncompressed_pubkey&);
-        string write(uncompressed_pubkey&);
-    }
 }
 
 namespace data::crypto {
@@ -171,13 +154,26 @@ namespace abstractions::bitcoin {
         return secp256k1::address_compressed(Secret);
     }
     
-    string secret::write() {
-        return wif::write(*this);
-    };
+    inline string secret::write() {
+        return secp256k1::wif::compressed::write(Secret);
+    }
     
-    string secret::write_uncompressed() {
-        return wif_uncompressed::write(*this);
-    };
+    inline string secret::write_uncompressed() {
+        return secp256k1::wif::uncompressed::write(Secret);
+    }
+
+    inline secret::secret(string wif) : Secret{} {
+        if (!secp256k1::wif::compressed::read(wif, Secret)) 
+            secp256k1::wif::uncompressed::read(wif, Secret);
+    }
+    
+    inline pubkey::pubkey(string hex) : Pubkey{} {
+        secp256k1::wif::compressed::read(hex, Pubkey);
+    }
+
+    inline uncompressed_pubkey::uncompressed_pubkey(string hex) : Pubkey{} {
+        secp256k1::wif::uncompressed::read(hex, Pubkey);
+    }
     
 } 
 

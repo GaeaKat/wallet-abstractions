@@ -31,7 +31,9 @@ namespace abstractions {
             address read(const string& s) {
                 auto p = abc::cashaddr::Decode(s, prefix);
                 if (p.first == "") return {};
-                return {address::digest{data::uint<data::ripemd160::size>{p.second}}};
+                data::uint<data::ripemd160::size> addr;
+                std::copy_n(p.second.begin(), data::ripemd160::size, addr.begin());
+                return {address::digest{data::uint<data::ripemd160::size>{addr}}};
             }
             
             string write(const address a) {

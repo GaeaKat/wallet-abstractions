@@ -18,6 +18,9 @@ namespace abstractions::secp256k1 {
     using compressed_pubkey = data::crypto::secp256k1::compressed_pubkey;
     using uncompressed_pubkey = data::crypto::secp256k1::uncompressed_pubkey;
     
+    uint32 checksum(bytes&);
+    bool verify_checksum(bytes&);
+    
     inline ripemd160::digest address(const compressed_pubkey& p) {
         return ripemd160::hash<data::crypto::secp256k1::compressed_pubkey_size>(p);
     }
@@ -32,6 +35,30 @@ namespace abstractions::secp256k1 {
     
     inline ripemd160::digest address_compressed(const secret& s) {
         return address(s.to_public_compressed());
+    }
+    
+    namespace wif {
+        namespace compressed {
+            // base58 with a checksum. Confusingly, the compressed format is longer
+            // that the uncompressed format. That is because 'compressed' refers 
+            // to whether the corresponding address is 
+            bool read(string&, secret&);
+            string write(const secret&);
+            
+            // hex.
+            bool read(string&, compressed_pubkey&);
+            string write(const compressed_pubkey&);
+        }
+        
+        namespace uncompressed {
+            // base58 with a checksum. 
+            bool read(string&, secret&);
+            string write(const secret&);
+            
+            // hex. 
+            bool read(string&, uncompressed_pubkey&);
+            string write(const uncompressed_pubkey&);
+        }
     }
     
 } 

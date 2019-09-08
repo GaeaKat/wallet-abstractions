@@ -23,18 +23,15 @@ namespace abstractions {
             explicit txid(hex s);
             explicit txid(string hex_string);
             
-            txid(const txid& t);
-            txid(txid&& t);
+            txid(bytes&);
             txid(parent p);
         };
-            
-        inline txid::txid(const txid& t) : parent{static_cast<const parent&>(t)} {}
-        
-        inline txid::txid(txid&& t) : parent{static_cast<parent&&>(t)} {}
         
         inline txid::txid(parent p) : parent{p} {}
         
-        inline txid::txid(hex s) : txid{s.valid() ? s.operator bytes() : bytes{}} {}
+        inline txid::txid(hex s) : txid{} {
+            if (s.valid()) *this = s.operator bytes(); 
+        }
         
         inline txid::txid(string hex_string) : txid{hex{hex_string}} {}
         
