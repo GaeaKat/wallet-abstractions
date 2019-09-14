@@ -19,7 +19,8 @@ namespace abstractions::secp256k1 {
     using uncompressed_pubkey = data::crypto::secp256k1::uncompressed_pubkey;
     
     inline ripemd160::digest address(const compressed_pubkey& p) {
-        return ripemd160::hash<data::crypto::secp256k1::compressed_pubkey_size>(p);
+        sha256::digest digest=data::sha256::hash(p);
+        return ripemd160::hash<sha256::size>(digest.Digest);
     }
     
     inline ripemd160::digest address(const uncompressed_pubkey& p) {

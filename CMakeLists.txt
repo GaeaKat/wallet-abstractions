@@ -11,6 +11,7 @@ project(wallet-abstractions 	VERSION 1.0
 
 # Set cmake as import path for Find*.cmake files
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
 ### Require out-of-source builds
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
 if(EXISTS "${LOC_PATH}")
@@ -46,13 +47,6 @@ if(NOT TARGET gtest_main AND PACKAGE_TESTS)
 			${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 endif()
 
-## Enable testing
-include(CTest)
-
-if(PACKAGE_TESTS)
-    enable_testing()
-    add_subdirectory(test)
-endif()
 
 # Check Git submodules
 
@@ -96,6 +90,14 @@ if(Boost_FOUND)
 
 endif()
 
+# Find Crypto++
+find_package(CryptoPP REQUIRED)
+if(CRYPTOPP_INCLUDE_DIRS)
+
+	message(STATUS "Crypto++ INCLUIDE DIRS: ${CRYPTOPP_INCLUDE_DIRS}")
+	include_directories(${CRYPTOPP_INCLUDE_DIRS})
+endif()
+
 # Find LibBitcoin
 set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
 
@@ -106,6 +108,13 @@ include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
 # Check data library
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/data/CMakeLists.txt")
     message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
+## Enable testing
+include(CTest)
+
+if(PACKAGE_TESTS)
+	enable_testing()
+	add_subdirectory(test)
 endif()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/extern/data/")
@@ -120,8 +129,6 @@ add_library(wallet-abstractions STATIC
 	src/abstractions/script/script.cpp
 	src/abstractions/script/functions.cpp
 	src/abstractions/script/math.cpp
-	src/abstractions/script/pow.cpp
-	src/abstractions/work/work.cpp
 	src/abc/cashaddr.cpp
 )
 target_link_libraries(wallet-abstractions PUBLIC data)
