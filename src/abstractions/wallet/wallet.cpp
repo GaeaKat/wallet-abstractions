@@ -21,5 +21,11 @@ namespace abstractions::bitcoin {
         if (!u.valid()) return {};
         return spent{u, wallet{funds{queue<spendable>{list<spendable>{} + u.Inputs.last()}}, Pay}};
     }
+        
+    wallet::spent wallet::spend(queue<data::map::entry<tag, satoshi>> to, secret next) {
+        spent no_fee = spend(to, 0, next);
+        satoshi fee = Fees(no_fee.Transaction.expected_size(), no_fee.Transaction.signature_operations());
+        return spend(to, fee, next); // TODO inefficient.
+    }
 
 }

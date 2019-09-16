@@ -19,6 +19,7 @@ namespace abstractions::redeem {
         using vertex<spendable<script, txid, key>, output>::vertex;
         
         uint32 expected_size() const;
+        uint32 signature_operations() const;
         
         using transaction = redeem::transaction<txid, script>;
         

@@ -13,13 +13,25 @@
 
 namespace abstractions::bitcoin {
     
+    using fee_calculator = satoshi (*)(uint32 size, uint32 sigops);
+    
+    satoshi one_satoshi_per_byte(uint32 size, uint32 sigops) {
+        return size;
+    }
+    
     struct wallet : redeem::wallet<script, txid, secret, tag> {
         using inner = redeem::wallet<script, txid, secret, tag>;
-        using inner::wallet;
+        
+        fee_calculator Fees;
+        wallet(fee_calculator fees = one_satoshi_per_byte) : inner{}, Fees{fees} {}
+        wallet(list<payable> pay, fee_calculator fees = one_satoshi_per_byte) : inner{pay}, Fees{fees} {}
+        wallet(funds f, list<payable> pay, fee_calculator fees = one_satoshi_per_byte) : inner{f, pay}, Fees{fees} {}
         
         struct spent;
         
         spent spend(queue<data::map::entry<tag, satoshi>> to, satoshi fee, secret next);
+        
+        spent spend(queue<data::map::entry<tag, satoshi>> to, secret next);
     };
         
     struct wallet::spent {
