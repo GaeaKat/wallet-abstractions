@@ -120,8 +120,6 @@ endif()
 add_subdirectory("${PROJECT_SOURCE_DIR}/extern/data/")
 
 add_library(wallet-abstractions STATIC 
-	src/abstractions/wallet.cpp
-	src/abstractions/redeem.cpp
 	src/abstractions/crypto/secp265k1.cpp
 	src/abstractions/timechain/transaction.cpp
 	src/abstractions/transaction.cpp

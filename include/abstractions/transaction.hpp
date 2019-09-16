@@ -21,7 +21,6 @@ namespace abstractions {
             representation(satoshi v, ops o) : Valid{true}, Value{v}, ScriptPubKey{o} {}
             representation(const output&) noexcept;
             representation() : Valid{false}, Value{}, ScriptPubKey{} {}
-            representation& operator=(const representation& o);
             
             ops script() const {
                 return ScriptPubKey;
@@ -71,7 +70,6 @@ namespace abstractions {
             representation(txid tx, tx_index i) : Valid{true}, Reference{tx}, Index{i} {}
             representation(const outpoint&) noexcept;
             representation() : Valid{false}, Reference{}, Index{} {}
-            representation& operator=(const representation& o);
             
             bool valid() const {
                 return Valid;
@@ -117,7 +115,6 @@ namespace abstractions {
             representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
             representation(const input&) noexcept;
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
-            representation& operator=(const representation& i);
             
             ops& script() const {
                 return ScriptSignature;
@@ -166,7 +163,6 @@ namespace abstractions {
             
             representation(const transaction&) noexcept;
             representation() : Valid{false}, Inputs{}, Outputs{}, Locktime{} {}
-            representation& operator=(const representation& i);
             
             bool valid() const {
                 return Valid;
@@ -205,7 +201,19 @@ namespace abstractions {
             return representation{*this}.Valid;
         }
         
-        constexpr static timechain::transaction::interface<transaction::representation, in, out> is_tx{};
+        uint32 locktime() const {
+            return representation{*this}.Locktime;
+        }
+        
+        int32 version() const {
+            return representation{*this}.Version;
+        }
+        
+        slice<bytes> outputs() const;
+        slice<bytes> inputs() const;
+        
+        constexpr static timechain::transaction::interface<transaction::representation, in, out> representation_is_tx{};
+        constexpr static timechain::transaction::interface<transaction, bytes, bytes> is_tx{};
     };
     
 } 

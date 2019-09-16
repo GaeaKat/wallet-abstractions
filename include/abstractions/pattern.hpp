@@ -38,10 +38,11 @@ namespace abstractions {
                 public redeemer<Key, Script, Tx>, 
                 public virtual payable<Key, Script> {
                 using payable<Key, Script>::pay;
+                using redeemer<Key, Script, Tx>::redeem;
                 
                 template <typename Machine>
-                void pattern_definition(const Key& k, const Tx& t, Machine i) const {
-                    assert(i.run(pay(k), redeem(k, t), t));
+                void pattern_definition(satoshi s, Script in, const Tx& t, index i, const Key& k, Machine m) const {
+                    assert(m.run(pay(k), redeem(s, in, t, i, k), t));
                 }
             };
         

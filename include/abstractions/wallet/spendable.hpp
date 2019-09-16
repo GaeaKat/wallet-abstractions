@@ -4,7 +4,7 @@
 #ifndef ABSTRACTIONS_WALLET_SPENDABLE
 #define ABSTRACTIONS_WALLET_SPENDABLE
 
-#include <abstractions/redeem.hpp>
+#include <abstractions/redeem/unspent.hpp>
 #include <abstractions/wallet/transaction.hpp>
 #include <abstractions/wallet/address.hpp>
 #include <abstractions/wallet/keys.hpp>
@@ -18,8 +18,8 @@ namespace abstractions::bitcoin {
     using pattern = const abstractions::pattern::abstract::pattern<secret, script,
         abstractions::transaction<input, output>>&;
     
-    using vertex = abstractions::vertex<secret, script, txid>;
-    using spendable = vertex::spendable;
+    using unspent = abstractions::redeem::unspent<secret, script, txid>;
+    using spendable = redeem::spendable<secret, script, txid>;
     
     const auto pay_to_address_compressed =
         abstractions::pattern::pay_to_address<secret,

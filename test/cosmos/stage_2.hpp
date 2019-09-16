@@ -4,13 +4,15 @@
 #ifndef TEST_COSMOS_STAGE_2
 #define TEST_COSMOS_STAGE_2
 
-#include <abstractions/pattern.hpp>
-#include <abstractions/wallet/transaction.hpp>
 #include <abstractions/wallet/spendable.hpp>
-#include <data/fold.hpp>
-#include "stage_1.hpp"
 
 namespace abstractions::bitcoin::cosmos::test {
+    // thrown for failed tests
+    // TODO replace with google test. 
+    struct failure {};
+    
+    // list of keys that are used to construct tests. 
+    vector<secret> keys();
     
     struct step {
         secret Key;
@@ -24,13 +26,15 @@ namespace abstractions::bitcoin::cosmos::test {
         return steps{{step{k.first(), p.first()}}}.append(thread(k.rest(), p.rest()));
     }
     
-    satoshi expected_cost(vertex v);
+    satoshi expected_cost(unspent v);
     
-    bool valid_scripts(vector<spendable> prevout, const transaction& tx);
+    bool valid_scripts(list<output> prevout, const transaction& tx);
     
     bool reasonable_fee(const transaction& tx); 
     
-    bool test_tx(vector<spendable> prevout, const transaction& tx);
+    using funds = redeem::funds<script, txid, secret>;
+    
+    bool test_tx(funds prevout, const transaction& tx);
     
     spendable round(spendable spend, step next);
     

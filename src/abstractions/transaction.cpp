@@ -257,43 +257,4 @@ namespace abstractions {
         }
     }
     
-    template <typename txid>
-    typename outpoint<txid>::representation&
-    outpoint<txid>::representation::operator=(const representation& o) {
-        Valid = o.Valid;
-        Reference = o.Reference;
-        Index = o.Index;
-        return *this;
-    }
-    
-    template <typename ops>
-    typename output<ops>::representation&
-    output<ops>::representation::operator=(const representation& o) {
-        Valid = o.Valid;
-        Value = o.Value;
-        ScriptPubKey = o.ScriptPubKey;
-        return *this;
-    }
-    
-    template <typename txid, typename ops>
-    typename input<txid, ops>::representation&
-    input<txid, ops>::representation::operator=(const representation& i) {
-        Valid = i.Valid;
-        Outpoint = i.Outpoint;
-        ScriptSignature = i.ScriptSignature;
-        Sequence = i.Sequence;
-        return *this;
-    }
-    
-    template <typename in, typename out>
-    typename transaction<in, out>::representation&
-    transaction<in, out>::representation::operator=(const representation& t) {
-        Valid = t.Valid;
-        Version = t.Version;
-        Inputs = t.Inputs;
-        Outputs = t.Outputs;
-        Locktime = t.Locktime;
-        return *this;
-    }
-    
 } 
