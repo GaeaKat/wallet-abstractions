@@ -4,8 +4,6 @@
 #ifndef ABSTRACTIONS_VALUE
 #define ABSTRACTIONS_VALUE
 
-#include "abstractions.hpp"
-
 namespace abstractions {
     
     namespace meta {
@@ -20,7 +18,7 @@ namespace abstractions {
     }
 
     template <typename X>
-    inline bool valid(X x) {      
+    inline bool value(X x) {      
         return meta::value<X>{}(x);
     }
 

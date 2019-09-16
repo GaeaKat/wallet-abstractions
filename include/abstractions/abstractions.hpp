@@ -22,7 +22,6 @@ namespace abstractions {
     using int32 = int32_t;
     
     using satoshi = uint32;
-    const satoshi empty = 0;
     
     using uint160 = data::uint160;
     using uint256 = data::uint256;

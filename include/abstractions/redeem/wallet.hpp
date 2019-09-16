@@ -38,16 +38,16 @@ namespace abstractions::redeem {
         
         unspent spend(queue<data::map::entry<tag, satoshi>> to) const {            
             using output = typename funds::output;
-            list<output> outs{};
+            queue<output> outs{};
             while (!empty(to)) {
-                list<payable> pay = Pay;
+                queue<payable> p = Pay;
                 while (true) {
-                    if (empty(pay)) return {};
-                    output o = pay.first().pay(to.key());
-                    if (o.valid()) {
-                        outs = outs + output{to.value(), o};
+                    if (empty(p)) return {};
+                    script o = p.first().pay(to.first().key());
+                    if (o != script{}) {
+                        outs = outs + output{to.first().value(), o};
                         break;
-                    } else pay = pay.rest();
+                    } else p = p.rest();
                 }
                 to = to.rest();
             }
