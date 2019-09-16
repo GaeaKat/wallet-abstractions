@@ -18,7 +18,7 @@ namespace abstractions::redeem {
         const bool Valid;
         
         static satoshi balance(const queue<spendable> entries) {
-            return fold([](satoshi b, spendable s)->satoshi{return b + value<spendable>(s);}, 0, entries);
+            return fold([](satoshi b, spendable s)->satoshi{return b + value<spendable>(s);}, satoshi{0}, entries);
         }
         
         static bool valid(const queue<spendable> entries) {

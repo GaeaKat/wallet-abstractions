@@ -124,6 +124,7 @@ add_library(wallet-abstractions STATIC
 	src/abstractions/timechain/transaction.cpp
 	src/abstractions/transaction.cpp
 	src/abstractions/wallet/address.cpp
+	src/abstractions/wallet/wallet.cpp
 	src/abstractions/script/script.cpp
 	src/abstractions/script/functions.cpp
 	src/abstractions/script/math.cpp

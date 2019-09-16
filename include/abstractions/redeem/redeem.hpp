@@ -10,7 +10,7 @@
 namespace abstractions::redeem {
     
     template <typename key, typename script, typename tx>
-    using redeemer = const typename pattern::abstract::redeemer<key, script, tx>&;
+    using redeemer = const typename pattern::abstract::pattern<key, script, tx>&;
     
     template <typename script>
     using output = typename output<script>::representation;

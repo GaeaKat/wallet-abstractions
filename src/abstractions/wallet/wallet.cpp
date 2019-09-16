@@ -19,7 +19,7 @@ namespace abstractions::bitcoin {
         using unspent = inner::unspent; 
         unspent u = inner::spend(to.append(data::map::entry<tag, satoshi>{inner::Pay.first().tag(next), change}));
         if (!u.valid()) return {};
-        return spent{u, wallet{funds{{u.Inputs.last()}}, Pay}};
+        return spent{u, wallet{funds{queue<spendable>{list<spendable>{} + u.Inputs.last()}}, Pay}};
     }
 
 }

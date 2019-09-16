@@ -18,8 +18,8 @@ namespace abstractions::bitcoin {
     using pattern = const abstractions::pattern::abstract::pattern<secret, script,
         abstractions::transaction<input, output>>&;
     
-    using unspent = abstractions::redeem::unspent<secret, script, txid>;
-    using spendable = redeem::spendable<secret, script, txid>;
+    using unspent = redeem::unspent<script, txid, secret>;
+    using spendable = redeem::spendable<script, txid, secret>;
     
     const auto pay_to_address_compressed =
         abstractions::pattern::pay_to_address<secret,
