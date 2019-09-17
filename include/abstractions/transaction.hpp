@@ -183,6 +183,8 @@ namespace abstractions {
             int32 version() const {
                 return Version;
             }
+            
+            satoshi fee() const;
         
         };
         
@@ -207,6 +209,10 @@ namespace abstractions {
         
         int32 version() const {
             return representation{*this}.Version;
+        }
+        
+        satoshi fee() const {
+            return representation{*this}.fee();
         }
         
         slice<bytes> outputs() const;

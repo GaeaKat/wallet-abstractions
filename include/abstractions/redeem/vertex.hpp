@@ -21,13 +21,13 @@ namespace abstractions::redeem {
         
         satoshi redeemed() const {
             return reduce([](in a, in b)->satoshi{
-                value(a) + value(b);
+                return value(a) + value(b);
             }, Inputs);
         }
         
         satoshi spent() const {
             return reduce([](out a, out b)->satoshi{
-                value(a) + value(b);
+                return value(a) + value(b);
             }, Inputs);
         }
         

@@ -30,7 +30,6 @@ namespace abstractions::bitcoin {
         struct spent;
         
         spent spend(queue<data::map::entry<tag, satoshi>> to, satoshi fee, secret next);
-        
         spent spend(queue<data::map::entry<tag, satoshi>> to, secret next);
     };
         

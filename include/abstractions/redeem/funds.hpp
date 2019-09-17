@@ -14,22 +14,27 @@ namespace abstractions::redeem {
         using spendable = typename redeem::spendable<script, txid, key>;
         
         const queue<spendable> Entries;
-        const satoshi Balance;
+        const satoshi Value;
         const bool Valid;
         
-        static satoshi balance(const queue<spendable> entries) {
-            return fold([](satoshi b, spendable s)->satoshi{return b + value<spendable>(s);}, satoshi{0}, entries);
+        static satoshi value(const queue<spendable> entries) {
+            return fold([](satoshi b, spendable s)->satoshi{return b + abstractions::value(s);}, satoshi{0}, entries);
         }
         
         static bool valid(const queue<spendable> entries) {
             return fold([](bool b, spendable s)->bool{return b && s.valid();}, true, entries);
         }
         
-        funds() : Entries{}, Balance{0}, Valid{true} {}
-        funds(const queue<spendable> e) : Entries{e}, Balance{balance(e)}, Valid{valid(e)} {}
+        funds() : Entries{}, Value{0}, Valid{true} {}
+        funds(spendable e) : Entries{queue<spendable>::make(e)}, Value{abstractions::value(e)}, Valid{e.valid()} {}
+        funds(const queue<spendable> e) : Entries{e}, Value{value(e)}, Valid{valid(e)} {}
         
         funds import(spendable s) const {
-            return {Entries + s, Balance + value(s), Valid && s.valid()};
+            return {Entries + s, Value + value(s), Valid && s.valid()};
+        }
+        
+        satoshi value() const {
+            return Value;
         }
         
         using transaction = typename unspent::transaction;
@@ -43,8 +48,9 @@ namespace abstractions::redeem {
         transaction redeem(queue<output> o) const {
             return spend(o).redeem();
         }
+        
     private:
-        funds(const queue<spendable> e, const satoshi b) : Entries{e}, Balance{b} {}
+        funds(const queue<spendable> e, const satoshi b) : Entries{e}, Value{b} {}
     };
     
 } 

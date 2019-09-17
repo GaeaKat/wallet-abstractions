@@ -5,6 +5,7 @@
 #define TEST_COSMOS_STAGE_2
 
 #include <abstractions/wallet/spendable.hpp>
+#include <abstractions/redeem/funds.hpp>
 
 namespace abstractions::bitcoin::cosmos::test {
     // thrown for failed tests
@@ -14,6 +15,8 @@ namespace abstractions::bitcoin::cosmos::test {
     // list of keys that are used to construct tests. 
     vector<secret> keys();
     
+    // The test goes through several rounds of redeeming 
+    // outputs and creating txs. 
     struct step {
         secret Key;
         pattern Pattern;
@@ -21,24 +24,32 @@ namespace abstractions::bitcoin::cosmos::test {
     
     using steps = queue<step>;
     
-    steps thread(queue<secret> k, queue<pattern> p) {
-        if (p.empty() || k.empty()) return {};
-        return steps{{step{k.first(), p.first()}}}.append(thread(k.rest(), p.rest()));
+    struct thread {
+        steps operator()(queue<secret> k) {
+            return {};
+        }
+        
+        template <typename P, typename ... rest>
+        steps operator()(queue<secret> k, P p, rest... r) {
+            if (k.empty()) return {};
+            return steps::make(step{k.first(), static_cast<pattern>(p)}).append(
+                operator()(k.rest(), r...));
+        }
+    };
+    
+    // 1 satoshi per byte is the standard rate currently. 
+    bool reasonable_fee(const transaction& tx) {
+        return tx.fee() >= tx.size();
     }
-    
-    satoshi expected_cost(unspent v);
-    
-    bool valid_scripts(list<output> prevout, const transaction& tx);
-    
-    bool reasonable_fee(const transaction& tx); 
     
     using funds = redeem::funds<script, txid, secret>;
     
-    bool test_tx(funds prevout, const transaction& tx);
+    // Test everything about whether a tx is good. 
+    bool test_tx(queue<output> prevout, const transaction& tx);
     
-    spendable round(spendable spend, step next);
+    funds round(funds to_spend, step next);
     
-    spendable run(spendable init, queue<step> steps);
+    funds run(funds init, queue<step> steps);
     
     struct initial {
         satoshi Amount;
@@ -47,32 +58,31 @@ namespace abstractions::bitcoin::cosmos::test {
     
     initial make_initial(); // make fake initial input;
     
+    funds make_initial_funds(initial, step); 
+    
     struct sequence {
-        spendable Init;
+        funds Init;
         queue<step> Steps;
         
-        spendable operator()() const {
+        funds operator()() const {
             return run(Init, Steps);
         }
         
-        sequence(queue<pattern> p, queue<secret> k, initial i) : 
-            Init{k.first(),
-                output{i.Amount, p.first().pay(k.first())}, 
-                i.Outpoint,
-                static_cast<redeemer>(p.first())}, 
-            Steps{thread(k.rest(), p.rest())} {}
+        sequence(initial i, queue<step> s) : Init{make_initial_funds(i, s.first())}, Steps{s.rest()} {}
+        
     };
     
-    pattern p = pay_to_address_compressed;
-    pattern p_a_u = pay_to_address_uncompressed;
-    pattern p_p_c = pay_to_pubkey_compressed;
-    pattern p_p_u = pay_to_pubkey_uncompressed;
+    auto p = pay_to_address_compressed;
+    auto p_a_u = pay_to_address_uncompressed;
+    auto p_p_c = pay_to_pubkey_compressed;
+    auto p_p_u = pay_to_pubkey_uncompressed;
     
-    list<queue<pattern>> test_data_2{
-        list<pattern>::make(&p, &p, &p), 
-        list<pattern>::make(&p, &p_a_u, &p), 
-        list<pattern>::make(&p, &p_p_c, &p), 
-        list<pattern>::make(&p, &p_p_u, &p)};
+    queue<secret> test_keys();
+    
+    sequence test_sequence_1{make_initial(), thread{}(test_keys(), &p, &p, &p)};
+    sequence test_sequence_2{make_initial(), thread{}(test_keys(), &p, &p_a_u, &p)};
+    sequence test_sequence_3{make_initial(), thread{}(test_keys(), &p, &p_p_c, &p)};
+    sequence test_sequence_4{make_initial(), thread{}(test_keys(), &p, &p_p_u, &p)};
     
 }
 

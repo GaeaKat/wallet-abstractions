@@ -12,24 +12,24 @@ namespace abstractions::redeem {
     template <typename script, typename txid, typename key>
     struct spendable : public debit<redeem::output<script>, redeem::outpoint<txid>> {
         using transaction = redeem::transaction<txid, script>;
-        using redeemer = redeem::redeemer<key, script, transaction>;
+        using pattern = redeem::pattern<key, script, transaction>;
         using output = redeem::output<script>;
         using outpoint = redeem::outpoint<txid>;
         using debit = redeem::debit<output, outpoint>;
         using input = redeem::input<txid, script>;
         
         key Key;
-        redeemer Redeemer;
+        pattern Pattern;
         
-        spendable(output o, outpoint p, key k, redeemer r) : debit{o, p}, Key{k}, Redeemer{r} {}
-        spendable(debit d, key k, redeemer r) : debit{d}, Key{k}, Redeemer{r} {}
+        spendable(output o, outpoint p, key k, pattern r) : debit{o, p}, Key{k}, Pattern{r} {}
+        spendable(debit d, key k, pattern r) : debit{d}, Key{k}, Pattern{r} {}
         
         bool valid() const {
-            return debit::valid() && Key.valid() && Redeemer.pay(Key) == debit::Output.script();
+            return debit::valid() && Key.valid() && Pattern.pay(Key) == debit::Output.script();
         }
         
         input redeem(transaction t, index i) const {
-            return input{debit::Outpoint, Redeemer.redeem(value(debit::Output), debit::Output.script(), t, i, Key)};
+            return input{debit::Outpoint, Pattern.redeem(value(debit::Output), debit::Output.script(), t, i, Key)};
         }
     };
     

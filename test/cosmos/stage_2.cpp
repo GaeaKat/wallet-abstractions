@@ -2,29 +2,35 @@
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #include "stage_2.hpp"
+#include <abstractions/wallet/wallet.hpp>
 
 namespace abstractions::bitcoin::cosmos::test {
     
-    bool test_tx(vector<spendable> prevout, const transaction& tx) {
+    // test whether the tx is valid. This requires the previous
+    // outputs that have been redeemed by it. 
+    bool valid_scripts(queue<output> prevout, const transaction& tx);
+    
+    bool test_tx(queue<output> prevout, const transaction& tx) {
         if (!tx.valid()) return false;
         if (!valid_scripts(prevout, tx)) return false;
         if (!reasonable_fee(tx)) return false;
         return true;
     }
     
-    spendable run(spendable init, queue<step> steps) {
+    funds run(funds init, queue<step> steps) {
         return data::fold(&round, init, steps);
     }
     
-    spendable round(spendable spend, step next) {
-        satoshi spent = spend.Output.Value;
+    funds round(funds to_spend, step next) {
+        satoshi spent = abstractions::value(to_spend);
         script pay = next.Pattern.pay(next.Key);
-        satoshi fee = expected_cost(bitcoin::vertex{{spend}, {output{spent, pay}}});
+        wallet{to_spend, list<pattern>::make(next.Pattern), one_satoshi_per_byte}.spend({}, next.Key);
+        satoshi fee = expected_cost(redeem::vertex{{to_spend}, {output{spent, pay}}});
         if (fee > spent) throw failure{};
         output out{spent - fee, pay};
-        transaction tx = vertex{{spend}, {out}}.redeem();
+        transaction tx = redeem::vertex{{to_spend}, {out}}.redeem();
         if (!test_tx({spend}, tx)) throw failure{};
-        return spendable{next.Key, out, outpoint{tx.id(), 0}, static_cast<redeemer>(next.Pattern)};
+        return spendable{next.Key, out, outpoint{tx.id(), 0}, next.Pattern};
     }
     
 }

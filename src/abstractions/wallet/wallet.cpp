@@ -7,7 +7,7 @@ namespace abstractions::bitcoin {
         
     wallet::spent wallet::spend(queue<data::map::entry<tag, satoshi>> to, satoshi fee, secret next) {
         if (!valid()) return {};
-        satoshi balance = wallet::balance();
+        satoshi balance = wallet::value();
         satoshi amount_spent = fee + 
             data::fold(
                 [](satoshi p, data::map::entry<tag, satoshi> e)->satoshi{

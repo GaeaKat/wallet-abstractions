@@ -29,6 +29,10 @@ namespace abstractions::timechain::transaction {
         int32 version(tx t) const {
             return t.version();
         }
+        
+        satoshi fee(tx t) const {
+            return t.fee();
+        }
     
     };
         

@@ -15,6 +15,7 @@ namespace abstractions::bitcoin {
 
     using redeemer = const abstractions::pattern::abstract::redeemer<secret, script,
         abstractions::transaction<input, output>>&;
+    using payable = const abstractions::pattern::abstract::payable<secret, script>&;
     using pattern = const abstractions::pattern::abstract::pattern<secret, script,
         abstractions::transaction<input, output>>&;
     

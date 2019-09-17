@@ -13,7 +13,7 @@ namespace abstractions::redeem {
         using funds = redeem::funds<script, txid, key>;
         using transaction = typename funds::transaction;
         using unspent = typename funds::unspent;
-        using payable = pattern::abstract::addressable<key, script, tag>&;
+        using payable = abstractions::pattern::abstract::addressable<key, script, tag>&;
         
         funds Funds;
         
@@ -28,8 +28,8 @@ namespace abstractions::redeem {
             return Funds.Valid && Pay.size() > 0;
         }
         
-        satoshi balance() const {
-            return Funds.Balance;
+        satoshi value() const {
+            return Funds.Value;
         }
         
         transaction redeem(queue<data::map::entry<tag, satoshi>> to) const {
