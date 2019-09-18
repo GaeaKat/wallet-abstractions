@@ -4,8 +4,8 @@
 #ifndef ABSTRACTIONS_PATTERN_PAY_TO_ADDRESS
 #define ABSTRACTIONS_PATTERN_PAY_TO_ADDRESS
 
-#include <abstractions/wallet/transaction.hpp>
-#include <abstractions/pattern.hpp>
+#include <abstractions/crypto/secp256k1.hpp>
+#include <abstractions/transaction.hpp>
 #include <abstractions/script/pay_to_address.hpp>
 
 namespace abstractions::pattern {
@@ -30,8 +30,9 @@ namespace abstractions::pattern {
         }
         
         script redeem(satoshi amount, script script_pubkey, const tx& t, index i, const secret& k) const final override {
+            abstractions::output<script> o{amount, script_pubkey};
             return abstractions::script::redeem_from_pay_to_address(
-                bitcoin::sign(bitcoin::output{amount, script_pubkey}, t, i, k), k.to_public().Pubkey)->compile();
+                secp256k1::sign(o, t, i, k.Secret), k.to_public().Pubkey)->compile();
         }
         
     };

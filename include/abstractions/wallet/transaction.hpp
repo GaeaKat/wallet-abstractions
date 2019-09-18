@@ -90,8 +90,6 @@ namespace abstractions {
             }
             
         };
-    
-        signature sign(output, const transaction&, uint32, secret);
         
     }
 

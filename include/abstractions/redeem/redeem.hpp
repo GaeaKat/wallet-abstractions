@@ -22,7 +22,7 @@ namespace abstractions::redeem {
     using input = typename input<txid, script>::representation;
     
     template <typename txid, typename script>
-    using transaction = transaction<input<txid, script>, output<script>>;
+    using transaction = transaction<txid, script>;
     
 } 
 

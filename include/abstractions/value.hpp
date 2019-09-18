@@ -10,7 +10,7 @@ namespace abstractions {
         
         template <typename X>
         struct value {
-            bool operator()(const X x) const {
+            satoshi operator()(const X x) const {
                 return x.value();
             }
         };
@@ -18,7 +18,7 @@ namespace abstractions {
     }
 
     template <typename X>
-    inline bool value(X x) {      
+    inline satoshi value(X x) {      
         return meta::value<X>{}(x);
     }
 

@@ -6,7 +6,8 @@
 
 #include <abstractions/timechain/transaction.hpp>
 #include <abstractions/timechain/outpoint.hpp>
-#include <abstractions/crypto/hash/sha512.hpp>
+#include <abstractions/value.hpp>
+#include <abstractions/crypto/address.hpp>
 
 namespace abstractions {
     
@@ -21,6 +22,7 @@ namespace abstractions {
             representation(satoshi v, ops o) : Valid{true}, Value{v}, ScriptPubKey{o} {}
             representation(const output&) noexcept;
             representation() : Valid{false}, Value{}, ScriptPubKey{} {}
+            representation& operator=(const representation& o);
             
             ops script() const {
                 return ScriptPubKey;
@@ -47,6 +49,7 @@ namespace abstractions {
         
         output() : std::vector<byte>{} {}
         output(bytes& b) : std::vector<byte>{b} {}
+        output(satoshi v, ops o) : output{representation{v, o}} {}
         output(const representation&) noexcept;
         
         output& operator=(const output& o) {
@@ -70,6 +73,7 @@ namespace abstractions {
             representation(txid tx, tx_index i) : Valid{true}, Reference{tx}, Index{i} {}
             representation(const outpoint&) noexcept;
             representation() : Valid{false}, Reference{}, Index{} {}
+            representation& operator=(const representation& o);
             
             bool valid() const {
                 return Valid;
@@ -90,6 +94,7 @@ namespace abstractions {
         
         outpoint() : std::vector<byte>{} {}
         outpoint(bytes& b) : std::vector<byte>{b} {}
+        outpoint(txid tx, tx_index i) : outpoint{representation{tx, i}} {}
         outpoint(const representation&) noexcept;
         
         outpoint& operator=(const outpoint& o) {
@@ -115,6 +120,7 @@ namespace abstractions {
             representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
             representation(const input&) noexcept;
             representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
+            representation& operator=(const representation& i);
             
             ops& script() const {
                 return ScriptSignature;
@@ -144,36 +150,57 @@ namespace abstractions {
     };
     
     template <typename in, typename out>
-    struct transaction : public std::vector<byte> {
+    struct vertex {
+        queue<in> Inputs;
+        queue<out> Outputs;
         
-        struct representation {
+        vertex() : Inputs{}, Outputs{} {}
+        vertex(queue<in> i, queue<out> o) : Inputs{i}, Outputs{o} {}
+        
+        satoshi redeemed() const {
+            return fold([](satoshi v, in x)->satoshi{
+                return value(x) + v;
+            }, satoshi{0}, Inputs);
+        }
+        
+        satoshi spent() const {
+            return fold([](satoshi v, out x)->satoshi{
+                return value(x) + v;
+            }, satoshi{0}, Outputs);
+        }
+        
+        int fee() const {
+            return [](satoshi r, satoshi s)->satoshi{if (s > r) return 0; return r - s;}(redeemed(), spent());
+        }
+        
+        bool valid() const {
+            return Inputs.size() > 0 && Outputs.size() > 0 && fee() >= 0;
+        }
+    };
+    
+    template <typename txid, typename ops>
+    struct transaction : public std::vector<byte> {
+        using in = typename input<txid, ops>::representation;
+        using out = typename output<ops>::representation;
+        struct representation : public vertex<in, out> {
             bool Valid;
         public:
             int32 Version;
-            list<in> Inputs;
-            list<out> Outputs;
             uint32 Locktime;
                 
-            representation(int32 v, list<in> i, list<out> o,uint32 l) :
-                Valid{true}, Version{v}, Inputs{i}, Outputs{o}, Locktime{l} {}
+            representation(int32 v, queue<in> i, queue<out> o, uint32 l) : vertex<in, out>{i, o}, 
+                Valid{true}, Version{v}, Locktime{l} {}
                 
-            representation(int32 v, list<in> i, list<out> o) : representation{v, i, o, 0} {}
-            representation(list<in> i, list<out> o,uint32 l) : representation{2, i, o, l} {}
-            representation(list<in> i, list<out> o) : representation{2, i, o} {}
+            representation(int32 v, queue<in> i, queue<out> o) : representation{v, i, o, 0} {}
+            representation(queue<in> i, queue<out> o,uint32 l) : representation{2, i, o, l} {}
+            representation(queue<in> i, queue<out> o) : representation{2, i, o} {}
             
             representation(const transaction&) noexcept;
-            representation() : Valid{false}, Inputs{}, Outputs{}, Locktime{} {}
+            representation() : vertex<in, out>{}, Valid{false}, Locktime{} {}
+            representation& operator=(const representation& i);
             
             bool valid() const {
                 return Valid;
-            }
-            
-            slice<out> outputs() const {
-                return Outputs;
-            }
-            
-            slice<in> inputs() const {
-                return Inputs;
             }
             
             uint32 locktime() const {
@@ -183,16 +210,14 @@ namespace abstractions {
             int32 version() const {
                 return Version;
             }
-            
-            satoshi fee() const;
         
         };
         
         transaction() : std::vector<byte>{} {}
         transaction(bytes& b) : std::vector<byte>{b} {}
         transaction(const representation&) noexcept;
-        transaction(vector<in> i, vector<out> o) : transaction{representation{i, o}} {}
-        transaction(vector<in> i, vector<out> o, uint32 l) : transaction{representation{i, o, l}} {}
+        transaction(queue<in> i, queue<out> o) : transaction{representation{i, o}} {}
+        transaction(queue<in> i, queue<out> o, uint32 l) : transaction{representation{i, o, l}} {}
         
         transaction& operator=(const transaction& t) {
             std::vector<byte>::operator=(static_cast<bytes&>(t));
@@ -215,12 +240,54 @@ namespace abstractions {
             return representation{*this}.fee();
         }
         
+        txid id() const {
+            return crypto::hash512(*this);
+        }
+        
         slice<bytes> outputs() const;
         slice<bytes> inputs() const;
         
         constexpr static timechain::transaction::interface<transaction::representation, in, out> representation_is_tx{};
         constexpr static timechain::transaction::interface<transaction, bytes, bytes> is_tx{};
     };
+    
+    template <typename txid>
+    typename outpoint<txid>::representation&
+    outpoint<txid>::representation::operator=(const representation& o) {
+        Valid = o.Valid;
+        Reference = o.Reference;
+        Index = o.Index;
+        return *this;
+    }
+    
+    template <typename ops>
+    typename output<ops>::representation&
+    output<ops>::representation::operator=(const representation& o) {
+        Valid = o.Valid;
+        Value = o.Value;
+        ScriptPubKey = o.ScriptPubKey;
+        return *this;
+    }
+    
+    template <typename txid, typename ops>
+    typename input<txid, ops>::representation&
+    input<txid, ops>::representation::operator=(const representation& i) {
+        Valid = i.Valid;
+        Outpoint = i.Outpoint;
+        ScriptSignature = i.ScriptSignature;
+        Sequence = i.Sequence;
+        return *this;
+    }
+    
+    template <typename txid, typename ops>
+    typename transaction<txid, ops>::representation&
+    transaction<txid, ops>::representation::operator=(const representation& t) {
+        Valid = t.Valid;
+        Version = t.Version;
+        Locktime = t.Locktime;
+        return *this;
+    }
+
     
 } 
 

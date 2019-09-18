@@ -11,10 +11,10 @@ namespace abstractions::redeem {
     template <typename out, typename point>
     struct debit {
         out Output;
-        point Point;
+        point Outpoint;
         
         bool valid() const {
-            return Output.valid() && Point.valid();
+            return Output.valid() && Outpoint.valid();
         }
         
         satoshi value() const {

@@ -4,28 +4,38 @@
 #include <abstractions/wallet/wallet.hpp>
 
 namespace abstractions::bitcoin {
-        
-    wallet::spent wallet::spend(queue<data::map::entry<tag, satoshi>> to, satoshi fee, secret next) {
-        if (!valid()) return {};
-        satoshi balance = wallet::value();
-        satoshi amount_spent = fee + 
+    unspent spend(funds f, to out) {
+        satoshi balance = f.value();
+        satoshi amount_spent = 
             data::fold(
-                [](satoshi p, data::map::entry<tag, satoshi> e)->satoshi{
-                    return p + e.Value;
-                }, 0, to);
+                [](satoshi p, pointer<payment> e)->satoshi{
+                    return p + e->Value;
+                }, 0, out);
         if (amount_spent > balance) return {};
         
-        satoshi change = balance - amount_spent;
-        using unspent = inner::unspent; 
-        unspent u = inner::spend(to.append(data::map::entry<tag, satoshi>{inner::Pay.first().tag(next), change}));
-        if (!u.valid()) return {};
-        return spent{u, wallet{funds{queue<spendable>{list<spendable>{} + u.Inputs.last()}}, Pay}};
+        queue<output> outs{};
+        while (!empty(out)) {
+            output o = out.first()->pay();
+            if (!o.valid()) return {};
+            out = out.rest();
+            outs = outs.append(o);
+        }
+        return f.spend(outs);
     }
-        
-    wallet::spent wallet::spend(queue<data::map::entry<tag, satoshi>> to, secret next) {
-        spent no_fee = spend(to, 0, next);
-        satoshi fee = Fees(no_fee.Transaction.expected_size(), no_fee.Transaction.signature_operations());
-        return spend(to, fee, next); // TODO inefficient.
+    
+    wallet::spent wallet::spend(to out, change next, satoshi fee) const {
+        output mine = next.pay(fee);
+        unspent u = bitcoin::spend(Funds, out.append(std::make_shared<to_script>(mine)));
+        if (!u.valid()) return {};
+        transaction t = u.redeem();
+        return spent{t, wallet{spendable{mine, outpoint{crypto::txid(t), t.outputs().size()}, next.Key, next.Pattern}}};
+    }
+    
+    wallet::spent wallet::spend(to out, change next, fee_calculator fees) const {
+        output remainder = next.pay(0);
+        unspent no_fee = bitcoin::spend(Funds, out.append(std::make_shared<to_script>(remainder)));
+        satoshi fee = fees(no_fee.expected_size(), no_fee.signature_operations());
+        return spend(out, next, fee);
     }
 
 }

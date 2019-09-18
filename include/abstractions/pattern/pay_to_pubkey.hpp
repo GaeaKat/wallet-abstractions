@@ -4,9 +4,9 @@
 #ifndef ABSTRACTIONS_PATTERN_PAY_TO_PUBKEY
 #define ABSTRACTIONS_PATTERN_PAY_TO_PUBKEY
 
-#include <abstractions/wallet/keys.hpp>
+#include <abstractions/crypto/secp256k1.hpp>
+#include <abstractions/transaction.hpp>
 #include <abstractions/wallet/machine.hpp>
-#include <abstractions/wallet/transaction.hpp>
 #include <abstractions/pattern.hpp>
 #include <abstractions/script/pay_to_pubkey.hpp>
 
@@ -28,8 +28,9 @@ namespace abstractions::pattern {
         }
         
         script redeem(satoshi amount, script s, const tx& t, index i, const secret& k) const final override {
+            abstractions::output<script> o{amount, s};
             return abstractions::script::redeem_from_pay_to_pubkey(
-                bitcoin::sign(bitcoin::output{amount, s}, t, i, k))->compile();
+                secp256k1::sign(o, t, i, k.Secret))->compile();
         }
     
     };

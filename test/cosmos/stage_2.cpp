@@ -22,8 +22,11 @@ namespace abstractions::bitcoin::cosmos::test {
     }
     
     funds round(funds to_spend, step next) {
+        // amount that will be spent in this tx. 
         satoshi spent = abstractions::value(to_spend);
+        
         script pay = next.Pattern.pay(next.Key);
+        
         wallet{to_spend, list<pattern>::make(next.Pattern), one_satoshi_per_byte}.spend({}, next.Key);
         satoshi fee = expected_cost(redeem::vertex{{to_spend}, {output{spent, pay}}});
         if (fee > spent) throw failure{};

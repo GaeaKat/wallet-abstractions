@@ -4,12 +4,9 @@
 #ifndef ABSTRACTIONS_WALLET_WALLET
 #define ABSTRACTIONS_WALLET_WALLET
 
-#include <abstractions/redeem/wallet.hpp>
-#include "keys.hpp"
-#include "address.hpp"
-#include "transaction.hpp"
+#include <abstractions/redeem/funds.hpp>
+#include "payment.hpp"
 #include "outpoint.hpp"
-#include "spendable.hpp"
 
 namespace abstractions::bitcoin {
     
@@ -19,22 +16,47 @@ namespace abstractions::bitcoin {
         return size;
     }
     
-    struct wallet : redeem::wallet<script, txid, secret, tag> {
-        using inner = redeem::wallet<script, txid, secret, tag>;
+    struct change {
+        pattern Pattern;
+        secret Key;
         
-        fee_calculator Fees;
-        wallet(fee_calculator fees = one_satoshi_per_byte) : inner{}, Fees{fees} {}
-        wallet(list<payable> pay, fee_calculator fees = one_satoshi_per_byte) : inner{pay}, Fees{fees} {}
-        wallet(funds f, list<payable> pay, fee_calculator fees = one_satoshi_per_byte) : inner{f, pay}, Fees{fees} {}
+        output pay(satoshi value) const {
+            return output{value, Pattern.pay(Key)};
+        }
+    };
+    
+    using funds = redeem::funds<script, txid, secret>;
+    using to = queue<pointer<payment>>;
+    
+    unspent spend(funds, to);
+    
+    struct wallet {
+        funds Funds;
+        
+        wallet() : Funds{} {}
+        wallet(funds f) : Funds{f} {}
+        wallet(spendable x) : Funds{x} {}
+        
+        bool valid() const {
+            return Funds.Valid;
+        }
+        
+        bool value() const {
+            return Funds.Value;
+        }
         
         struct spent;
         
-        spent spend(queue<data::map::entry<tag, satoshi>> to, satoshi fee, secret next);
-        spent spend(queue<data::map::entry<tag, satoshi>> to, secret next);
-    };
+        // provide a means of creating a change output and 
+        // ensure that the mining fee is the fee that is given. 
+        spent spend(to out, change next, satoshi fee) const;
         
+        // provide a fee calculator instead. 
+        spent spend(to out, change next, fee_calculator fees = one_satoshi_per_byte) const;
+    };
+    
     struct wallet::spent {
-        unspent Transaction;
+        transaction Transaction;
         wallet Remainder;
         
         bool valid() const {
@@ -44,7 +66,7 @@ namespace abstractions::bitcoin {
         friend struct wallet;
     private :
         spent() : Transaction{}, Remainder{} {}
-        spent(unspent t, wallet w) : Transaction{t}, Remainder{w} {}
+        spent(transaction t, wallet w) : Transaction{t}, Remainder{w} {}
     };
 
 }

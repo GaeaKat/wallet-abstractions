@@ -8,11 +8,10 @@
 #include "debit.hpp"
 
 namespace abstractions::redeem {
-    
     template <typename script, typename txid, typename key>
     struct spendable : public debit<redeem::output<script>, redeem::outpoint<txid>> {
         using transaction = redeem::transaction<txid, script>;
-        using pattern = redeem::pattern<key, script, transaction>;
+        using pattern = redeem::pattern<key, script, transaction>&;
         using output = redeem::output<script>;
         using outpoint = redeem::outpoint<txid>;
         using debit = redeem::debit<output, outpoint>;

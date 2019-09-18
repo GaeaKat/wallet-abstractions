@@ -5,7 +5,6 @@
 #define SATOSHI_SV_SV
 
 #include <abstractions/crypto/hash/sha256.hpp>
-#include <abstractions/wallet/transaction.hpp>
 
 #include <satoshi_sv/src/uint256.h>
 #include <satoshi_sv/src/script/interpreter.h>
@@ -18,8 +17,8 @@ namespace abstractions::sv {
     
     sha256::digest convert(const digest);
     
-    CTransaction convert(const bitcoin::transaction&);
-    CScript convert(bitcoin::script&);
+    CTransaction read_transaction(bytes&);
+    CScript read_script(bytes&);
 } 
 
 #endif
