@@ -32,7 +32,7 @@ namespace abstractions {
 
     using byte = uint8_t;
     
-    using bytes = const vector<byte>;
+    using bytes = vector<byte>;
 
     template<typename X>
     using pointer = std::shared_ptr<X>;

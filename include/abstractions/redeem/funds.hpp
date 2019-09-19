@@ -8,10 +8,10 @@
 
 namespace abstractions::redeem {
     
-    template <typename script, typename txid, typename key>
+    template <typename script, typename txid, typename secret, typename pubkey>
     struct funds {
-        using unspent = redeem::unspent<script, txid, key>;
-        using spendable = typename redeem::spendable<script, txid, key>;
+        using unspent = redeem::unspent<script, txid, secret, pubkey>;
+        using spendable = typename redeem::spendable<script, txid, secret, pubkey>;
         
         const queue<spendable> Entries;
         const satoshi Value;
@@ -38,7 +38,7 @@ namespace abstractions::redeem {
         }
         
         using transaction = typename unspent::transaction;
-        using output = typename unspent::output;
+        using output = typename unspent::out;
         
         unspent spend(queue<output> o) const {
             if (!Valid) return {};

@@ -6,35 +6,27 @@
 
 namespace abstractions::bitcoin::cosmos::test {
     
-    // test whether the tx is valid. This requires the previous
-    // outputs that have been redeemed by it. 
-    bool valid_scripts(queue<output> prevout, const transaction& tx);
-    
-    bool test_tx(queue<output> prevout, const transaction& tx) {
-        if (!tx.valid()) return false;
-        if (!valid_scripts(prevout, tx)) return false;
-        if (!reasonable_fee(tx)) return false;
-        return true;
-    }
-    
-    funds run(funds init, queue<step> steps) {
+    wallet run(wallet init, queue<step> steps) {
         return data::fold(&round, init, steps);
     }
     
-    funds round(funds to_spend, step next) {
+    wallet round(wallet to_spend, step next) {
         // amount that will be redeemed in this tx. 
         satoshi amount_redeemed = abstractions::value(to_spend);
         satoshi amount_spent = amount_redeemed * 2 / 3;
         
-        spent wallet{to_spend}.spend(queue::make(next.Pattern.pay()), change{static_cast<pattern>(pay_to_address_compressed), next.Change});
-        //, queue<pattern>::make(next.Pattern), one_satoshi_per_byte}.spend({}, next.Key);
+        wallet::spent action = to_spend.spend(
+                to_pattern{amount_spent, next.Pattern, next.Next.to_public()}, 
+                change{pay_to_address_compressed, next.Change, one_satoshi_per_byte});
+        
+        transaction t = action.Transaction;
+        if (!t.valid()) throw failure{};
+        if (t.outputs().size() != 2) throw failure{};
+        if (!valid_scripts(to_spend.Funds.Entries, t)) throw failure{};
+        
+        transaction::representation rt{action.Transaction};
 
-        satoshi fee = expected_cost(redeem::vertex{{to_spend}, {output{spent, pay}}});
-        if (fee > spent) throw failure{};
-        output out{spent - fee, pay};
-        transaction tx = redeem::vertex{{to_spend}, {out}}.redeem();
-        if (!test_tx({spend}, tx)) throw failure{};
-        return spendable{next.Key, out, outpoint{tx.id(), 0}, next.Pattern};
+        return wallet{spendable{rt.Outputs[0], outpoint{t.id(), 0}, next.Next, next.Pattern}};
     }
     
 }

@@ -9,8 +9,8 @@
 
 namespace abstractions::redeem {
     
-    template <typename key, typename script, typename tx>
-    using pattern = const typename pattern::interface::pattern<key, script, tx>&;
+    template <typename secret, typename pubkey, typename script, typename tx>
+    using pattern = const typename pattern::interface::pattern<secret, pubkey, script, tx>&;
     
     template <typename script>
     using output = typename output<script>::representation;

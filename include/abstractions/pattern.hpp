@@ -37,17 +37,24 @@ namespace abstractions {
             };
         
             template <
-                typename Key,
+                typename Sk,
+                typename Pk, 
                 typename Script, 
                 typename Tx>
             struct pattern : 
-                public redeemer<Key, Script, Tx>, 
-                public virtual payable<Key, Script> {
-                using payable<Key, Script>::pay;
-                using redeemer<Key, Script, Tx>::redeem;
+                public data::crypto::keypair<Sk, Pk>, 
+                public redeemer<Sk, Script, Tx>, 
+                public virtual payable<Pk, Script> {
+                using payable<Pk, Script>::pay;
+                using redeemer<Sk, Script, Tx>::redeem;
+                
+                // make a script pubkey. 
+                Script pay(const Sk& k) const {
+                    return pay(data::crypto::to_public<Sk, Pk>{}(k));
+                };
                 
                 template <typename Machine>
-                void pattern_definition(output<Script> o, input_index<Tx> i, const Key& k, Machine m) const {
+                void pattern_definition(output<Script> o, input_index<Tx> i, const Sk& k, Machine m) const {
                     assert(m.run(pay(k), redeem(o, i, k), i.Transaction));
                 }
             };
@@ -99,11 +106,10 @@ namespace abstractions {
                 typename Tag, 
                 typename Tx>
             struct pay_to_address : 
-                public pattern<Sk, Script, Tx>, 
+                public pattern<Sk, Pk, Script, Tx>, 
                 public addressable<Sk, Script, Tag>, 
                 public addressable<Pk, Script, Tag>, 
-                public recognizable<Pk, Script, Tag>, 
-                public data::crypto::keypair<Sk, Pk> {
+                public recognizable<Pk, Script, Tag> {
                 using recognizable<Pk, Script, Tag>::tag;
                 using addressable<Pk, Script, Tag>::pay;
                 using addressable<Sk, Script, Tag>::pay;
@@ -120,10 +126,9 @@ namespace abstractions {
                 typename Script, 
                 typename Tx>
             struct pay_to_pubkey  : 
-                public pattern<Sk, Script, Tx>, 
+                public pattern<Sk, Pk, Script, Tx>, 
                 public addressable<Sk, Script, Pk>, 
-                public recognizable<Pk, Script, Pk>, 
-                public data::crypto::keypair<Sk, Pk> {
+                public recognizable<Pk, Script, Pk> {
                 using recognizable<Pk, Script, Pk>::tag;
                 using addressable<Sk, Script, Pk>::pay;
                 

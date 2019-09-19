@@ -5,49 +5,32 @@
 #define TEST_COSMOS_STAGE_2
 
 #include <abstractions/wallet/spendable.hpp>
-#include <abstractions/redeem/funds.hpp>
+#include <abstractions/wallet/wallet.hpp>
 
 namespace abstractions::bitcoin::cosmos::test {
     // thrown for failed tests
     // TODO replace with google test. 
     struct failure {};
     
-    // used to redeem previous output. 
-    struct previous {
-        redeemer Pattern;
-        secret Key;
-        
-        script redeem(output prevout, transaction next) const;;
-    };
-    
-    // used to create next output. 
-    struct next {
-        payable Pattern;
-        secret Key;
-    };
-    
     // The test goes through several rounds of redeeming 
     // outputs and creating txs. 
     struct step {
-        previous Previous;
-        next next;
+        pattern Pattern;
+        secret Next;
+        secret Change;
     };
     
     using steps = queue<step>;
     
-    // 1 satoshi per byte is the standard rate currently. 
-    bool reasonable_fee(const transaction& tx) {
-        return tx.fee() >= tx.size();
-    }
+    using funds = redeem::funds<script, txid, secret, pubkey>;
     
-    using funds = redeem::funds<script, txid, secret>;
+    // test whether the tx is valid. This requires the previous
+    // outputs that have been redeemed by it. 
+    bool valid_scripts(queue<spendable> prevout, const transaction& tx);
     
-    // Test everything about whether a tx is good. 
-    bool test_tx(queue<output> prevout, const transaction& tx);
+    wallet round(wallet to_spend, step next);
     
-    funds round(funds to_spend, step next);
-    
-    funds run(funds init, queue<step> steps);
+    wallet run(wallet init, queue<step> steps);
     
     struct initial {
         satoshi Amount;
@@ -59,15 +42,15 @@ namespace abstractions::bitcoin::cosmos::test {
     funds make_initial_funds(initial, step); 
     
     struct sequence {
-        funds Init;
+        wallet Init;
         queue<step> Steps;
         
-        funds operator()() const {
+        wallet operator()() const {
             return run(Init, Steps);
         }
         
-        sequence(initial i, queue<step> s);
-        
+        template <typename ... P>
+        sequence(initial i, queue<secret>, P...);
     };
     
     auto p = pay_to_address_compressed;
@@ -78,10 +61,10 @@ namespace abstractions::bitcoin::cosmos::test {
     // Need at least 6
     queue<secret> test_keys();
     
-    sequence test_sequence_1{make_initial(), thread{}(test_keys(), &p, &p, &p)};
-    sequence test_sequence_2{make_initial(), thread{}(test_keys(), &p, &p_a_u, &p)};
-    sequence test_sequence_3{make_initial(), thread{}(test_keys(), &p, &p_p_c, &p)};
-    sequence test_sequence_4{make_initial(), thread{}(test_keys(), &p, &p_p_u, &p)};
+    sequence test_sequence_1{make_initial(), test_keys(), &p, &p, &p};
+    sequence test_sequence_2{make_initial(), test_keys(), &p, &p_a_u, &p};
+    sequence test_sequence_3{make_initial(), test_keys(), &p, &p_p_c, &p};
+    sequence test_sequence_4{make_initial(), test_keys(), &p, &p_p_u, &p};
     
 }
 

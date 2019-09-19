@@ -10,7 +10,7 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        using script = std::vector<byte>;
+        using script = bytes;
 
     }
 

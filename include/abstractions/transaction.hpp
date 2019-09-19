@@ -157,24 +157,14 @@ namespace abstractions {
         vertex() : Inputs{}, Outputs{} {}
         vertex(queue<in> i, queue<out> o) : Inputs{i}, Outputs{o} {}
         
-        satoshi redeemed() const {
-            return fold([](satoshi v, in x)->satoshi{
-                return value(x) + v;
-            }, satoshi{0}, Inputs);
-        }
-        
         satoshi spent() const {
             return fold([](satoshi v, out x)->satoshi{
                 return value(x) + v;
             }, satoshi{0}, Outputs);
         }
         
-        int fee() const {
-            return [](satoshi r, satoshi s)->satoshi{if (s > r) return 0; return r - s;}(redeemed(), spent());
-        }
-        
         bool valid() const {
-            return Inputs.size() > 0 && Outputs.size() > 0 && fee() >= 0;
+            return Inputs.size() > 0 && Outputs.size() > 0;
         }
     };
     
@@ -234,10 +224,6 @@ namespace abstractions {
         
         int32 version() const {
             return representation{*this}.Version;
-        }
-        
-        satoshi fee() const {
-            return representation{*this}.fee();
         }
         
         txid id() const {

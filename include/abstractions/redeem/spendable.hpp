@@ -8,20 +8,20 @@
 #include "debit.hpp"
 
 namespace abstractions::redeem {
-    template <typename script, typename txid, typename key>
+    template <typename script, typename txid, typename secret, typename pubkey>
     struct spendable : public debit<redeem::output<script>, redeem::outpoint<txid>> {
         using transaction = redeem::transaction<txid, script>;
-        using pattern = redeem::pattern<key, script, transaction>&;
+        using pattern = redeem::pattern<secret, pubkey, script, transaction>&;
         using output = redeem::output<script>;
         using outpoint = redeem::outpoint<txid>;
         using debit = redeem::debit<output, outpoint>;
         using input = redeem::input<txid, script>;
         
-        key Key;
+        secret Key;
         pattern Pattern;
         
-        spendable(output o, outpoint p, key k, pattern r) : debit{o, p}, Key{k}, Pattern{r} {}
-        spendable(debit d, key k, pattern r) : debit{d}, Key{k}, Pattern{r} {}
+        spendable(output o, outpoint p, secret k, pattern r) : debit{o, p}, Key{k}, Pattern{r} {}
+        spendable(debit d, secret k, pattern r) : debit{d}, Key{k}, Pattern{r} {}
         
         bool valid() const {
             return debit::valid() && Key.valid() && Pattern.pay(Key) == debit::Output.script();
@@ -30,6 +30,9 @@ namespace abstractions::redeem {
         input redeem(input_index<transaction> i) const {
             return input{debit::Outpoint, Pattern.redeem(debit::Output, i, Key)};
         }
+        
+        uint32 expected_size() const;
+        uint32 signature_operations() const;
     };
     
 } 
