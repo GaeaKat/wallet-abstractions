@@ -12,30 +12,28 @@ namespace abstractions::bitcoin::cosmos::test {
     // TODO replace with google test. 
     struct failure {};
     
-    // list of keys that are used to construct tests. 
-    vector<secret> keys();
+    // used to redeem previous output. 
+    struct previous {
+        redeemer Pattern;
+        secret Key;
+        
+        script redeem(output prevout, transaction next) const;;
+    };
+    
+    // used to create next output. 
+    struct next {
+        payable Pattern;
+        secret Key;
+    };
     
     // The test goes through several rounds of redeeming 
     // outputs and creating txs. 
     struct step {
-        secret Key;
-        pattern Pattern;
+        previous Previous;
+        next next;
     };
     
     using steps = queue<step>;
-    
-    struct thread {
-        steps operator()(queue<secret> k) {
-            return {};
-        }
-        
-        template <typename P, typename ... rest>
-        steps operator()(queue<secret> k, P p, rest... r) {
-            if (k.empty()) return {};
-            return steps::make(step{k.first(), static_cast<pattern>(p)}).append(
-                operator()(k.rest(), r...));
-        }
-    };
     
     // 1 satoshi per byte is the standard rate currently. 
     bool reasonable_fee(const transaction& tx) {
@@ -68,7 +66,7 @@ namespace abstractions::bitcoin::cosmos::test {
             return run(Init, Steps);
         }
         
-        sequence(initial i, queue<step> s) : Init{make_initial_funds(i, s.first())}, Steps{s.rest()} {}
+        sequence(initial i, queue<step> s);
         
     };
     
@@ -77,6 +75,7 @@ namespace abstractions::bitcoin::cosmos::test {
     auto p_p_c = pay_to_pubkey_compressed;
     auto p_p_u = pay_to_pubkey_uncompressed;
     
+    // Need at least 6
     queue<secret> test_keys();
     
     sequence test_sequence_1{make_initial(), thread{}(test_keys(), &p, &p, &p)};

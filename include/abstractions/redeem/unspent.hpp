@@ -32,7 +32,7 @@ namespace abstractions::redeem {
         transaction incomplete = write(); 
         index i = 0;
         return transaction{for_each([&incomplete, &i](spendable<script, txid, key> s)->input{
-            return s.redeem(incomplete, i++);
+            return s.redeem(input_index<transaction>{incomplete, i++});
         }, vertex::Inputs), vertex::Outputs};
     }
     

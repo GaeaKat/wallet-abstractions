@@ -9,17 +9,23 @@
 
 namespace abstractions {
     
+    template <typename Tx>
+    struct input_index{
+        Tx Transaction;
+        index Index;
+    };
+    
     namespace pattern {
-        
-        namespace abstract {
-        
+        template <typename Script> using output = typename output<Script>::representation;
+        namespace interface {
+            
             template <
                 typename Key,
                 typename Script, 
                 typename Tx>
             struct redeemer {
                 // make a script signature. 
-                virtual Script redeem(satoshi, Script, const Tx&, index, const Key&) const = 0;
+                virtual Script redeem(output<Script>, input_index<Tx>, const Key&) const = 0;
             };
         
             template <
@@ -41,8 +47,8 @@ namespace abstractions {
                 using redeemer<Key, Script, Tx>::redeem;
                 
                 template <typename Machine>
-                void pattern_definition(satoshi s, Script in, const Tx& t, index i, const Key& k, Machine m) const {
-                    assert(m.run(pay(k), redeem(s, in, t, i, k), t));
+                void pattern_definition(output<Script> o, input_index<Tx> i, const Key& k, Machine m) const {
+                    assert(m.run(pay(k), redeem(o, i, k), i.Transaction));
                 }
             };
         

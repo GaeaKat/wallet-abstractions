@@ -22,12 +22,13 @@ namespace abstractions::bitcoin::cosmos::test {
     }
     
     funds round(funds to_spend, step next) {
-        // amount that will be spent in this tx. 
-        satoshi spent = abstractions::value(to_spend);
+        // amount that will be redeemed in this tx. 
+        satoshi amount_redeemed = abstractions::value(to_spend);
+        satoshi amount_spent = amount_redeemed * 2 / 3;
         
-        script pay = next.Pattern.pay(next.Key);
-        
-        wallet{to_spend, list<pattern>::make(next.Pattern), one_satoshi_per_byte}.spend({}, next.Key);
+        spent wallet{to_spend}.spend(queue::make(next.Pattern.pay()), change{static_cast<pattern>(pay_to_address_compressed), next.Change});
+        //, queue<pattern>::make(next.Pattern), one_satoshi_per_byte}.spend({}, next.Key);
+
         satoshi fee = expected_cost(redeem::vertex{{to_spend}, {output{spent, pay}}});
         if (fee > spent) throw failure{};
         output out{spent - fee, pay};

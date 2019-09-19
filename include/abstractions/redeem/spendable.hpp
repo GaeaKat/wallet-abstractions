@@ -27,8 +27,8 @@ namespace abstractions::redeem {
             return debit::valid() && Key.valid() && Pattern.pay(Key) == debit::Output.script();
         }
         
-        input redeem(transaction t, index i) const {
-            return input{debit::Outpoint, Pattern.redeem(value(debit::Output), debit::Output.script(), t, i, Key)};
+        input redeem(input_index<transaction> i) const {
+            return input{debit::Outpoint, Pattern.redeem(debit::Output, i, Key)};
         }
     };
     

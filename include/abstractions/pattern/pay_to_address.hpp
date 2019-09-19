@@ -11,9 +11,9 @@
 namespace abstractions::pattern {
         
     template <typename secret, typename pubkey, typename address, typename tx>
-    struct pay_to_address final : public pattern::abstract::pay_to_address<secret, pubkey, bytes, address, tx> {
+    struct pay_to_address final : public pattern::interface::pay_to_address<secret, pubkey, bytes, address, tx> {
         using script = bytes;
-        using parent = pattern::abstract::pay_to_address<secret, pubkey, script, address, tx>;
+        using parent = pattern::interface::pay_to_address<secret, pubkey, script, address, tx>;
         using parent::tag;
         using parent::pay;
         
@@ -29,10 +29,9 @@ namespace abstractions::pattern {
             return list<address>{abstractions::script::pay_to_address::to(s)};
         }
         
-        script redeem(satoshi amount, script script_pubkey, const tx& t, index i, const secret& k) const final override {
-            abstractions::output<script> o{amount, script_pubkey};
+        script redeem(output<bytes> o, input_index<tx> i, const secret& k) const final override {
             return abstractions::script::redeem_from_pay_to_address(
-                secp256k1::sign(o, t, i, k.Secret), k.to_public().Pubkey)->compile();
+                secp256k1::sign(abstractions::output<bytes>(o), i.Transaction, i.Index, k.Secret), k.to_public().Pubkey)->compile();
         }
         
     };

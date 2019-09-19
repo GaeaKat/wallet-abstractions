@@ -4,38 +4,18 @@
 #include <abstractions/wallet/wallet.hpp>
 
 namespace abstractions::bitcoin {
-    unspent spend(funds f, to out) {
-        satoshi balance = f.value();
-        satoshi amount_spent = 
-            data::fold(
-                [](satoshi p, pointer<payment> e)->satoshi{
-                    return p + e->Value;
-                }, 0, out);
-        if (amount_spent > balance) return {};
-        
-        queue<output> outs{};
-        while (!empty(out)) {
-            output o = out.first()->pay();
-            if (!o.valid()) return {};
-            out = out.rest();
-            outs = outs.append(o);
-        }
-        return f.spend(outs);
-    }
-    
-    wallet::spent wallet::spend(to out, change next, satoshi fee) const {
-        output mine = next.pay(fee);
-        unspent u = bitcoin::spend(Funds, out.append(std::make_shared<to_script>(mine)));
-        if (!u.valid()) return {};
-        transaction t = u.redeem();
-        return spent{t, wallet{spendable{mine, outpoint{crypto::txid(t), t.outputs().size()}, next.Key, next.Pattern}}};
-    }
-    
-    wallet::spent wallet::spend(to out, change next, fee_calculator fees) const {
-        output remainder = next.pay(0);
-        unspent no_fee = bitcoin::spend(Funds, out.append(std::make_shared<to_script>(remainder)));
-        satoshi fee = fees(no_fee.expected_size(), no_fee.signature_operations());
-        return spend(out, next, fee);
+    wallet::spent wallet::payment::spend(funds f) const {
+        satoshi amount_redeemed = f.value();
+        satoshi amount_spent = value();
+        unspent un = f.spend(Payments);
+        satoshi fee = Change.Calculator == nullptr ? Change.Fee : Change.Calculator(un.expected_size(), un.signature_operations());
+        if (amount_spent + fee > amount_redeemed) return {};
+        // no change output has been provided. Therefore the new wallet is empty. 
+        if (!Change.valid()) return spent{un.redeem(), {}};
+        output& mine = un.Outputs[ChangeIndex];
+        mine.Value = amount_redeemed - amount_spent - fee;
+        transaction t = un.redeem();
+        return spent{t, wallet{spendable{mine, outpoint{t.id(), ChangeIndex}, Change.Key, *Change.Pattern}}};
     }
 
 }
