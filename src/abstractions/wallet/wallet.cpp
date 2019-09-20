@@ -15,7 +15,7 @@ namespace abstractions::bitcoin {
         output& mine = un.Outputs[ChangeIndex];
         mine.Value = amount_redeemed - amount_spent - fee;
         transaction t = un.redeem();
-        return spent{t, wallet{spendable{mine, outpoint{t.id(), ChangeIndex}, Change.Key, *Change.Pattern}}};
+        return spent{t, wallet{spendable{mine, outpoint{t.id(), ChangeIndex}, Change.Key, Change.Pattern}}};
     }
 
 }

@@ -16,8 +16,8 @@ namespace abstractions::bitcoin::cosmos::test {
         satoshi amount_spent = amount_redeemed * 2 / 3;
         
         wallet::spent action = to_spend.spend(
-                to_pattern{amount_spent, next.Pattern, next.Next.to_public()}, 
-                change{pay_to_address_compressed, next.Change, one_satoshi_per_byte});
+                to_pattern{amount_spent, next.Pattern, next.Key.to_public()}, 
+                change{&pay_to_address_compressed, next.Change, one_satoshi_per_byte});
         
         transaction t = action.Transaction;
         if (!t.valid()) throw failure{};
@@ -26,7 +26,7 @@ namespace abstractions::bitcoin::cosmos::test {
         
         transaction::representation rt{action.Transaction};
 
-        return wallet{spendable{rt.Outputs[0], outpoint{t.id(), 0}, next.Next, next.Pattern}};
+        return wallet{spendable{rt.Outputs[0], outpoint{t.id(), 0}, next.Key, next.Pattern}};
     }
     
 }

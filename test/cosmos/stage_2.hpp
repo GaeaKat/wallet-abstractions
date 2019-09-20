@@ -16,7 +16,7 @@ namespace abstractions::bitcoin::cosmos::test {
     // outputs and creating txs. 
     struct step {
         pattern Pattern;
-        secret Next;
+        secret Key;
         secret Change;
     };
     
@@ -39,8 +39,6 @@ namespace abstractions::bitcoin::cosmos::test {
     
     initial make_initial(); // make fake initial input;
     
-    funds make_initial_funds(initial, step); 
-    
     struct sequence {
         wallet Init;
         queue<step> Steps;
@@ -49,22 +47,38 @@ namespace abstractions::bitcoin::cosmos::test {
             return run(Init, Steps);
         }
         
-        template <typename ... P>
-        sequence(initial i, queue<secret>, P...);
+        static queue<step> initialize(queue<step> x, queue<secret>, pattern) {
+            return x;
+        }
+        
+        template <typename... P>
+        static queue<step> initialize(queue<step> x, queue<secret> q, pattern a, pattern b, P... patt) {
+            return initialize(x.append(
+                step{b, q.first(), q.rest().first()}
+            ), q.rest().rest(), b, patt...);
+        }
+        
+        template <typename... P>
+        sequence(initial init, queue<secret> q, pattern p, P... patt) : 
+            Init{wallet{spendable{
+                output{init.Amount, p->pay(q.first())}, 
+                init.Outpoint, 
+                q.first(), p}}},
+            Steps{initialize({}, q.rest(), p, patt...)} {}
     };
     
-    auto p = pay_to_address_compressed;
-    auto p_a_u = pay_to_address_uncompressed;
-    auto p_p_c = pay_to_pubkey_compressed;
-    auto p_p_u = pay_to_pubkey_uncompressed;
+    pattern p = &pay_to_address_compressed;
+    //pattern p_a_u = pay_to_address_uncompressed;
+    pattern p_p_c = &pay_to_pubkey_compressed;
+    //pattern p_p_u = pay_to_pubkey_uncompressed;
     
-    // Need at least 6
+    // Need at least 5 per test sequence. (one for the first step and two for each subsequent.)
     queue<secret> test_keys();
     
-    sequence test_sequence_1{make_initial(), test_keys(), &p, &p, &p};
-    sequence test_sequence_2{make_initial(), test_keys(), &p, &p_a_u, &p};
-    sequence test_sequence_3{make_initial(), test_keys(), &p, &p_p_c, &p};
-    sequence test_sequence_4{make_initial(), test_keys(), &p, &p_p_u, &p};
+    sequence test_sequence_1{make_initial(), test_keys(), p, p, p};
+    //sequence test_sequence_2{make_initial(), test_keys(), &p, &p_a_u, &p};
+    //sequence test_sequence_3{make_initial(), test_keys(), p, p_p_c, p};
+    //sequence test_sequence_4{make_initial(), test_keys(), &p, &p_p_u, &p};
     
 }
 

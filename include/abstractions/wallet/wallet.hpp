@@ -18,18 +18,17 @@ namespace abstractions::bitcoin {
     }
     
     struct change {
-        using pattern_pointer = const abstractions::pattern::interface::pattern<secret, pubkey, script, transaction>*;
-        pattern_pointer Pattern;
+        pattern Pattern;
         secret Key;
         satoshi Fee;
         fee_calculator Calculator;
         
         // provide a means of creating a change output and 
         // ensure that the mining fee is the fee that is given. 
-        change(pattern p, secret k, satoshi fee) : Pattern{&p}, Key{k}, Fee{fee}, Calculator{nullptr} {}
+        change(pattern p, secret k, satoshi fee) : Pattern{p}, Key{k}, Fee{fee}, Calculator{nullptr} {}
         
         // provide a fee calculator instead. 
-        change(pattern p, secret k  , fee_calculator c) : Pattern{&p}, Key{k}, Fee{0}, Calculator{c} {}
+        change(pattern p, secret k  , fee_calculator c) : Pattern{p}, Key{k}, Fee{0}, Calculator{c} {}
         change() : Pattern{nullptr}, Key{}, Fee{0}, Calculator{nullptr} {}
         
         bool valid() const {
@@ -106,7 +105,7 @@ namespace abstractions::bitcoin {
             
             template <typename ... X>
             payment pay(to_pattern p, X ... rest) const {
-                return pay(output{p.Value, p.Pattern.pay(p.Key)}, rest...);
+                return pay(output{p.Value, p.Pattern->pay(p.Key)}, rest...);
             }
         };
     };

@@ -15,9 +15,9 @@
 namespace abstractions::bitcoin {
     using transaction = abstractions::transaction<txid, script>;
     
-    using redeemer = const abstractions::pattern::interface::redeemer<secret, script, transaction>&;
-    using payable = const abstractions::pattern::interface::payable<pubkey, script>&;
-    using pattern = const abstractions::pattern::interface::pattern<secret, pubkey, script, transaction>&;
+    using redeemer = const abstractions::pattern::interface::redeemer<secret, script, transaction>*;
+    using payable = const abstractions::pattern::interface::payable<pubkey, script>*;
+    using pattern = const abstractions::pattern::interface::pattern<secret, pubkey, script, transaction>*;
     
     using unspent = redeem::unspent<script, txid, secret, pubkey>;
     using spendable = redeem::spendable<script, txid, secret, pubkey>;
