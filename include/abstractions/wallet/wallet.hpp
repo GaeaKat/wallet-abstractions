@@ -18,7 +18,7 @@ namespace abstractions::bitcoin {
     }
     
     struct change {
-        using pattern_pointer = const abstractions::pattern::interface::pattern<secret, script, transaction>*;
+        using pattern_pointer = const abstractions::pattern::interface::pattern<secret, pubkey, script, transaction>*;
         pattern_pointer Pattern;
         secret Key;
         satoshi Fee;
@@ -29,7 +29,7 @@ namespace abstractions::bitcoin {
         change(pattern p, secret k, satoshi fee) : Pattern{&p}, Key{k}, Fee{fee}, Calculator{nullptr} {}
         
         // provide a fee calculator instead. 
-        change(pattern p, secret k, fee_calculator c) : Pattern{&p}, Key{k}, Fee{0}, Calculator{c} {}
+        change(pattern p, secret k  , fee_calculator c) : Pattern{&p}, Key{k}, Fee{0}, Calculator{c} {}
         change() : Pattern{nullptr}, Key{}, Fee{0}, Calculator{nullptr} {}
         
         bool valid() const {
@@ -52,7 +52,7 @@ namespace abstractions::bitcoin {
         to_address(satoshi v, address a) : Value{v}, Address{a} {}
     };
     
-    using funds = redeem::funds<script, txid, secret>;
+    using funds = redeem::funds<script, txid, secret, pubkey>;
     
     struct wallet {
         funds Funds;
@@ -103,6 +103,11 @@ namespace abstractions::bitcoin {
             payment pay(to_address a, X ... rest) const {
                 return pay(output{a.Value, abstractions::script::pay_to(a.Address)->compile()}, rest...);
             }
+            
+            template <typename ... X>
+            payment pay(to_pattern p, X ... rest) const {
+                return pay(output{p.Value, p.Pattern.pay(p.Key)}, rest...);
+            }
         };
     };
     
@@ -114,15 +119,15 @@ namespace abstractions::bitcoin {
             return Transaction.valid() && Remainder.valid();
         }
         
+        spent(transaction t, wallet w) : Transaction{t}, Remainder{w} {}
         friend struct wallet;
     private :
         spent() : Transaction{}, Remainder{} {}
-        spent(transaction t, wallet w) : Transaction{t}, Remainder{w} {}
     };
         
     template <typename ... X> 
     wallet::spent wallet::spend(X ... payments) const {
-        return payment{}(payments...).spend(Funds);
+        return payment{}.pay(payments...).spend(Funds);
     }
 
 }

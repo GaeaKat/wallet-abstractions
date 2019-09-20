@@ -16,20 +16,20 @@ namespace abstractions::bitcoin {
     using transaction = abstractions::transaction<txid, script>;
     
     using redeemer = const abstractions::pattern::interface::redeemer<secret, script, transaction>&;
-    using payable = const abstractions::pattern::interface::payable<secret, script>&;
-    using pattern = const abstractions::pattern::interface::pattern<secret, script, transaction>&;
+    using payable = const abstractions::pattern::interface::payable<pubkey, script>&;
+    using pattern = const abstractions::pattern::interface::pattern<secret, pubkey, script, transaction>&;
     
-    using unspent = redeem::unspent<script, txid, secret>;
-    using spendable = redeem::spendable<script, txid, secret>;
+    using unspent = redeem::unspent<script, txid, secret, pubkey>;
+    using spendable = redeem::spendable<script, txid, secret, pubkey>;
     
     const auto pay_to_address_compressed =
-        abstractions::pattern::pay_to_address<secret, bitcoin::pubkey, bitcoin::address, transaction>{};
+        abstractions::pattern::pay_to_address<secret, pubkey, address, transaction>{};
     const auto pay_to_address_uncompressed =
-        abstractions::pattern::pay_to_address<secret, bitcoin::uncompressed_pubkey, bitcoin::address, transaction>{};
+        abstractions::pattern::pay_to_address<secret, uncompressed_pubkey, address, transaction>{};
     const auto pay_to_pubkey_compressed =
-        abstractions::pattern::pay_to_pubkey<secret, bitcoin::pubkey, transaction>{};
+        abstractions::pattern::pay_to_pubkey<secret, pubkey, transaction>{};
     const auto pay_to_pubkey_uncompressed = 
-        abstractions::pattern::pay_to_pubkey<secret, bitcoin::uncompressed_pubkey, transaction>{};
+        abstractions::pattern::pay_to_pubkey<secret, uncompressed_pubkey, transaction>{};
     
 }
 
