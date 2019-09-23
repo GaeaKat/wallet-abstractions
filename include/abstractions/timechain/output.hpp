@@ -5,35 +5,32 @@
 #define ABSTRACTIONS_BITCOIN_OUTPUT
 
 #include <abstractions/abstractions.hpp>
+#include "timechain.hpp"
 
 namespace abstractions::timechain::output {
     
-    template <typename output, typename ops>
+    template <typename Output, typename Satoshi, typename Script>
     struct interface {
     
         // How much is stored in a given output?
-        static satoshi value(output o) {
+        static Satoshi value(Output o) {
             return o.value();
         }
             
         // What is the script defining how this output is redeemed. 
-        static ops script(output o) {
+        static Script script(Output o) {
             return o.script();
         }
         
     };
     
-    // How much is stored in a given output?
-    template <typename output, typename ops>
-    inline satoshi value(output o) {
-        return interface<output, ops>::value(o);
-    }
-            
-    // What is the script defining how this output is redeemed. 
-    template <typename output, typename ops>
-    inline ops script(output o) {
-        return interface<output, ops>::script(o);
-    }
+    struct serialized {
+        slice<byte> Data;
+        bool valid() const;
+        satoshi value() const;
+        const slice<byte> script() const;
+        constexpr static interface<serialized, satoshi, const slice<byte>> is_input{};
+    };
     
 } 
 

@@ -6,56 +6,40 @@
 #define ABSTRACTIONS_TIMECHAIN_TRANSACTION
 
 #include <abstractions/abstractions.hpp>
-#include <abstractions/association.hpp>
 #include <abstractions/timechain/output.hpp>
+#include <abstractions/timechain/input.hpp>
 
 namespace abstractions::timechain::transaction {
     
-    template <typename tx, typename in, typename out>
+    template <typename tx, typename Z, typename in, typename out, typename N>
     struct interface {
+        
+        Z version(tx t) const {
+            return t.version();
+        }
     
-        slice<out> outputs(tx t) const {
+        list<out> outputs(tx t) const {
             return t.outputs();
         }
         
-        slice<in> inputs(tx t) const {
+        list<in> inputs(tx t) const {
             return t.inputs();
         }
         
-        uint32 locktime(tx t) const {
+        N locktime(tx t) const {
             return t.locktime();
-        }
-        
-        int32 version(tx t) const {
-            return t.version();
         }
     
     };
     
-    template <typename point, typename tx>
-    using index = association<point, tx>;
-    
-    template <typename tx, typename point, typename out>
-    satoshi redeemed(index<point, tx>& b, tx t);
-    
-    template <typename tx, typename point, typename out>
-    inline satoshi spent(tx t) {
-        int r = 0;
-        for (out p : outputs(t)) r += timechain::output::value(p);
-        return r;
-    }
-    
-    template <typename tx, typename index>
-    inline int32 fee(index b, tx t) {
-        int32 redeemed = redeemed(b, t);
-        if (redeemed == 0) return 0;
-        return redeemed - spent(t);
-    }
-
-    template <typename tx, typename index>
-    inline bool positive(tx t, index b) {
-        return fee(t, b) > 0;
-    }
+    struct serialized {
+        slice<byte> Data;
+        bool valid() const;
+        int32 version();
+        list<input::serialized> inputs();
+        list<output::serialized> outputs();
+        constexpr static interface<serialized, int32, input::serialized, output::serialized, uint32> is_input{};
+    };
 
 }   
 

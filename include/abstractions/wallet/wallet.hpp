@@ -13,7 +13,7 @@ namespace abstractions::bitcoin {
     
     using fee_calculator = satoshi (*)(uint32 size, uint32 sigops);
     
-    satoshi one_satoshi_per_byte(uint32 size, uint32 sigops) {
+    inline satoshi one_satoshi_per_byte(uint32 size, uint32 sigops) {
         return size;
     }
     
