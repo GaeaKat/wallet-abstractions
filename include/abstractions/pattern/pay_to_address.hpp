@@ -31,7 +31,7 @@ namespace abstractions::pattern {
         
         script redeem(output<bytes> o, input_index<tx> i, const secret& k) const final override {
             return abstractions::script::redeem_from_pay_to_address(
-                secp256k1::sign(abstractions::output<bytes>(o), i.Transaction, i.Index, k.Secret), k.to_public().Pubkey)->compile();
+                secp256k1::sign(o.serialize(), bytes(i.Transaction), i.Index, k.Secret), k.to_public().Pubkey)->compile();
         }
         
     };

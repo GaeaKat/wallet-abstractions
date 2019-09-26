@@ -4,15 +4,15 @@
 #ifndef ABSTRACTIONS_WALLET_TXID
 #define ABSTRACTIONS_WALLET_TXID
 
-#include <data/crypto/sha512.hpp>
+#include <data/crypto/sha256.hpp>
 #include <abstractions/abstractions.hpp>
 
 namespace abstractions {
     
     namespace bitcoin {
         
-        struct txid : public data::sha512::digest {
-            using parent = data::sha512::digest;
+        struct txid : public data::sha256::digest {
+            using parent = data::sha256::digest;
             using parent::digest;
             
             bool operator==(const txid& a) const;
@@ -22,6 +22,8 @@ namespace abstractions {
             
             explicit txid(hex s);
             explicit txid(string hex_string);
+            
+            explicit operator timechain::digest() const;
             
             txid(bytes&);
             txid(parent p);
@@ -36,15 +38,15 @@ namespace abstractions {
         inline txid::txid(string hex_string) : txid{hex{hex_string}} {}
         
         inline bool txid::operator==(const txid& a) const {
-            return data::sha512::digest::operator==(static_cast<const data::sha512::digest&>(a));
+            return data::sha256::digest::operator==(static_cast<const data::sha256::digest&>(a));
         }
         
         inline bool txid::operator!=(const txid& a) const {
-            return data::sha512::digest::operator!=(static_cast<const data::sha512::digest&>(a));
+            return data::sha256::digest::operator!=(static_cast<const data::sha256::digest&>(a));
         }
         
         inline txid& txid::operator=(const txid& a) {
-            data::sha512::digest::operator=(static_cast<const data::sha512::digest&>(a));
+            data::sha256::digest::operator=(static_cast<const data::sha256::digest&>(a));
             return *this;
         }
         

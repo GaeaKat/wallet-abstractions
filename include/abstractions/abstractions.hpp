@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <vector>
 #include <data/data.hpp>
+#include <data/stream.hpp>
 
 #include <data/encoding/hex.hpp>
 #include <data/encoding/ascii.hpp>
@@ -44,8 +45,8 @@ namespace abstractions {
     using knowledge = const uint64_t; 
     
     using stringstream = std::stringstream;
-    using istream = data::istream<byte>;
-    using ostream = data::ostream<byte>;
+    using reader = data::reader;
+    using writer = data::writer;
     
     using namespace data::exported;
 

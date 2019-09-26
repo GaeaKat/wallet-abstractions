@@ -13,13 +13,13 @@ namespace abstractions::redeem {
     using pattern = const typename pattern::interface::pattern<secret, pubkey, script, tx>*;
     
     template <typename script>
-    using output = typename output<script>::representation;
+    using output = output<script>;
     
     template <typename txid>
-    using outpoint = typename outpoint<txid>::representation;
+    using outpoint = outpoint<txid>;
     
     template <typename txid, typename script>
-    using input = typename input<txid, script>::representation;
+    using input = input<txid, script>;
     
     template <typename txid, typename script>
     using transaction = transaction<txid, script>;

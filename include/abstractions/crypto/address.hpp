@@ -47,8 +47,8 @@ namespace abstractions::crypto {
     
     bool verify_checksum(const slice<byte>&);
     
-    inline sha512::digest txid(bytes& tx) {
-        return hash512(tx);
+    inline sha256::digest txid(bytes& tx) {
+        return hash256(tx);
     }
     
 } 

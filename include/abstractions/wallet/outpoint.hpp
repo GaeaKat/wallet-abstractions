@@ -12,7 +12,7 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        using outpoint = abstractions::outpoint<txid>::representation;
+        using outpoint = abstractions::outpoint<txid>;
 
     }
 

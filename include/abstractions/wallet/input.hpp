@@ -12,7 +12,7 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        using input = typename abstractions::input<txid, script>::representation;
+        using input = abstractions::input<txid, script>;
         
     }
     

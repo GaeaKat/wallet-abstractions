@@ -24,7 +24,7 @@ namespace abstractions::bitcoin::cosmos::test {
         if (t.outputs().size() != 2) throw failure{};
         if (!valid_scripts(to_spend.Funds.Entries, t)) throw failure{};
         
-        transaction::representation rt{action.Transaction};
+        transaction rt{action.Transaction};
 
         return wallet{spendable{rt.Outputs[0], outpoint{t.id(), 0}, next.Key, next.Pattern}};
     }

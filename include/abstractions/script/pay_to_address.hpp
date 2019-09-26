@@ -32,7 +32,7 @@ namespace abstractions::script {
             return Script.size();
         }
         
-        void write(ostream& o) const final override {
+        void write(writer& o) const final override {
             o << Script;
         }
         

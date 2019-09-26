@@ -29,8 +29,23 @@ namespace abstractions::timechain::output {
         bool valid() const;
         satoshi value() const;
         const slice<byte> script() const;
-        constexpr static interface<serialized, satoshi, const slice<byte>> is_input{};
+        
+        constexpr static interface<serialized, satoshi, const slice<byte>> is_output{};
     };
+    
+    template <typename Output>
+    writer write(writer w, Output o) {
+        bytes script = bytes(o.script());
+        return (w << satoshi(o.value())).write_var_int(script.size()) << script;
+    }
+    
+    template <typename Output>
+    bytes serialize(Output x) {
+        bytes b{x.size(), 0};
+        writer w{b};
+        write(w, x);
+        return b;
+    }
     
 } 
 

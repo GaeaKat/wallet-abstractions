@@ -16,7 +16,7 @@ namespace abstractions {
     };
     
     namespace pattern {
-        template <typename Script> using output = typename output<Script>::representation;
+        template <typename Script> using output = output<Script>;
         namespace interface {
             
             template <

@@ -121,8 +121,6 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/extern/data/")
 
 add_library(wallet-abstractions STATIC 
 	src/abstractions/crypto/secp265k1.cpp
-	src/abstractions/timechain/transaction.cpp
-	src/abstractions/transaction.cpp
 	src/abstractions/wallet/address.cpp
 	src/abstractions/wallet/wallet.cpp
 	src/abstractions/script/script.cpp

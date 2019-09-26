@@ -11,142 +11,119 @@
 
 namespace abstractions {
     
-    template <typename ops> 
-    struct output : public std::vector<byte> {
-        class representation {
-            bool Valid;
-        public:
-            satoshi Value;
-            ops ScriptPubKey;
-            
-            representation(satoshi v, ops o) : Valid{true}, Value{v}, ScriptPubKey{o} {}
-            representation(const output&) noexcept;
-            representation() : Valid{false}, Value{}, ScriptPubKey{} {}
-            representation& operator=(const representation& o);
-            
-            ops script() const {
-                return ScriptPubKey;
-            }
-            
-            bool valid() const {
-                return Valid;
-            }
-            
-            satoshi value() const {
-                return Value;
-            }
-        };
-        
-        bool valid() const {
-            return representation{*this}.Valid;
-        }
-        
-        satoshi value() const {
-            return representation{*this}.Value;
-        }
-        
-        const slice<byte> script() const;
-        
-        output() : std::vector<byte>{} {}
-        output(bytes& b) : std::vector<byte>{b} {}
-        output(satoshi v, ops o) : output{representation{v, o}} {}
-        output(const representation&) noexcept;
-        
-        output& operator=(const output& o) {
-            std::vector<byte>::operator=(static_cast<bytes&>(o));
-            return *this;
-        }
-        
-        constexpr static timechain::output::interface<output<ops>::representation, ops> representation_is_output{};
-    };
-    
     template <typename txid>
-    struct outpoint : public std::vector<byte> {
+    struct outpoint {
         using tx_index = abstractions::index;
+        txid Reference;
+        tx_index Index;
         
-        struct representation {
-            bool Valid;
-        public:
-            txid Reference;
-            tx_index Index;
-            
-            representation(txid tx, tx_index i) : Valid{true}, Reference{tx}, Index{i} {}
-            representation(const outpoint&) noexcept;
-            representation() : Valid{false}, Reference{}, Index{} {}
-            representation& operator=(const representation& o);
-            
-            bool valid() const {
-                return Valid;
-            }
-            
-            txid& reference() const {
-                return Reference;
-            }
-            
-            tx_index index() const {
-                return Index;
-            }
-        };
+        outpoint(txid tx, index i) : Reference{tx}, Index{i} {}
+        outpoint() : Reference{}, Index{0} {}
         
         bool valid() const {
-            return representation{*this}.Valid;
+            return data::valid(Reference);
         }
         
-        outpoint() : std::vector<byte>{} {}
-        outpoint(bytes& b) : std::vector<byte>{b} {}
-        outpoint(txid tx, tx_index i) : outpoint{representation{tx, i}} {}
-        outpoint(const representation&) noexcept;
-        
-        outpoint& operator=(const outpoint& o) {
-            std::vector<byte>::operator=(static_cast<bytes&>(o));
-            return *this;
+        const txid& reference() const {
+            return Reference;
         }
         
-        constexpr static timechain::outpoint::interface<outpoint::representation, txid&, tx_index> is_outpoint{};
+        tx_index index() const {
+            return Index;
+        }
+        
+        size_t size() const {
+            return 36;
+        }
+        
+        bytes serialize() const {
+            return timechain::outpoint::serialize(*this);
+        }
+        
+        explicit operator bytes() const {
+            return serialize();
+        }
+        
+        constexpr static timechain::outpoint::interface<outpoint, const txid&, tx_index> is_outpoint{};
     };
     
     template <typename txid, typename ops>
-    struct input : public std::vector<byte> {
-        using point = typename outpoint<txid>::representation;
+    struct input {
+        using point = outpoint<txid>;
         
-        struct representation {
-            bool Valid;
-        public:
-            point Outpoint;
-            ops ScriptSignature;
-            uint32 Sequence;
-            
-            representation(point p, ops s, uint32 n) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
-            representation(point p, ops s) : Valid{true}, Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
-            representation(const input&) noexcept;
-            representation() : Valid{false}, Outpoint{}, ScriptSignature{}, Sequence{} {}
-            representation& operator=(const representation& i);
-            
-            ops& script() const {
-                return ScriptSignature;
-            }
-            
-            bool valid() const {
-                return Valid;
-            }
-            
-            uint32 sequence() const {
-                return Sequence;
-            }
-        };
+        point Outpoint;
+        ops ScriptSignature;
+        uint32 Sequence;
+        
+        input(point p, ops s, uint32 n) : Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
+        input(point p, ops s) : Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
+        input() : Outpoint{}, ScriptSignature{}, Sequence{} {}
         
         bool valid() const {
-            return representation{*this}.Valid;
+            return data::valid(Outpoint) && data::valid(ScriptSignature);
         }
         
-        input() : std::vector<byte>{} {}
-        input(bytes& b) : std::vector<byte>{b} {}
-        input(const representation&) noexcept;
-        
-        input& operator=(const input& i) {
-            std::vector<byte>::operator=(static_cast<bytes&>(i));
-            return *this;
+        point previous() const {
+            return Outpoint;
         }
+        
+        ops& script() const {
+            return ScriptSignature;
+        }
+            
+        uint32 sequence() const {
+            return Sequence;
+        }
+        
+        size_t size() const {
+            return 40 + timechain::size_with_var_int_prefix(ScriptSignature);
+        }
+        
+        bytes serialize() const {
+            return timechain::input::serialize(*this);
+        }
+        
+        explicit operator bytes() const {
+            return serialize();
+        }
+        
+        constexpr static timechain::input::interface<input, point, ops&, uint32> is_input{};
+    };
+    
+    template <typename ops> 
+    struct output {
+        satoshi Value;
+        ops ScriptPubKey;
+        
+        output(satoshi v, ops o) : Value{v}, ScriptPubKey{o} {}
+        output(const output&) noexcept;
+        output() : Value{}, ScriptPubKey{} {}
+        
+        bool valid() const {
+            return data::valid(ScriptPubKey);
+        }
+        
+        satoshi value() const {
+            return Value;
+        }
+        
+        ops& script() const {
+            return ScriptPubKey;
+        }
+        
+        size_t size() const {
+            return 8 + timechain::size_with_var_int_prefix(ScriptPubKey);
+        }
+        
+        bytes serialize() const {
+            return timechain::output::serialize(*this);
+        }
+        
+        explicit operator bytes() const {
+            return serialize();
+        }
+        
+        constexpr static timechain::output::interface<output<ops>, satoshi, ops> is_output{};
     };
     
     template <typename in, typename out>
@@ -164,116 +141,68 @@ namespace abstractions {
         }
         
         bool valid() const {
-            return Inputs.size() > 0 && Outputs.size() > 0;
+            return data::valid(Inputs) && data::valid(Outputs) && Inputs.size() > 0 && Outputs.size() > 0;
+        }
+        
+        queue<in> inputs() const {
+            return Inputs;
+        }
+        
+        queue<out> outputs() const {
+            return Outputs;
         }
     };
     
     template <typename txid, typename ops>
-    struct transaction : public std::vector<byte> {
-        using in = typename input<txid, ops>::representation;
-        using out = typename output<ops>::representation;
-        struct representation : public vertex<in, out> {
-            bool Valid;
-        public:
-            int32 Version;
-            uint32 Locktime;
-                
-            representation(int32 v, queue<in> i, queue<out> o, uint32 l) : vertex<in, out>{i, o}, 
-                Valid{true}, Version{v}, Locktime{l} {}
-                
-            representation(int32 v, queue<in> i, queue<out> o) : representation{v, i, o, 0} {}
-            representation(queue<in> i, queue<out> o,uint32 l) : representation{2, i, o, l} {}
-            representation(queue<in> i, queue<out> o) : representation{2, i, o} {}
+    struct transaction : public abstractions::vertex<input<txid, ops>, output<ops>> {
+        using in = input<txid, ops>;
+        using out = output<ops>;
+        using vertex = abstractions::vertex<in, out>;
+        int32 Version;
+        uint32 Locktime;
             
-            representation(const transaction&) noexcept;
-            representation() : vertex<in, out>{}, Valid{false}, Locktime{} {}
-            representation& operator=(const representation& i);
-            
-            bool valid() const {
-                return Valid;
-            }
-            
-            uint32 locktime() const {
-                return Locktime;
-            }
-            
-            int32 version() const {
-                return Version;
-            }
+        transaction(int32 v, queue<in> i, queue<out> o, uint32 l) : vertex{i, o}, 
+            Version{v}, Locktime{l} {}
         
-        };
-        
-        transaction() : std::vector<byte>{} {}
-        transaction(bytes& b) : std::vector<byte>{b} {}
-        transaction(const representation&) noexcept;
-        transaction(queue<in> i, queue<out> o) : transaction{representation{i, o}} {}
-        transaction(queue<in> i, queue<out> o, uint32 l) : transaction{representation{i, o, l}} {}
-        
-        transaction& operator=(const transaction& t) {
-            std::vector<byte>::operator=(static_cast<bytes&>(t));
-            return *this;
-        }
+        transaction(int32 v, queue<in> i, queue<out> o) : transaction{v, i, o, 0} {}
+        transaction(queue<in> i, queue<out> o,uint32 l) : transaction{2, i, o, l} {}
+        transaction(queue<in> i, queue<out> o) : transaction{2, i, o} {}
+            
+        transaction() : vertex{}, Version{-1}, Locktime{0} {}
         
         bool valid() const {
-            return representation{*this}.Valid;
+            return vertex::valid();
         }
         
         uint32 locktime() const {
-            return representation{*this}.Locktime;
+            return Locktime;
         }
         
         int32 version() const {
-            return representation{*this}.Version;
+            return Version;
+        }
+        
+        size_t size() const {
+            return 8 + timechain::size_with_var_int_prefix(vertex::Inputs) + 
+                timechain::size_with_var_int_prefix(vertex::Outputs) + 
+                fold(data::plus<size_t>{}, size_t{0}, for_each(timechain::size_with_var_int_prefix<in>, vertex::Inputs)) + 
+                fold(data::plus<size_t>{}, size_t{0}, for_each(timechain::size_with_var_int_prefix<out>, vertex::Outputs));
         }
         
         txid id() const {
-            return crypto::hash512(*this);
+            return crypto::txid(serialize());
         }
         
-        slice<bytes> outputs() const;
-        slice<bytes> inputs() const;
+        bytes serialize() const {
+            return timechain::transaction::serialize(*this);
+        }
         
-        constexpr static timechain::transaction::interface<transaction::representation, in, out> representation_is_tx{};
-        constexpr static timechain::transaction::interface<transaction, bytes, bytes> is_tx{};
+        explicit operator bytes() const {
+            return serialize();
+        }
+        
+        constexpr static timechain::transaction::interface<transaction, int32, in, out, uint32, txid> is_tx{};
     };
-    
-    template <typename txid>
-    typename outpoint<txid>::representation&
-    outpoint<txid>::representation::operator=(const representation& o) {
-        Valid = o.Valid;
-        Reference = o.Reference;
-        Index = o.Index;
-        return *this;
-    }
-    
-    template <typename ops>
-    typename output<ops>::representation&
-    output<ops>::representation::operator=(const representation& o) {
-        Valid = o.Valid;
-        Value = o.Value;
-        ScriptPubKey = o.ScriptPubKey;
-        return *this;
-    }
-    
-    template <typename txid, typename ops>
-    typename input<txid, ops>::representation&
-    input<txid, ops>::representation::operator=(const representation& i) {
-        Valid = i.Valid;
-        Outpoint = i.Outpoint;
-        ScriptSignature = i.ScriptSignature;
-        Sequence = i.Sequence;
-        return *this;
-    }
-    
-    template <typename txid, typename ops>
-    typename transaction<txid, ops>::representation&
-    transaction<txid, ops>::representation::operator=(const representation& t) {
-        Valid = t.Valid;
-        Version = t.Version;
-        Locktime = t.Locktime;
-        return *this;
-    }
-
     
 } 
 

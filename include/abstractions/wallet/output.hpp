@@ -12,7 +12,7 @@ namespace abstractions {
     
     namespace bitcoin {
         
-        using output = typename abstractions::output<script>::representation;
+        using output = abstractions::output<script>;
         
         struct op_return {
             const output* Output;

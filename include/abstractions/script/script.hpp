@@ -13,7 +13,7 @@
 namespace abstractions::script {
     struct program {
         virtual uint32 length() const = 0;
-        virtual void write(ostream&) const = 0;
+        virtual void write(writer&) const = 0;
         bytes compile() const;
         
         operator bytes() const {
@@ -261,7 +261,7 @@ namespace abstractions::script {
     };
     
     struct program::noop : public program {
-        void write(ostream&) const final override {}
+        void write(writer&) const final override {}
         
         uint32 length() const final override {
             return 0;
@@ -273,32 +273,32 @@ namespace abstractions::script {
     struct program::push : public program {
         bytes Data;
         
-        void write(ostream& o) const final override {
+        void write(writer& w) const final override {
             uint32 size = Data.size();
             if (size == 0 || (size == 1 && Data[0] == 0)) {
-                o << program::OP_0;
+                w << program::OP_0;
                 return;
             }
             
             if (size == 1 && Data[0] <= 16) {
-                o << Data[0] + 0x50;
+                w << Data[0] + 0x50;
                 return;
             }
             
             if (size > 0xffff) {
-                o << program::OP_PUSHDATA4;
-                o << uint32(size);
+                w << program::OP_PUSHDATA4;
+                w << data::ordered<uint32, data::endian::little>{uint32(size)};
             } else if (size > 0xff) {
-                o << program::OP_PUSHDATA2;
-                o << uint16_t(size);
+                w << program::OP_PUSHDATA2;
+                w << data::ordered<uint16_t, data::endian::little>{uint16_t(size)};
             } else if (size > 75) {
-                o << program::OP_PUSHDATA1;
-                o << byte(size);
+                w << program::OP_PUSHDATA1;
+                w << byte(size);
             } else {
-                o << byte(size);
+                w << byte(size);
             } 
             
-            o << Data;
+            w << Data;
         }
         
         uint32 length() const final override {
@@ -315,7 +315,7 @@ namespace abstractions::script {
     
     struct program::op_code : public program {
         op OpCode;
-        void write(ostream& o) const final override {
+        void write(writer& o) const final override {
             o << byte(OpCode);
         }
         
@@ -328,7 +328,7 @@ namespace abstractions::script {
     
     struct program::string : public program {
         std::vector<op> String;
-        void write(ostream& o) const final override {
+        void write(writer& o) const final override {
             for (op code: String) o << byte(code);
         }
         
@@ -345,7 +345,7 @@ namespace abstractions::script {
         sequence() : List{} {}
         sequence(vector<pointer<program>> l) : List{l} {}
         
-        void write(ostream& o) const final override {
+        void write(writer& o) const final override {
             for (pointer<program> p : List) p->write(o);
         }
         
@@ -359,7 +359,7 @@ namespace abstractions::script {
     struct program::repeated : public program {
         uint32 Repetitions;
         pointer<program> Repeated;
-        void write(ostream& o) const final override {
+        void write(writer& o) const final override {
             for (int i = 0; i < Repetitions; i++) Repeated->write(o);
         }
         
