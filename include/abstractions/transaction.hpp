@@ -135,9 +135,9 @@ namespace abstractions {
         vertex(queue<in> i, queue<out> o) : Inputs{i}, Outputs{o} {}
         
         satoshi spent() const {
-            return fold([](satoshi v, out x)->satoshi{
+            return reduce([](satoshi v, out x)->satoshi{
                 return value(x) + v;
-            }, satoshi{0}, Outputs);
+            }, Outputs);
         }
         
         bool valid() const {
@@ -185,8 +185,8 @@ namespace abstractions {
         size_t size() const {
             return 8 + timechain::size_with_var_int_prefix(vertex::Inputs) + 
                 timechain::size_with_var_int_prefix(vertex::Outputs) + 
-                fold(data::plus<size_t>{}, size_t{0}, for_each(timechain::size_with_var_int_prefix<in>, vertex::Inputs)) + 
-                fold(data::plus<size_t>{}, size_t{0}, for_each(timechain::size_with_var_int_prefix<out>, vertex::Outputs));
+                reduce(data::plus<size_t>{}, for_each(timechain::size_with_var_int_prefix<in>, vertex::Inputs)) + 
+                reduce(data::plus<size_t>{}, for_each(timechain::size_with_var_int_prefix<out>, vertex::Outputs));
         }
         
         txid id() const {

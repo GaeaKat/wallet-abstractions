@@ -35,23 +35,18 @@ namespace abstractions {
                 // make a script pubkey. 
                 virtual Script pay(const Key&) const = 0;
             };
+            
+            template <typename...> struct pattern;
         
             template <
                 typename Sk,
-                typename Pk, 
                 typename Script, 
                 typename Tx>
-            struct pattern : 
-                public data::crypto::keypair<Sk, Pk>, 
+            struct pattern<Sk, Script, Tx> : 
                 public redeemer<Sk, Script, Tx>, 
-                public virtual payable<Pk, Script> {
-                using payable<Pk, Script>::pay;
+                public payable<Sk, Script> {
+                using payable<Sk, Script>::pay;
                 using redeemer<Sk, Script, Tx>::redeem;
-                
-                // make a script pubkey. 
-                Script pay(const Sk& k) const {
-                    return pay(data::crypto::to_public<Sk, Pk>{}(k));
-                };
                 
                 template <typename Machine>
                 void pattern_definition(output<Script> o, input_index<Tx> i, const Sk& k, Machine m) const {
@@ -60,85 +55,59 @@ namespace abstractions {
             };
         
             template <
-                typename Key, 
+                typename Sk,
+                typename Pk, 
                 typename Script, 
-                typename Tag> 
-            struct tagged : public virtual payable<Tag, Script> {
-                // Tag is what we use to recognize an output. 
-                virtual Tag tag(const Key&) const = 0;
-            };
-        
-            template <
-                typename Key, 
-                typename Script, 
-                typename Tag> 
-            struct addressable : 
-                public virtual tagged<Key, Script, Tag>, 
-                public virtual payable<Key, Script> {
-                using tagged<Key, Script, Tag>::tag;
-                using tagged<Key, Script, Tag>::pay;
+                typename Tx>
+            struct pattern<Sk, Pk, Script, Tx> : 
+                public data::crypto::keypair<Sk, Pk>, 
+                public pattern<Sk, Script, Tx>, 
+                public payable<Pk, Script> {
+                using payable<Pk, Script>::pay;
+                using redeemer<Sk, Script, Tx>::redeem;
                 
-                virtual Script pay(const Key& k) const final override {
-                    return pay(tag(k));
+                // make a script pubkey. 
+                Script pay(const Sk& k) const override {
+                    return pay(data::crypto::to_public<Sk, Pk>{}(k));
                 };
             };
         
             template <
-                typename Key,
+                typename Sk,
+                typename Pk, 
                 typename Script, 
-                typename Tag>
-            struct recognizable : public virtual tagged<Key, Script, Tag> {
-                using tagged<Key, Script, Tag>::tag;
-                using tagged<Key, Script, Tag>::pay;
+                typename Tag, 
+                typename Tx> 
+            struct tagged : public pattern<Sk, Pk, Script, Tx>, 
+                public payable<Tag, Script> {
+                using payable<Tag, Script>::pay;
+                // Tag is what we use to recognize an output. 
+                virtual Tag tag(const Pk&) const = 0;
                 
-                virtual list<Tag> recognize(Script) const = 0;
+                Tag tag(const Sk& k) const {
+                    return tag(data::crypto::to_public<Sk, Pk>{}(k));
+                };
                 
-                void recognizable_pattern_definition(const Tag& k) const {
-                    if (tag(k) != recognize(pay(k))) throw 0;
-                }
-                
+                Script pay(const Pk& k) const override {
+                    return pay(tag(k));
+                };
             };
-            
+        
             template <
                 typename Sk,
                 typename Pk, 
                 typename Script, 
                 typename Tag, 
                 typename Tx>
-            struct pay_to_address : 
-                public pattern<Sk, Pk, Script, Tx>, 
-                public addressable<Sk, Script, Tag>, 
-                public addressable<Pk, Script, Tag>, 
-                public recognizable<Pk, Script, Tag> {
-                using recognizable<Pk, Script, Tag>::tag;
-                using addressable<Pk, Script, Tag>::pay;
-                using addressable<Sk, Script, Tag>::pay;
+            struct recognizable : public tagged<Sk, Pk, Script, Tag, Tx> {
+                using tagged<Sk, Pk, Script, Tag, Tx>::tag;
+                using tagged<Sk, Pk, Script, Tag, Tx>::pay;
                 
-                Tag tag(const Sk& k) const final override {
-                    return tag(data::crypto::to_public<Sk, Pk>{}(k));
-                };
+                virtual list<Tag> recognize(Script) const = 0;
                 
-            };
-            
-            template <
-                typename Sk,
-                typename Pk, 
-                typename Script, 
-                typename Tx>
-            struct pay_to_pubkey  : 
-                public pattern<Sk, Pk, Script, Tx>, 
-                public addressable<Sk, Script, Pk>, 
-                public recognizable<Pk, Script, Pk> {
-                using recognizable<Pk, Script, Pk>::tag;
-                using addressable<Sk, Script, Pk>::pay;
-                
-                Pk tag(const Sk& k) const final override {
-                    return tag(data::crypto::to_public<Sk, Pk>{}(k));
-                };
-                
-                Pk tag(const Pk& k) const final override {
-                    return k;
-                };
+                void recognizable_pattern_definition(const Tag& t) const {
+                    if (tag(t) != recognize(pay(t))) throw 0;
+                }
                 
             };
             

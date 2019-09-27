@@ -16,7 +16,7 @@ namespace abstractions::bitcoin::cosmos::test {
         satoshi amount_spent = amount_redeemed * 2 / 3;
         
         wallet::spent action = to_spend.spend(
-                to_pattern{amount_spent, next.Pattern, next.Key.to_public()}, 
+                to_pattern{amount_spent, payable(next.Pattern), next.Key.to_public()}, 
                 change{&pay_to_address_compressed, next.Change, one_satoshi_per_byte});
         
         transaction t = action.Transaction;
