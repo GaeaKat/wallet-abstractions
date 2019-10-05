@@ -24,6 +24,7 @@ namespace abstractions {
             explicit txid(string hex_string);
             
             explicit operator timechain::digest() const;
+            explicit operator bytes() const;
             
             txid(bytes&);
             txid(parent p);
@@ -32,7 +33,7 @@ namespace abstractions {
         inline txid::txid(parent p) : parent{p} {}
         
         inline txid::txid(hex s) : txid{} {
-            if (s.valid()) *this = s.operator bytes(); 
+            if (s.valid()) *this = (bytes)(s); 
         }
         
         inline txid::txid(string hex_string) : txid{hex{hex_string}} {}

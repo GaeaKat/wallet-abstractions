@@ -12,7 +12,7 @@ namespace abstractions {
     namespace ripemd160 {
         using digest = data::ripemd160::digest;
         
-        inline digest hash(bytes& b) {
+        inline digest hash(const bytes& b) {
             return data::ripemd160::hash(b);
         }
         

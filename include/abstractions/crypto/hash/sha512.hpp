@@ -12,7 +12,7 @@ namespace abstractions {
     namespace sha512 {
         using digest = data::sha512::digest;
         
-        inline digest hash(bytes& b) {
+        inline digest hash(const bytes& b) {
             return data::sha512::hash(b);
         }
         

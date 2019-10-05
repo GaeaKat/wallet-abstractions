@@ -12,7 +12,7 @@ namespace abstractions {
     namespace sha256 {
         using namespace data::sha256;
         
-        inline digest double_hash(bytes& b) {
+        inline digest double_hash(const bytes& b) {
             return data::sha256::hash<32>(data::sha256::hash(b).Digest);
         }
         

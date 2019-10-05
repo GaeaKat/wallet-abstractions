@@ -9,7 +9,7 @@
 #include <abstractions/wallet/keys.hpp>
 
 namespace abstractions::work {
-        
+    
     using uint24 = uint32;
     
     struct target {
