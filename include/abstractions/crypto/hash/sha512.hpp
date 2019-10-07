@@ -21,7 +21,7 @@ namespace abstractions {
             return data::sha512::hash<n>(b);
         }
         
-        inline digest double_hash(bytes& b) {
+        inline digest double_hash(const bytes& b) {
             return data::sha512::hash<64>(data::sha512::hash(b).Digest);
         }
         

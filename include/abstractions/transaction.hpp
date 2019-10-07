@@ -67,7 +67,7 @@ namespace abstractions {
             return Outpoint;
         }
         
-        ops& script() const {
+        const ops& script() const {
             return ScriptSignature;
         }
             
@@ -87,7 +87,7 @@ namespace abstractions {
             return serialize();
         }
         
-        constexpr static timechain::input::interface<input, point, ops&, uint32> is_input{};
+        constexpr static timechain::input::interface<input, point, const ops&, uint32> is_input{};
     };
     
     template <typename ops> 
@@ -107,7 +107,7 @@ namespace abstractions {
             return Value;
         }
         
-        ops& script() const {
+        const ops& script() const {
             return ScriptPubKey;
         }
         
@@ -123,7 +123,7 @@ namespace abstractions {
             return serialize();
         }
         
-        constexpr static timechain::output::interface<output<ops>, satoshi, ops> is_output{};
+        constexpr static timechain::output::interface<output<ops>, satoshi, const ops&> is_output{};
     };
     
     template <typename in, typename out>

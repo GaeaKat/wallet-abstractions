@@ -22,14 +22,14 @@ namespace abstractions {
     using uint64 = uint64_t;
     using int32 = int32_t;
     
-    using satoshi = uint32;
+    using satoshi = uint64;
     
     using uint160 = data::uint160;
     using uint256 = data::uint256;
     using uint512 = data::uint512;
     
     template <typename X>
-    using vector = const std::vector<X>;
+    using vector = std::vector<X>;
 
     using byte = uint8_t;
     

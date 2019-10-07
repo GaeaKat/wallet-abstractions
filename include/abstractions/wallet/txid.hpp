@@ -33,7 +33,7 @@ namespace abstractions {
         inline txid::txid(parent p) : parent{p} {}
         
         inline txid::txid(hex s) : txid{} {
-            if (s.valid()) *this = (bytes)(s); 
+            if (s.valid()) *this = data::sha256::digest{(bytes)(s)}; 
         }
         
         inline txid::txid(string hex_string) : txid{hex{hex_string}} {}
