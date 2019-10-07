@@ -18,7 +18,7 @@ namespace abstractions::script {
         bytes Script;
         work::order Order; 
         
-        static bool valid(bytes& s);
+        static bool valid(const bytes& s);
         bool valid() const {
             return valid(Script);
         }
@@ -36,7 +36,7 @@ namespace abstractions::script {
         bitcoin::pubkey Pubkey;
         uint64 Nonce;
         
-        static bool valid(bytes& s);
+        static bool valid(const bytes& s);
         bool valid() const {
             return valid(Script);
         }

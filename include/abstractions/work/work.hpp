@@ -79,48 +79,54 @@ namespace abstractions::work {
     
     const target easy{32, 0xffffff}; 
     const target hard{3, 0x000001};
-        
-    const uint32 message_size = 36;
-    using message = data::uint<9>;
+    
+    const target success_half{32, 0x800000};
+    const target success_quarter{32, 0x400000};
+    const target success_eighth{32, 0x200000};
+    const target success_sixteenth{32, 0x100000};
+    
+    const uint32 message_size = 68;
+    using message = data::uint<68>;
     
     struct order {
-        sha256::digest Reference;
         message Message;
         target Target;
         
         bool valid() const {
-            return Reference.valid() && Target.valid();
+            return Target.valid();
         }
         
-        order(sha256::digest r, message m, target t) : Reference{r}, Message{m}, Target{t} {}
-        order() : Reference{}, Message{}, Target{} {}
+        order(message m, target t) : Message{m}, Target{t} {}
+        order() : Message{}, Target{} {}
     };
     
     struct candidate : data::uint<80> {
-        uint32 version() const {
+        uint32 version() const; /*{
             return words()[0];
-        }
+        }*/
         
         work::order order() const;
         
-        work::target target() const {
+        work::target target() const; /*{
             return words()[18];
-        }
+        }*/
         
-        uint32 nonce() const {
+        uint32 nonce() const; /*{
             return words()[19];
+        }*/
+        
+        uint64 extended_nonce() const;
+        
+        sha256::digest hash() const {
+            return sha256::hash<80>((data::uint<80>&)(*this));
         }
         
         bool valid() const {
-            return order().valid();
+            return order().valid() && hash() < target().expand();
         };
         
-        candidate(uint32 version, struct order o, uint32 nonce);
+        candidate(uint32 version, work::order o, uint32 nonce);
         candidate() : data::uint<80>{} {}
-        
-        bool satisfied() const {
-            return sha256::hash<80>(static_cast<const data::uint<80>&>(*this)) < target().expand();
-        }
     };
     
     inline message bitcoin_header(const sha256::digest& d, uint32 timestamp) {
