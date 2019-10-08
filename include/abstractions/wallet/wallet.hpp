@@ -17,6 +17,8 @@ namespace abstractions::bitcoin {
         return size;
     }
     
+    enum spend_policy {unset = 0, all = 1, fifo = 2};
+    
     struct change {
         pattern<pubkey> Pattern;
         secret Key;
@@ -78,6 +80,7 @@ namespace abstractions::bitcoin {
             queue<output> Payments;
             change Change;
             index ChangeIndex;
+            spend_policy SpendPolicy;
             
             spent spend(funds) const;
             
@@ -89,13 +92,24 @@ namespace abstractions::bitcoin {
             
             template <typename ... X>
             payment pay(output o, X ... rest) const {
-                return payment{Payments.append(o), Change, ChangeIndex}.pay(rest...);
+                return payment{
+                    Payments.append(o), 
+                    Change, ChangeIndex, 
+                    SpendPolicy}.pay(rest...);
             }
             
             template <typename ... X>
             payment pay(change c, X ... rest) const {
                 if (Change.valid()) throw std::logic_error{"only one change output allowed"};
-                return payment{Payments.append(output{0, c.Pattern->pay(c.Key)}), c, Payments.size()}.pay(rest...);
+                return payment{
+                    Payments.append(output{0, c.Pattern->pay(c.Key)}), c, 
+                    Payments.size(), SpendPolicy}.pay(rest...);
+            }
+            
+            template <typename ... X>
+            payment pay(spend_policy p, X ... rest) const {
+                if (SpendPolicy != unset) throw std::logic_error{"only one policy output allowed"};
+                return payment{Payments, Change, ChangeIndex, p}.pay(rest...);
             }
             
             template <typename ... X>
@@ -125,7 +139,7 @@ namespace abstractions::bitcoin {
     };
         
     template <typename ... X> 
-    wallet::spent wallet::spend(X ... payments) const {
+    inline wallet::spent wallet::spend(X ... payments) const {
         return payment{}.pay(payments...).spend(Funds);
     }
 

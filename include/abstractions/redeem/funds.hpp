@@ -13,9 +13,9 @@ namespace abstractions::redeem {
         using unspent = redeem::unspent<script, txid, secret, pubkey>;
         using spendable = typename redeem::spendable<script, txid, secret, pubkey>;
         
-        const queue<spendable> Entries;
-        const satoshi Value;
-        const bool Valid;
+        queue<spendable> Entries;
+        satoshi Value;
+        bool Valid;
         
         static satoshi value(const queue<spendable> entries) {
             return fold([](satoshi b, spendable s)->satoshi{return b + abstractions::value(s);}, satoshi{0}, entries);
@@ -29,8 +29,8 @@ namespace abstractions::redeem {
         funds(spendable e) : Entries{queue<spendable>::make(e)}, Value{abstractions::value(e)}, Valid{e.valid()} {}
         funds(const queue<spendable> e) : Entries{e}, Value{value(e)}, Valid{valid(e)} {}
         
-        funds import(spendable s) const {
-            return {Entries + s, Value + value(s), Valid && s.valid()};
+        funds insert(spendable s) const {
+            return {Entries + s, Value + s.value(), Valid && s.valid()};
         }
         
         satoshi value() const {
@@ -50,7 +50,31 @@ namespace abstractions::redeem {
         }
         
     private:
-        funds(const queue<spendable> e, const satoshi b) : Entries{e}, Value{b} {}
+        funds(const queue<spendable> e, const satoshi v, const bool b) : Entries{e}, Value{v}, Valid{b} {}
+        
+        spendable first() const {
+            return Entries.first();
+        }
+        
+        funds rest() const {
+            return funds{Entries.rest(), Value - abstractions::value(Entries.first()), Valid};
+        }
+        
+    public:
+        struct taken {
+            funds Taken;
+            funds Remaining;
+        };
+        
+        taken take(satoshi amount) const {
+            if (amount > Value) return {funds{}, funds{}};
+            taken t{funds{}, Entries};
+            while (t.Taken.value() < amount) {
+                t.Taken = t.Taken.insert(Entries.first());
+                t.Remaining = t.Remaining.rest();
+            }
+            return t;
+        } 
     };
     
 } 
