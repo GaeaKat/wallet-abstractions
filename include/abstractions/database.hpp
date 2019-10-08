@@ -2,7 +2,7 @@
 #define ABSTRACTIONS_DATABASE_HPP
 
 #include "association.hpp"
-#include "fundamental.hpp"
+#include "abstractions.hpp"
 
 namespace abstractions
 {

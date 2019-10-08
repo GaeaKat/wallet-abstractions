@@ -16,13 +16,13 @@
 #include "gtest/gtest.h"
 #include "testData.h"
 
-class AddressTest : public testing::TestWithParam<test_data> {};
+class WorkTest : public testing::TestWithParam<test_data> {};
 
-TEST_P(AddressTest, TestAddresses) {
+TEST_P(WorkTest, TestWork) {
     using namespace abstractions::bitcoin;
     using namespace abstractions::work;
     
-    const target     minimum_target{31, 0xffffff};
+    const target minimum_target{31, 0xffffff};
     
     std::string message{"wake up!!!!!!"};
     
@@ -47,11 +47,11 @@ TEST_P(AddressTest, TestAddresses) {
     const candidate candidate_sixteenth = work(work_order_sixteenth);
     const candidate candidate_thirty_second = work(work_order_thirty_second);
     
-    const data::sha256::digest digest_half = candidate_half.hash();
-    const data::sha256::digest digest_quarter = candidate_quarter.hash();
-    const data::sha256::digest digest_eighth = candidate_eighth.hash();
-    const data::sha256::digest digest_sixteenth = candidate_sixteenth.hash();
-    const data::sha256::digest digest_thirty_second = candidate_thirty_second.hash();
+    const data::sha256::digest digest_half = hash(candidate_half);
+    const data::sha256::digest digest_quarter = hash(candidate_quarter);
+    const data::sha256::digest digest_eighth = hash(candidate_eighth);
+    const data::sha256::digest digest_sixteenth = hash(candidate_sixteenth);
+    const data::sha256::digest digest_thirty_second = hash(candidate_thirty_second);
     
     EXPECT_TRUE(digest_half < target_half.expand());
     EXPECT_TRUE(digest_quarter < target_half.expand());
@@ -59,11 +59,11 @@ TEST_P(AddressTest, TestAddresses) {
     EXPECT_TRUE(digest_sixteenth < target_sixteenth.expand());
     EXPECT_TRUE(digest_thirty_second < target_thirty_second.expand());
     
-    const data::uint64 nonce_half = candidate_half.extended_nonce();
-    const data::uint64 nonce_quarter = candidate_quarter.extended_nonce();
-    const data::uint64 nonce_eighth = candidate_eighth.extended_nonce();
-    const data::uint64 nonce_sixteenth = candidate_sixteenth.extended_nonce();
-    const data::uint64 nonce_thirty_second = candidate_thirty_second.extended_nonce();
+    const data::uint64 nonce_half = read_nonce(candidate_half);
+    const data::uint64 nonce_quarter = read_nonce(candidate_quarter);
+    const data::uint64 nonce_eighth = read_nonce(candidate_eighth);
+    const data::uint64 nonce_sixteenth = read_nonce(candidate_sixteenth);
+    const data::uint64 nonce_thirty_second = read_nonce(candidate_thirty_second);
     
     std::cout << "nonce half is " << nonce_half << std::endl;
     std::cout << "nonce quarter is " << nonce_quarter << std::endl;

@@ -7,10 +7,13 @@
 #include <abstractions/abstractions.hpp>
 #include <abstractions/crypto/hash/sha256.hpp>
 #include <abstractions/wallet/keys.hpp>
+#include <data/encoding/halves.hpp>
 
 namespace abstractions::work {
     
     using uint24 = uint32;
+    
+    using candidate = data::uint<80>;
     
     struct target {
         uint32 Encoded;
@@ -84,9 +87,27 @@ namespace abstractions::work {
     const target success_quarter{32, 0x400000};
     const target success_eighth{32, 0x200000};
     const target success_sixteenth{32, 0x100000};
+        
+    target read_target(const candidate);
+    
+    int32 read_version(const candidate);
+    
+    uint32 read_nonce(const candidate);
     
     const uint32 message_size = 68;
     using message = data::uint<68>;
+    
+    message read_message(const candidate);
+    
+    sha256::digest hash(const candidate);
+    
+    inline bool valid(const candidate c) {
+        return hash(c) < read_target(c).expand();
+    }
+    
+    inline int64 read_extended_nonce(const candidate c) {
+        return data::combine(read_version(c), (int32)(read_nonce(c)));
+    }
     
     struct order {
         message Message;
@@ -98,35 +119,8 @@ namespace abstractions::work {
         
         order(message m, target t) : Message{m}, Target{t} {}
         order() : Message{}, Target{} {}
-    };
-    
-    struct candidate : data::uint<80> {
-        uint32 version() const; /*{
-            return words()[0];
-        }*/
         
-        work::order order() const;
-        
-        work::target target() const; /*{
-            return words()[18];
-        }*/
-        
-        uint32 nonce() const; /*{
-            return words()[19];
-        }*/
-        
-        uint64 extended_nonce() const;
-        
-        sha256::digest hash() const {
-            return sha256::hash<80>((data::uint<80>&)(*this));
-        }
-        
-        bool valid() const {
-            return order().valid() && hash() < target().expand();
-        };
-        
-        candidate(uint32 version, work::order o, uint32 nonce);
-        candidate() : data::uint<80>{} {}
+        work::candidate candidate(int64 nonce) const; 
     };
     
     inline message bitcoin_header(const sha256::digest& d, uint32 timestamp) {
@@ -143,7 +137,13 @@ namespace abstractions::work {
         return m;
     };
     
-    candidate work(order);
+    message reference_and_pubkey(const sha256::digest& d, const bitcoin::pubkey& p, uint24 sequence);
+    
+    inline message reference_and_pubkey(const sha256::digest& d, const bitcoin::pubkey& p) {
+        return reference_and_pubkey(d, p, 0);
+    }
+    
+    int64 work(order);
     
 }
 

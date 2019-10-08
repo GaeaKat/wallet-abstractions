@@ -71,6 +71,16 @@ TEST_P(AddressTest, TestAddresses) {
     EXPECT_TRUE(m.run(script_pay_to_address_compressed, redeem_pay_to_address_compressed));
     EXPECT_TRUE(m.run(script_pay_to_address_uncompressed, redeem_pay_to_address_uncompressed));
     
+    EXPECT_FALSE(m.run(script_pay_to_pubkey_compressed, redeem_pay_to_pubkey_uncompressed));
+    EXPECT_FALSE(m.run(script_pay_to_pubkey_uncompressed, redeem_pay_to_pubkey_compressed));
+    EXPECT_FALSE(m.run(script_pay_to_address_compressed, redeem_pay_to_address_uncompressed));
+    EXPECT_FALSE(m.run(script_pay_to_address_uncompressed, redeem_pay_to_address_compressed));
+    
+    EXPECT_FALSE(m.run(script_pay_to_pubkey_compressed, redeem_pay_to_address_compressed));
+    EXPECT_FALSE(m.run(script_pay_to_pubkey_uncompressed, redeem_pay_to_address_uncompressed));
+    EXPECT_FALSE(m.run(script_pay_to_address_compressed, redeem_pay_to_pubkey_compressed));
+    EXPECT_FALSE(m.run(script_pay_to_address_uncompressed, redeem_pay_to_pubkey_uncompressed));
+    
 }
 
 #pragma clang diagnostic pop

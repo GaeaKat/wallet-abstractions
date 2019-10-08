@@ -11,15 +11,6 @@ namespace abstractions {
     
     namespace sha256 {
         using namespace data::sha256;
-        
-        inline digest double_hash(const bytes& b) {
-            return data::sha256::hash<32>(data::sha256::hash(b).Digest);
-        }
-        
-        template <uint32 n>
-        inline digest double_hash(const std::array<byte, n>& b) {
-            return data::sha256::hash<32>(data::sha256::hash<n>(b).Digest);
-        }
     }
 
 }

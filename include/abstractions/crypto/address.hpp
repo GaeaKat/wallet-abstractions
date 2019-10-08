@@ -25,13 +25,14 @@ namespace abstractions::crypto {
         addr address(const pk s) const;
     };
     
-    inline sha256::digest hash256(const bytes& b) {
-        return sha256::double_hash(b);
+    template <typename A>
+    inline sha256::digest hash256(A a) {
+        return sha256::double_hash(a);
     }
     
-    template <uint32 n>
-    inline sha256::digest hash256(const std::array<byte, n>& b) {
-        return sha256::double_hash(b);
+    template <typename A>
+    inline sha512::digest hash512(A a) {
+        return sha512::double_hash(a);
     }
     
     inline sha512::digest hash512(const bytes& b) {
