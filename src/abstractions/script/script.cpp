@@ -6,7 +6,7 @@
 namespace abstractions::script {
     
     bytes program::compile() const {
-        std::vector<byte> b{static_cast<unsigned char>(length())};
+        bytes b{static_cast<unsigned char>(length())};
         data::writer s{b};
         write(s);
         return b;

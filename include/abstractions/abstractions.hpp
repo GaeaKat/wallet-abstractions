@@ -34,7 +34,7 @@ namespace abstractions {
 
     using byte = uint8_t;
     
-    using bytes = vector<byte>;
+    using bytes = std::basic_string<byte>;
 
     template<typename X>
     using pointer = std::shared_ptr<X>;

@@ -31,8 +31,7 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const secret& s) {
-                std::vector<byte> wif;
-                wif.resize(wif_compressed_size);
+                bytes wif{wif_compressed_size};
                 wif[0] = 0x80;
                 wif[33] = 0x01;
                 std::copy(s.Value.begin(), s.Value.end(), wif.begin() + 1);
@@ -45,9 +44,8 @@ namespace abstractions::secp256k1 {
                 try {
                     data::encoding::hex::string hex{s};
                     if (!hex.valid()) return false;
-                    bytes b = hex;
-                    if (b.size() != data::crypto::secp256k1::compressed_pubkey_size) return false;
-                    std::copy_n(b.begin(), data::crypto::secp256k1::compressed_pubkey_size, p.begin());
+                    if (hex.Bytes.size() != data::crypto::secp256k1::compressed_pubkey_size) return false;
+                    std::copy_n(hex.Bytes.begin(), data::crypto::secp256k1::compressed_pubkey_size, p.begin());
                     return true;
                 }
                 catch(...)
@@ -83,7 +81,7 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const secret& s) {
-                std::vector<byte> wif{wif_uncompressed_size};
+                bytes wif{wif_uncompressed_size};
                 wif[0] = 0x80;
                 std::copy(s.Value.begin(), s.Value.end(), wif.begin() + 1);
                 std::array<byte, 4> checksum = crypto::checksum(slice<byte>{wif}.range(0, 34));
@@ -95,9 +93,8 @@ namespace abstractions::secp256k1 {
                 try {
                     data::encoding::hex::string hex{s};
                     if (!hex.valid()) return false;
-                    bytes b = hex;
-                    if (b.size() != data::crypto::secp256k1::uncompressed_pubkey_size) return false;
-                    std::copy_n(b.begin(), data::crypto::secp256k1::uncompressed_pubkey_size, p.begin());
+                    if (hex.Bytes.size() != data::crypto::secp256k1::uncompressed_pubkey_size) return false;
+                    std::copy_n(hex.Bytes.begin(), data::crypto::secp256k1::uncompressed_pubkey_size, p.begin());
                     return true;
                 }
                 catch(...)
