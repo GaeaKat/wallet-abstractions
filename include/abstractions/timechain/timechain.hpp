@@ -5,6 +5,7 @@
 #define ABSTRACTIONS_TIMECHAIN_TIMECHAIN
 
 #include <abstractions/abstractions.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace abstractions::timechain {
     
@@ -27,26 +28,64 @@ namespace abstractions::timechain {
     struct reader {
         data::reader Reader;
         reader(bytes b) : Reader{slice<byte>::make(b)} {}
-        reader operator>>(uint32&);
-        reader operator>>(int32&);
-        reader operator>>(satoshi&);
-        reader operator>>(digest&);
-        reader operator>>(bytes&);
-        reader write_var_int(uint);
+        
+        reader operator>>(uint32&) const {
+            throw data::method::unimplemented{};
+        }
+        
+        reader operator>>(int32&) const {
+            throw data::method::unimplemented{};
+        }
+        
+        reader operator>>(satoshi&) const {
+            throw data::method::unimplemented{};
+        }
+        
+        reader operator>>(digest&) const {
+            throw data::method::unimplemented{};
+        }
+        
+        reader operator>>(bytes&) const {
+            throw data::method::unimplemented{};
+        }
+        
+        reader read_var_int(uint&) const {
+            throw data::method::unimplemented{};
+        }
     }; 
     
     struct writer {
         data::writer Writer;
         writer(bytes b) : Writer{slice<byte>::make(b)} {}
-        writer operator<<(uint32);
-        writer operator<<(int32);
-        writer operator<<(satoshi);
-        writer operator<<(digest);
-        writer operator<<(bytes);
-        writer write_var_int(uint);
+        
+        writer operator<<(uint32) const {
+            throw data::method::unimplemented{};
+        }
+        
+        writer operator<<(int32) const {
+            throw data::method::unimplemented{};
+        }
+        
+        writer operator<<(satoshi) const {
+            throw data::method::unimplemented{};
+        }
+        
+        writer operator<<(digest) const {
+            throw data::method::unimplemented{};
+        }
+        
+        writer operator<<(bytes) const {
+            throw data::method::unimplemented{};
+        }
+        
+        writer write_var_int(uint) const {
+            throw data::method::unimplemented{};
+        }
     }; 
     
-    size_t var_int_size(uint);
+    inline size_t var_int_size(uint) {
+        throw data::method::unimplemented{};
+    }
     
     template <typename X> 
     size_t size_with_var_int_prefix(X x) {

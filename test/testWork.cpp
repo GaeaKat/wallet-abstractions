@@ -14,11 +14,8 @@
 #include <abstractions/work/work.hpp>
 #include <abstractions/script/pow.hpp>
 #include "gtest/gtest.h"
-#include "testData.h"
 
-class WorkTest : public testing::TestWithParam<test_data> {};
-
-TEST_P(WorkTest, TestWork) {
+TEST(WorkTest, TestWork) {
     using namespace abstractions::bitcoin;
     using namespace abstractions::work;
     
@@ -41,29 +38,23 @@ TEST_P(WorkTest, TestWork) {
     const order work_order_sixteenth = order{to_do, target_sixteenth};
     const order work_order_thirty_second = order{to_do, target_thirty_second};
     
-    const candidate candidate_half = work(work_order_half);
-    const candidate candidate_quarter = work(work_order_quarter);
-    const candidate candidate_eighth = work(work_order_eighth);
-    const candidate candidate_sixteenth = work(work_order_sixteenth);
-    const candidate candidate_thirty_second = work(work_order_thirty_second);
+    const data::int64 nonce_half = work(work_order_half);
+    const data::int64 nonce_quarter = work(work_order_quarter);
+    const data::int64 nonce_eighth = work(work_order_eighth);
+    const data::int64 nonce_sixteenth = work(work_order_sixteenth);
+    const data::int64 nonce_thirty_second = work(work_order_thirty_second);
     
-    const data::sha256::digest digest_half = hash(candidate_half);
-    const data::sha256::digest digest_quarter = hash(candidate_quarter);
-    const data::sha256::digest digest_eighth = hash(candidate_eighth);
-    const data::sha256::digest digest_sixteenth = hash(candidate_sixteenth);
-    const data::sha256::digest digest_thirty_second = hash(candidate_thirty_second);
+    const candidate candidate_half = candidate{nonce_half, work_order_half};
+    const candidate candidate_quarter = candidate{nonce_quarter, work_order_quarter};
+    const candidate candidate_eighth = candidate{nonce_eighth, work_order_eighth};
+    const candidate candidate_sixteenth = candidate{nonce_sixteenth, work_order_sixteenth};
+    const candidate candidate_thirty_second = candidate{nonce_thirty_second, work_order_thirty_second};
     
-    EXPECT_TRUE(digest_half < target_half.expand());
-    EXPECT_TRUE(digest_quarter < target_half.expand());
-    EXPECT_TRUE(digest_eighth < target_eighth.expand());
-    EXPECT_TRUE(digest_sixteenth < target_sixteenth.expand());
-    EXPECT_TRUE(digest_thirty_second < target_thirty_second.expand());
-    
-    const data::uint64 nonce_half = read_nonce(candidate_half);
-    const data::uint64 nonce_quarter = read_nonce(candidate_quarter);
-    const data::uint64 nonce_eighth = read_nonce(candidate_eighth);
-    const data::uint64 nonce_sixteenth = read_nonce(candidate_sixteenth);
-    const data::uint64 nonce_thirty_second = read_nonce(candidate_thirty_second);
+    EXPECT_TRUE(candidate_half.valid());
+    EXPECT_TRUE(candidate_quarter.valid());
+    EXPECT_TRUE(candidate_eighth.valid());
+    EXPECT_TRUE(candidate_sixteenth.valid());
+    EXPECT_TRUE(candidate_thirty_second.valid());
     
     std::cout << "nonce half is " << nonce_half << std::endl;
     std::cout << "nonce quarter is " << nonce_quarter << std::endl;

@@ -7,6 +7,7 @@
 #include "script.hpp"
 #include <abstractions/wallet/address.hpp>
 #include <abstractions/wallet/keys.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace abstractions::script {
     pointer<program> op(program::op);
@@ -19,6 +20,7 @@ namespace abstractions::script {
     pointer<program> push(const secp256k1::compressed_pubkey&);
     pointer<program> push(const bitcoin::address&);
     pointer<program> push(const sha256::digest&);
+    pointer<program> push(int64);
     pointer<program> push(uint64);
     pointer<program> push(uint32);
     pointer<program> noop();
@@ -49,6 +51,42 @@ namespace abstractions::script {
     
     inline pointer<program> push_data(bytes& b) {
         return std::make_shared<program::push>(b);
+    }
+    
+    inline pointer<program> push_data(hex) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(const bitcoin::signature&) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(const bitcoin::pubkey&) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(const secp256k1::uncompressed_pubkey&) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(const secp256k1::compressed_pubkey&) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(const bitcoin::address&) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(const sha256::digest&) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(uint64) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(uint32) {
+        throw data::method::unimplemented{};
     }
     
     inline pointer<program> repeat(pointer<program> p, uint32 n) {

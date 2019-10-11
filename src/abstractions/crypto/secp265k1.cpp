@@ -8,6 +8,10 @@
 
 namespace abstractions::secp256k1 {
     
+    signature sign(const bytes& output, const bytes& transaction, uint32 index, secret key) {
+        throw data::method::unimplemented{};
+    }
+    
     namespace wif {
         namespace compressed {
             const size_t wif_compressed_size=38;

@@ -28,7 +28,7 @@ namespace abstractions::bitcoin {
             address& operator=(const address& a);
             
             address()= default;
-            address(uint32);
+            explicit address(uint32);
             address(const address& a) : Digest{a.Digest} {}
             
             address(address&& a) : Digest{a.Digest} {
@@ -36,8 +36,8 @@ namespace abstractions::bitcoin {
             }
             
             address(const digest& d) : Digest{d} {}
-            address(const pubkey&);
-            address(const secret&);
+            explicit address(const pubkey&);
+            explicit address(const secret&);
             
             static address read(const string);
             

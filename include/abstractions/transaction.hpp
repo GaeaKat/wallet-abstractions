@@ -96,7 +96,6 @@ namespace abstractions {
         ops ScriptPubKey;
         
         output(satoshi v, ops o) : Value{v}, ScriptPubKey{o} {}
-        output(const output&) noexcept;
         output() : Value{}, ScriptPubKey{} {}
         
         bool valid() const {

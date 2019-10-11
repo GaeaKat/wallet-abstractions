@@ -39,7 +39,7 @@ namespace abstractions::bitcoin::cosmos::test {
         outpoint Outpoint;
     };
     
-    initial make_initial(); // make fake initial input;
+    initial make_initial(); 
     
     struct sequence {
         wallet Init;

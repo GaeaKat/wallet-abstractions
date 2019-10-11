@@ -12,11 +12,8 @@
 #include <abstractions/wallet/address.hpp>
 #include <abstractions/wallet/machine.hpp>
 #include "gtest/gtest.h"
-#include "testData.h"
 
-class AddressTest : public testing::TestWithParam<test_data> {};
-
-TEST_P(AddressTest, TestAddresses) {
+TEST(AddressTest, TestAddresses) {
     using namespace abstractions::bitcoin;
     
     const auto pay_to_address_compressed =

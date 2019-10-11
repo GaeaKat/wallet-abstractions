@@ -7,6 +7,7 @@
 #include "functions.hpp"
 #include <abstractions/wallet/address.hpp>
 #include <abstractions/crypto/secp256k1.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace abstractions::script {
     pointer<program> pay_to(const secp256k1::compressed_pubkey&);
@@ -24,17 +25,19 @@ namespace abstractions::script {
             return valid(Script) && Pubkey.valid();
         }
         
-        static pubkey to(bytes& s);
+        static pubkey to(bytes& s) {
+            throw data::method::unimplemented{};
+        }
         
         pubkey to() const {
             return Pubkey;
         }
         
-        uint32 length() const final override {
+        virtual uint32 length() const final override {
             return Script.size();
         }
         
-        void write(writer& o) const final override {
+        virtual void write(writer& o) const final override {
             o << Script;
         }
         
@@ -51,7 +54,7 @@ namespace abstractions::script {
         return sequence({push(p), check_signature()});
     }
     
-    inline pointer<program> redeem_from_pay_to_address(const bitcoin::signature& x) {
+    inline pointer<program> redeem_from_pay_to_pubkey(const bitcoin::signature& x) {
         return sequence({push(x)});
     }
     

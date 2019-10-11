@@ -3,8 +3,20 @@
 
 #include "stage_2.hpp"
 #include <abstractions/wallet/wallet.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace abstractions::bitcoin::cosmos::test {
+    bool valid_scripts(queue<spendable> prevout, const transaction& tx) {
+        throw data::method::unimplemented{};
+    }
+    
+    initial make_initial() {
+        throw data::method::unimplemented{};
+    }
+    
+    queue<secret> test_keys() {
+        throw data::method::unimplemented{};
+    }
     
     wallet run(wallet init, queue<step> steps) {
         return data::fold(&round, init, steps);

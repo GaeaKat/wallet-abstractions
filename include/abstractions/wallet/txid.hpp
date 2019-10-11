@@ -15,16 +15,26 @@ namespace abstractions {
             using parent = data::sha256::digest;
             using parent::digest;
             
-            bool operator==(const txid& a) const;
-            bool operator!=(const txid& a) const;
+            bool operator==(const txid& t) const {
+                data::sha256::digest::operator==((parent)(t));
+            }
+            
+            bool operator!=(const txid& t) const {
+                data::sha256::digest::operator!=((parent)(t));
+            }
             
             txid& operator=(const txid& a);
             
             explicit txid(hex s);
             explicit txid(string hex_string);
             
-            explicit operator timechain::digest() const;
-            explicit operator bytes() const;
+            explicit operator timechain::digest() const {
+                throw data::method::unimplemented{};
+            }
+            
+            explicit operator bytes() const {
+                throw data::method::unimplemented{};
+            }
             
             txid(bytes&);
             txid(parent p);
@@ -37,14 +47,6 @@ namespace abstractions {
         }
         
         inline txid::txid(string hex_string) : txid{hex{hex_string}} {}
-        
-        inline bool txid::operator==(const txid& a) const {
-            return data::sha256::digest::operator==(static_cast<const data::sha256::digest&>(a));
-        }
-        
-        inline bool txid::operator!=(const txid& a) const {
-            return data::sha256::digest::operator!=(static_cast<const data::sha256::digest&>(a));
-        }
         
         inline txid& txid::operator=(const txid& a) {
             data::sha256::digest::operator=(static_cast<const data::sha256::digest&>(a));

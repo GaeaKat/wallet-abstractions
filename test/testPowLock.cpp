@@ -13,11 +13,8 @@
 #include <abstractions/work/work.hpp>
 #include <abstractions/script/pow.hpp>
 #include "gtest/gtest.h"
-#include "testData.h"
 
-class AddressTest : public testing::TestWithParam<test_data> {};
-
-TEST_P(AddressTest, TestAddresses) {
+TEST(PowLockTest, TestPowLock) {
     using namespace abstractions;
     
     bitcoin::secret key{"0x000000000000000100000000000000000000000100010000000000000000000f"};
@@ -46,14 +43,14 @@ TEST_P(AddressTest, TestAddresses) {
     script::pow_key pow_key_1{script::unlock_with_pow(not_real, pub, nonce_1)->compile()};
     script::pow_key pow_key_2{script::unlock_with_pow(not_real, pub, nonce_2)->compile()};
     
-    work::candidate candidate_1 = to_do_1.candidate(nonce_1);
-    work::candidate candidate_2 = to_do_2.candidate(nonce_2);
+    work::candidate candidate_1 = work::candidate(nonce_1, to_do_1);
+    work::candidate candidate_2 = work::candidate(nonce_2, to_do_2);
     
-    EXPECT_TRUE(work::hash(candidate_1) < difficulty.expand());
-    EXPECT_TRUE(work::hash(candidate_2) < difficulty.expand());
+    EXPECT_TRUE(candidate_1.valid());
+    EXPECT_TRUE(candidate_2.valid());
     
-    EXPECT_FALSE(work::hash(to_do_1.candidate(nonce_2)) < difficulty.expand());
-    EXPECT_FALSE(work::hash(to_do_2.candidate(nonce_1)) < difficulty.expand());
+    EXPECT_FALSE(work::candidate(nonce_2, to_do_1).valid());
+    EXPECT_FALSE(work::candidate(nonce_1, to_do_2).valid());
     
     EXPECT_TRUE(candidate_1 == script::unlock(pow_lock_1, pow_key_1));
     EXPECT_TRUE(candidate_2 == script::unlock(pow_lock_2, pow_key_2));

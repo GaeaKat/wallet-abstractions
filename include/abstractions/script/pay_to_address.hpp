@@ -6,6 +6,7 @@
 
 #include "functions.hpp"
 #include <abstractions/wallet/address.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace abstractions::script {
     pointer<program> pay_to(const bitcoin::address&);
@@ -22,17 +23,19 @@ namespace abstractions::script {
             return valid(Script);
         }
         
-        static bitcoin::address to(bytes& s);
+        static bitcoin::address to(bytes& s) {
+            throw data::method::unimplemented{};
+        }
         
         bitcoin::address to() const {
             return Address;
         }
         
-        uint32 length() const final override {
+        virtual uint32 length() const final override {
             return Script.size();
         }
         
-        void write(writer& o) const final override {
+        virtual void write(writer& o) const final override {
             o << Script;
         }
         

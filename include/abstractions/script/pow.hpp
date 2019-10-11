@@ -9,22 +9,30 @@
 #include <abstractions/crypto/hash/sha256.hpp>
 #include <abstractions/abstractions.hpp>
 #include <abstractions/wallet/keys.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace abstractions::script {
-    pointer<program> lock_with_pow(sha256::digest, work::target);
-    pointer<program> unlock_with_pow(bitcoin::signature&, bitcoin::pubkey&, uint64 nonce);
+    pointer<program> lock_with_pow(sha256::digest, work::target) {
+        throw data::method::unimplemented{};
+    }
     
     struct pow_lock : public program {
         bytes Script;
         sha256::digest Reference; 
         work::target Target;
         
-        static bool valid(const bytes& s);
+        static bool valid(const bytes& s) {
+            throw data::method::unimplemented{};
+        }
+        
         bool valid() const {
             return valid(Script);
         }
         
-        pow_lock(const bytes& s);
+        pow_lock(const bytes& s) {
+            throw data::method::unimplemented{};
+        }
+        
         pow_lock() {}
         
         virtual uint32 length() const final override;
@@ -38,14 +46,20 @@ namespace abstractions::script {
         bytes Script;
         bitcoin::signature Signature;
         bitcoin::pubkey Pubkey;
-        uint64 Nonce;
+        int64 Nonce;
         
-        static bool valid(const bytes& s);
+        static bool valid(const bytes& s) {
+            throw data::method::unimplemented{};
+        }
+        
         bool valid() const {
             return valid(Script);
         }
         
-        pow_key(const bytes& s);
+        pow_key(const bytes& s) {
+            throw data::method::unimplemented{};
+        }
+        
         pow_key() {}
         
         virtual uint32 length() const final override;
@@ -55,14 +69,14 @@ namespace abstractions::script {
         pow_key(bytes b, 
         bitcoin::signature s,
         bitcoin::pubkey p,
-        uint64 n) : Script{b}, Signature{s}, Pubkey{p}, Nonce{n} {} 
+        int64 n) : Script{b}, Signature{s}, Pubkey{p}, Nonce{n} {} 
     };
     
-    work::candidate unlock(pow_lock& l, pow_key& k) {
-        return work::order{work::reference_and_pubkey(l.Reference, k.Pubkey), l.Target}.candidate(k.Nonce);
+    inline work::candidate unlock(pow_lock& l, pow_key& k) {
+        return work::candidate{k.Nonce, work::order{work::reference_and_pubkey(l.Reference, k.Pubkey), l.Target}};
     }
     
-    inline pointer<program> unlock_with_pow(const bitcoin::signature& x, const bitcoin::pubkey& p, uint64 nonce) {
+    inline pointer<program> unlock_with_pow(const bitcoin::signature& x, const bitcoin::pubkey& p, int64 nonce) {
         return sequence({push(x), push(p), push(nonce)});
     }
     
