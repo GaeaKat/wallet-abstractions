@@ -23,7 +23,7 @@ namespace abstractions::script {
             return valid(Script);
         }
         
-        static bitcoin::address to(bytes& s) {
+        static bitcoin::address to(const bytes& s) {
             throw data::method::unimplemented{};
         }
         

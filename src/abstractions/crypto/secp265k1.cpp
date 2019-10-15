@@ -4,12 +4,41 @@
 #include <abstractions/crypto/secp256k1.hpp>
 #include <abstractions/crypto/address.hpp>
 #include <data/encoding/base58.hpp>
-#include <data/io/unimplemented.hpp>
+#include <satoshi_sv/src/script/interpreter.h>
+#include <satoshi_sv/src/serialize.h>
+#include <satoshi_sv/src/streams.h>
+#include <satoshi_sv/src/key.h>
+#include <satoshi_sv/src/script/sighashtype.h>
+#include <abstractions/transaction.hpp>
 
 namespace abstractions::secp256k1 {
     
-    signature sign(const bytes& output, const bytes& transaction, uint32 index, secret key) {
-        throw data::method::unimplemented{};
+    static const int version = 0; // TODO
+    
+    signature sign(const bytes_view out, const bytes_view tx, uint32 index, secret key) {
+        timechain::output::serialized o{out};
+        auto stream = sv::CDataStream((const char*)(tx.data()), (const char*)(tx.data() + tx.size()), 
+            SER_NETWORK, // TODO I don't know what should go here exactly. 
+            version 
+        );
+        sv::CTransaction ct{deserialize, stream}; 
+        std::vector<byte> vchSig;
+        
+        sv::CKey k{};
+        k.Set(key.Value.begin(), key.Value.end(), 
+            true // TODO I don't think this should matter though. 
+        );
+        bytes_view script = o.script();
+        sv::CScript cs{script.data(), script.data() + script.size()};
+        sv::SigHashType x{};
+        sv::uint256 hash = sv::SignatureHash(cs, ct, index, x, sv::Amount{(uint64)(o.value())});
+        if (!k.Sign(hash, vchSig)) {
+            return {};
+        }
+
+        vchSig.push_back(uint8_t(x.getRawSigHashType()));
+        
+        return vchSig;
     }
     
     namespace wif {

@@ -25,7 +25,7 @@ namespace abstractions::script {
             return valid(Script) && Pubkey.valid();
         }
         
-        static pubkey to(bytes& s) {
+        static pubkey to(const bytes& s) {
             throw data::method::unimplemented{};
         }
         

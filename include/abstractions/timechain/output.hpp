@@ -25,12 +25,13 @@ namespace abstractions::timechain::output {
     };
     
     struct serialized {
-        slice<byte> Data;
+        bytes_view Data;
         bool valid() const;
         satoshi value() const;
-        const slice<byte> script() const;
+        const bytes_view script() const;
+        serialized(bytes_view d) : Data{d} {}
         
-        constexpr static interface<serialized, satoshi, const slice<byte>> is_output{};
+        constexpr static interface<serialized, satoshi, const bytes_view> is_output{};
     };
     
     template <typename Output>

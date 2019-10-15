@@ -19,6 +19,8 @@ namespace abstractions {
         
         outpoint(txid tx, index i) : Reference{tx}, Index{i} {}
         outpoint() : Reference{}, Index{0} {}
+        explicit outpoint(timechain::input::serialized);
+        explicit outpoint(bytes_view b) : outpoint{timechain::input::serialized{b}} {}
         
         bool valid() const {
             return data::valid(Reference);
@@ -58,6 +60,8 @@ namespace abstractions {
         input(point p, ops s, uint32 n) : Outpoint{p}, ScriptSignature{s}, Sequence{n} {}
         input(point p, ops s) : Outpoint{p}, ScriptSignature{s}, Sequence{0} {}
         input() : Outpoint{}, ScriptSignature{}, Sequence{} {}
+        explicit input(timechain::input::serialized);
+        explicit input(bytes_view b) : input{timechain::input::serialized{b}} {}
         
         bool valid() const {
             return data::valid(Outpoint) && data::valid(ScriptSignature);
@@ -97,6 +101,8 @@ namespace abstractions {
         
         output(satoshi v, ops o) : Value{v}, ScriptPubKey{o} {}
         output() : Value{}, ScriptPubKey{} {}
+        explicit output(timechain::output::serialized);
+        explicit output(bytes_view b) : output{timechain::output::serialized{b}} {}
         
         bool valid() const {
             return data::valid(ScriptPubKey);
@@ -166,7 +172,9 @@ namespace abstractions {
         transaction(int32 v, queue<in> i, queue<out> o) : transaction{v, i, o, 0} {}
         transaction(queue<in> i, queue<out> o,uint32 l) : transaction{2, i, o, l} {}
         transaction(queue<in> i, queue<out> o) : transaction{2, i, o} {}
-            
+        explicit transaction(timechain::transaction::serialized);
+        explicit transaction(bytes_view b) : transaction{timechain::transaction::serialized{b}} {}
+        
         transaction() : vertex{}, Version{-1}, Locktime{0} {}
         
         bool valid() const {

@@ -18,7 +18,7 @@ namespace abstractions::secp256k1 {
     using compressed_pubkey = data::crypto::secp256k1::compressed_pubkey;
     using uncompressed_pubkey = data::crypto::secp256k1::uncompressed_pubkey;
     
-    signature sign(const bytes& output, const bytes& transaction, uint32 index, secret key);
+    signature sign(const bytes_view output, const bytes_view transaction, uint32 index, secret key);
     
     inline ripemd160::digest address(const compressed_pubkey& p) {
         sha256::digest digest=data::sha256::hash(p);

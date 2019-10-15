@@ -27,13 +27,13 @@ namespace abstractions::timechain::input {
     };
     
     struct serialized {
-        slice<byte> Data;
+        bytes_view Data;
         bool valid() const;
         outpoint::serialized previous();
-        const slice<byte> script() const;
+        const bytes_view script() const;
         uint32 sequence() const;
         
-        constexpr static interface<serialized, outpoint::serialized, const slice<byte>, uint32> is_input{};
+        constexpr static interface<serialized, outpoint::serialized, const bytes_view, uint32> is_input{};
     };
     
     template <typename Input>

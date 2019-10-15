@@ -28,7 +28,7 @@ namespace abstractions::pattern {
         }
         
         list<pubkey> recognize(script s) const override {
-            return {abstractions::script::pay_to_pubkey<pubkey>::to(s)};
+            return list<pubkey>::make(abstractions::script::pay_to_pubkey<pubkey>::to(s));
         }
         
         script redeem(output<bytes> o, input_index<tx> i, const secret& k) const override {

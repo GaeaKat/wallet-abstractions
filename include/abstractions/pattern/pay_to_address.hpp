@@ -26,7 +26,7 @@ namespace abstractions::pattern {
         }
         
         list<address> recognize(script s) const override {
-            return list<address>{abstractions::script::pay_to_address::to(s)};
+            return list<address>::make(abstractions::script::pay_to_address::to(s));
         }
         
         script redeem(output<bytes> o, input_index<tx> i, const secret& k) const override {
