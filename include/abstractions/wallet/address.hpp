@@ -71,6 +71,7 @@ namespace abstractions::bitcoin {
             if (a.valid()) return a;
             return cashaddr::read(s);
         }
+        
         inline string address::write() {
             return  bitcoin_address::write(*this);
         };

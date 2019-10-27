@@ -52,7 +52,7 @@ namespace abstractions::secp256k1 {
                     if (!b58.valid()) return false;
                     bytes b = static_cast<bytes>(b58);
                     if (b.size() != wif_compressed_size) return false;
-                    if (!crypto::verify_checksum(slice<byte>::make(b))) return false;
+                    if (!crypto::verify_checksum(b)) return false;
                     if (b[0] != 0x80 || b[33] != 0x01) return false;
                     std::copy(b.begin() + 1, b.end() - 5, p.Value.begin());
                     return p.valid();
@@ -68,7 +68,7 @@ namespace abstractions::secp256k1 {
                 wif[0] = 0x80;
                 wif[33] = 0x01;
                 std::copy(s.Value.begin(), s.Value.end(), wif.begin() + 1);
-                std::array<byte, 4> checksum = crypto::checksum(slice<byte>{wif}.range(0, 34));
+                std::array<byte, 4> checksum = crypto::checksum(wif.substr(0, 34));
                 std::copy(checksum.begin(), checksum.end(), wif.begin() + 34);
                 return data::encoding::base58::write(wif);
             }
@@ -77,8 +77,8 @@ namespace abstractions::secp256k1 {
                 try {
                     data::encoding::hex::string hex{s};
                     if (!hex.valid()) return false;
-                    if (hex.Bytes.size() != data::crypto::secp256k1::compressed_pubkey_size) return false;
-                    std::copy_n(hex.Bytes.begin(), data::crypto::secp256k1::compressed_pubkey_size, p.begin());
+                    if (bytes(hex).size() != data::crypto::secp256k1::compressed_pubkey_size) return false;
+                    std::copy_n(bytes(hex).begin(), data::crypto::secp256k1::compressed_pubkey_size, p.begin());
                     return true;
                 }
                 catch(...)
@@ -88,7 +88,7 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const compressed_pubkey& p) {
-                return data::encoding::hex::write(static_cast<const std::array<data::byte, data::crypto::secp256k1::compressed_pubkey_size>>(p));
+                return data::encoding::hex::write(bytes_view{p.data(), p.size()});
             }
         }
         
@@ -102,7 +102,7 @@ namespace abstractions::secp256k1 {
                     if (!b58.valid()) return false;
                     bytes b = static_cast<bytes>(b58);
                     if (b.size() != wif_uncompressed_size) return false;
-                    if (!crypto::verify_checksum(slice<byte>::make(b))) return false;
+                    if (!crypto::verify_checksum(b)) return false;
                     if (b[0] != 0x80) return false;
                     std::copy(b.begin() + 1, b.end() - 4, p.Value.begin());
                     if (!p.valid()) return false;
@@ -117,7 +117,7 @@ namespace abstractions::secp256k1 {
                 bytes wif{wif_uncompressed_size};
                 wif[0] = 0x80;
                 std::copy(s.Value.begin(), s.Value.end(), wif.begin() + 1);
-                std::array<byte, 4> checksum = crypto::checksum(slice<byte>{wif}.range(0, 34));
+                std::array<byte, 4> checksum = crypto::checksum(wif.substr(0, 34));
                 std::copy(checksum.begin(), checksum.end(), wif.begin() + 34);
                 return data::encoding::base58::write(wif);
             }
@@ -126,8 +126,8 @@ namespace abstractions::secp256k1 {
                 try {
                     data::encoding::hex::string hex{s};
                     if (!hex.valid()) return false;
-                    if (hex.Bytes.size() != data::crypto::secp256k1::uncompressed_pubkey_size) return false;
-                    std::copy_n(hex.Bytes.begin(), data::crypto::secp256k1::uncompressed_pubkey_size, p.begin());
+                    if (bytes(hex).size() != data::crypto::secp256k1::uncompressed_pubkey_size) return false;
+                    std::copy_n(bytes(hex).begin(), data::crypto::secp256k1::uncompressed_pubkey_size, p.begin());
                     return true;
                 }
                 catch(...)
@@ -137,7 +137,7 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const uncompressed_pubkey& p) {
-                return data::encoding::hex::write(static_cast<const std::array<byte, data::crypto::secp256k1::uncompressed_pubkey_size>>(p));
+                return data::encoding::hex::write(bytes_view{p.data(), p.size()});
             }
         }
     }

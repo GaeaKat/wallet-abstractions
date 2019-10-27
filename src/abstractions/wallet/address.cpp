@@ -46,23 +46,3 @@ namespace abstractions::bitcoin {
 
     }
 }
-namespace abstractions {
-    bool crypto::verify_checksum(const slice<byte> &wif) {
-        slice<byte> checksum = wif.range(-4);
-        slice<byte> toCheck = wif.range(0, -4);
-        data::sha256::digest stage1Checksum = data::sha256::hash(toCheck);
-        data::sha256::digest stage2Checksum = data::sha256::hash(stage1Checksum.Digest);
-        slice<byte> checkChecksum = slice<byte>::make(stage2Checksum.Digest.Array).range(0, 4);
-        return checksum == checkChecksum;
-    }
-
-    std::array<byte, 4> crypto::checksum(const slice<byte> &data) {
-        slice<byte> toCheck = data;
-        data::sha256::digest stage1Checksum = data::sha256::hash(toCheck);
-        data::sha256::digest stage2Checksum = data::sha256::hash(stage1Checksum.Digest);
-        std::array<byte, 4> tmp{};
-        std::copy_n(stage2Checksum.Digest.begin(), 4, tmp.begin());
-        return tmp;
-
-    }
-}
