@@ -129,6 +129,7 @@ add_library(wallet-abstractions STATIC
 	src/abstractions/script/math.cpp
 	src/abstractions/work/work.cpp
 	src/abc/cashaddr.cpp
+	src/satoshi_sv/machine.cpp
 )
 target_link_libraries(wallet-abstractions PUBLIC data)
 

@@ -11,14 +11,12 @@
 
 namespace abstractions::sv {
     
-    using namespace ::sv;
-    
-    using digest = sv::uint256;
+    using digest = ::uint256;
     
     sha256::digest convert(const digest);
     
-    CTransaction read_transaction(bytes&);
-    CScript read_script(bytes&);
+    CTransaction read_transaction(bytes_view);
+    CScript read_script(bytes_view);
 } 
 
 #endif

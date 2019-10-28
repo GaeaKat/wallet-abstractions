@@ -17,21 +17,21 @@ namespace abstractions::secp256k1 {
     
     signature sign(const bytes_view out, const bytes_view tx, uint32 index, secret key) {
         timechain::output::serialized o{out};
-        auto stream = sv::CDataStream((const char*)(tx.data()), (const char*)(tx.data() + tx.size()), 
+        auto stream = CDataStream((const char*)(tx.data()), (const char*)(tx.data() + tx.size()), 
             SER_NETWORK, // TODO I don't know what should go here exactly. 
             version 
         );
-        sv::CTransaction ct{deserialize, stream}; 
+        CTransaction ct{deserialize, stream}; 
         std::vector<byte> vchSig;
         
-        sv::CKey k{};
+        CKey k{};
         k.Set(key.Value.begin(), key.Value.end(), 
             true // TODO I don't think this should matter though. 
         );
         bytes_view script = o.script();
-        sv::CScript cs{script.data(), script.data() + script.size()};
-        sv::SigHashType x{};
-        sv::uint256 hash = sv::SignatureHash(cs, ct, index, x, sv::Amount{(uint64)(o.value())});
+        CScript cs{script.data(), script.data() + script.size()};
+        SigHashType x{};
+        ::uint256 hash = SignatureHash(cs, ct, index, x, Amount{(uint64)(o.value())});
         if (!k.Sign(hash, vchSig)) {
             return {};
         }

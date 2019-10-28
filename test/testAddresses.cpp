@@ -13,23 +13,24 @@
 #include <abstractions/wallet/machine.hpp>
 #include "gtest/gtest.h"
 
+namespace abstractions::bitcoin {
+
 TEST(AddressTest, TestAddresses) {
-    using namespace abstractions::bitcoin;
     
     const auto pay_to_address_compressed =
-        abstractions::pattern::pay_to_address<secret, pubkey, address, abstractions::bytes>{};
+        abstractions::pattern::pay_to_address<secret, pubkey, address, bytes>{};
     const auto pay_to_address_uncompressed =
-        abstractions::pattern::pay_to_address<secret, uncompressed_pubkey, address, abstractions::bytes>{};
+        abstractions::pattern::pay_to_address<secret, uncompressed_pubkey, address, bytes>{};
     const auto pay_to_pubkey_compressed =
-        abstractions::pattern::pay_to_pubkey<secret, pubkey, abstractions::bytes>{};
+        abstractions::pattern::pay_to_pubkey<secret, pubkey, bytes>{};
     const auto pay_to_pubkey_uncompressed = 
-        abstractions::pattern::pay_to_pubkey<secret, uncompressed_pubkey, abstractions::bytes>{};
+        abstractions::pattern::pay_to_pubkey<secret, uncompressed_pubkey, bytes>{};
     
     std::string arbitrary{"It's not easy being green."};
-    abstractions::bytes tx{static_cast<unsigned char>(arbitrary.size())};
+    bytes tx{static_cast<unsigned char>(arbitrary.size())};
     std::copy(arbitrary.begin(), arbitrary.end(), tx.begin());
-    abstractions::satoshi to_be_redeemed = 2000000000000000;
-    abstractions::uint32 index = 3;
+    satoshi to_be_redeemed = 2000000000000000;
+    uint32 index = 3;
     
     secret key{"0x00000000000000000000000000000000000000000000000000000000000101a7"};
     
@@ -41,11 +42,11 @@ TEST(AddressTest, TestAddresses) {
     
     script redeem_pay_to_pubkey_compressed = pay_to_pubkey_compressed.redeem(
         output{to_be_redeemed, script_pay_to_pubkey_compressed}, 
-        abstractions::input_index<abstractions::bytes>{tx, index}, key);
+        input_index<bytes>{tx, index}, key);
     
     script redeem_pay_to_pubkey_uncompressed = pay_to_pubkey_uncompressed.redeem(
         output{to_be_redeemed, script_pay_to_pubkey_uncompressed}, 
-        abstractions::input_index<abstractions::bytes>{tx, index}, key);
+        input_index<bytes>{tx, index}, key);
     
     address address_compressed = pubkey_compressed.address();
     address address_uncompressed = pubkey_uncompressed.address();
@@ -55,13 +56,13 @@ TEST(AddressTest, TestAddresses) {
     
     script redeem_pay_to_address_compressed = pay_to_address_compressed.redeem(
         output{to_be_redeemed, script_pay_to_address_compressed}, 
-        abstractions::input_index<abstractions::bytes>{tx, index}, key);
+        input_index<bytes>{tx, index}, key);
     
     script redeem_pay_to_address_uncompressed = pay_to_address_uncompressed.redeem(
         output{to_be_redeemed, script_pay_to_address_uncompressed}, 
-        abstractions::input_index<abstractions::bytes>{tx, index}, key);
+        input_index<bytes>{tx, index}, key);
     
-    machine m{tx, index, to_be_redeemed};
+    machine m{input_index<bytes_view>{tx, index}, to_be_redeemed};
     
     EXPECT_TRUE(m.run(script_pay_to_pubkey_compressed, redeem_pay_to_pubkey_compressed));
     EXPECT_TRUE(m.run(script_pay_to_pubkey_uncompressed, redeem_pay_to_pubkey_uncompressed));
@@ -78,6 +79,8 @@ TEST(AddressTest, TestAddresses) {
     EXPECT_FALSE(m.run(script_pay_to_address_compressed, redeem_pay_to_pubkey_compressed));
     EXPECT_FALSE(m.run(script_pay_to_address_uncompressed, redeem_pay_to_pubkey_uncompressed));
     
+}
+
 }
 
 #pragma clang diagnostic pop

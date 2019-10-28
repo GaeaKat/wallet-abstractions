@@ -6,51 +6,23 @@
 
 #include <abstractions/script/machine.hpp>
 
-#include <satoshi_sv/src/script/bitcoinconsensus.h>
-#include <satoshi_sv/src/script/script.h>
-
-#include <satoshi_sv/sv.hpp>
-
 namespace abstractions::sv {
-    
-    struct sv_machine {
-    private:
-        static const uint32_t verify_none = bitcoinconsensus_SCRIPT_FLAGS_VERIFY_NONE;
-        static const uint32_t verify_all = bitcoinconsensus_SCRIPT_FLAGS_VERIFY_ALL;
-        
-        TransactionSignatureChecker Checker;
-        uint32_t Flags;
-    public:
-        // Run machine without checking signatures. 
-        sv_machine() : Checker{{}, 0, sv::Amount{0}}, Flags{verify_none} {}
-        
-        // Run the machine with checking signatures. 
-        sv_machine(const CTransaction& tx, index i, satoshi amount) : Checker{&tx, i, sv::Amount{amount}}, Flags{verify_all} {}
-        
-        bool run(const CScript& output, const CScript& input) const {
-            return sv::VerifyScript(input, output, Flags, Checker);
-        }
-        
-    };
-    
-    constexpr static abstractions::script::machine::interface<sv_machine, CScript&, const CTransaction&> sv_machine_is_machine{};
     
     struct machine {
     private:
-        sv_machine Machine;
+        input_index<bytes_view> Input; 
+        satoshi Amount;
     public:
-        machine() : Machine{} {}
+        machine() : Input{}, Amount{0} {}
         
         // Run the machine with checking signatures. 
-        machine(bytes& tx, index i, satoshi amount) : Machine{read_transaction(tx), i, amount} {}
+        machine(input_index<bytes_view> i, satoshi amount) : Input{i}, Amount{amount} {}
         
-        bool run(bytes& output, bytes& input) const {
-            return Machine.run(read_script(output), read_script(input));
-        }
+        bool run(bytes_view output, bytes_view input) const;
         
     };
     
-    constexpr static abstractions::script::machine::interface<machine, bytes&, bytes&> machine_is_machine{};
+    constexpr static abstractions::script::machine::interface<machine, bytes_view, bytes_view> machine_is_machine{};
     
 } 
 

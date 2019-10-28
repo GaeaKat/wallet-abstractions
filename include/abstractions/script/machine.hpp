@@ -4,7 +4,7 @@
 #ifndef ABSTRACTIONS_MACHINE
 #define ABSTRACTIONS_MACHINE
 
-#include <abstractions/abstractions.hpp>
+#include <abstractions/pattern.hpp>
 
 namespace abstractions::script::machine {
     
@@ -12,8 +12,8 @@ namespace abstractions::script::machine {
     // definition of how the machine is run. 
     template <typename interpreter, typename script, typename tx>
     struct run {
-        bool operator()(script output, script input, tx transaction, index i, satoshi amount) const {
-            return interpreter{transaction, i, amount}.run(output, input);
+        bool operator()(script output, script input, input_index<tx> transaction, satoshi amount) const {
+            return interpreter{transaction, amount}.run(output, input);
         }
         
         bool operator()(script output, script input) const {
@@ -24,8 +24,8 @@ namespace abstractions::script::machine {
 
     template <typename interpreter, typename script, typename tx>
     struct interface {
-        bool run(script output, script input, tx transaction, index i, satoshi amount) const {
-            return machine::run<interpreter, script, tx>{}(output, input, transaction, i, amount);
+        bool run(script output, script input, input_index<tx> transaction, satoshi amount) const {
+            return machine::run<interpreter, script, tx>{}(output, input, transaction, amount);
         }
         
         bool run(script output, script input) const {
