@@ -8,6 +8,6 @@ endif()
 
 ADD_EXECUTABLE(testAbstractions  testStage1.cpp testAddresses.cpp testLib.cpp )
 target_include_directories(testAbstractions PUBLIC .)
-target_link_libraries(testAbstractions wallet-abstractions ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${LIB_BITCOIN_LIBRARIES} data gmock_main)
+target_link_libraries(testAbstractions wallet-abstractions ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} data gmock_main)
 get_target_property(OUT testAbstractions LINK_LIBRARIES)
 message(STATUS ${OUT})
