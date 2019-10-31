@@ -25,7 +25,7 @@ namespace abstractions::timechain::outpoint {
     };
     
     struct serialized {
-        slice<byte, 36> Data;
+        data::slice<byte, 36> Data;
         bool valid() const;
         digest reference() const;
         uint32 index() const;

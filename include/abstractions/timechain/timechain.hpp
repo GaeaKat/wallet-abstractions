@@ -5,6 +5,7 @@
 #define ABSTRACTIONS_TIMECHAIN_TIMECHAIN
 
 #include <abstractions/abstractions.hpp>
+#include <data/slice.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace abstractions::timechain {
@@ -27,7 +28,7 @@ namespace abstractions::timechain {
     
     struct reader {
         data::reader Reader;
-        reader(bytes b) : Reader{slice<byte>::make(b)} {}
+        reader(bytes b) : Reader{data::slice<byte>::make(b)} {}
         
         reader operator>>(uint32&) const {
             throw data::method::unimplemented{};
@@ -56,7 +57,7 @@ namespace abstractions::timechain {
     
     struct writer {
         data::writer Writer;
-        writer(bytes b) : Writer{slice<byte>::make(b)} {}
+        writer(bytes b) : Writer{data::slice<byte>::make(b)} {}
         
         writer operator<<(uint32) const {
             throw data::method::unimplemented{};
