@@ -130,6 +130,32 @@ add_library(wallet-abstractions STATIC
 	src/abstractions/work/work.cpp
 	src/abc/cashaddr.cpp
 	src/satoshi_sv/machine.cpp
+	
+# The follwing files are from the satoshi reference client for SV. 
+# They are what is necessary to use the Bitcoin signature algorithm
+# and to validate transactions. In February, when the protocol is 
+# locked, it will be possible to chop out these files and remove
+# extraneous material. 
+	include/satoshi_sv/src/script/interpreter.cpp
+	include/satoshi_sv/src/support/lockedpool.cpp
+	include/satoshi_sv/src/support/cleanse.cpp
+	include/satoshi_sv/src/key.cpp
+	include/satoshi_sv/src/pubkey.cpp
+	include/satoshi_sv/src/crypto/ripemd160.cpp
+	include/satoshi_sv/src/crypto/sha1.cpp
+	include/satoshi_sv/src/crypto/sha256.cpp
+	include/satoshi_sv/src/script/script.cpp
+	include/satoshi_sv/src/uint256.cpp
+	include/satoshi_sv/src/random.cpp
+	include/satoshi_sv/src/hash.cpp
+	include/satoshi_sv/src/crypto/hmac_sha512.cpp
+	include/satoshi_sv/src/logging.cpp
+	include/satoshi_sv/src/crypto/sha512.cpp
+	include/satoshi_sv/src/utilstrencodings.cpp
+	include/satoshi_sv/src/crypto/chacha20.cpp
+	include/satoshi_sv/src/util.cpp
+	include/satoshi_sv/src/fs.cpp
+	include/satoshi_sv/src/utiltime.cpp
 )
 target_link_libraries(wallet-abstractions PUBLIC data)
 
