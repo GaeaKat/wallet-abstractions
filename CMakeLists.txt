@@ -130,6 +130,7 @@ add_library(wallet-abstractions STATIC
 	src/abstractions/work/work.cpp
 	src/abc/cashaddr.cpp
 	src/satoshi_sv/machine.cpp
+	src/satoshi_sv/sv.cpp
 	
 # The follwing files are from the satoshi reference client for SV. 
 # They are what is necessary to use the Bitcoin signature algorithm

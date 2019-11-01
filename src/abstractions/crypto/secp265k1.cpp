@@ -3,25 +3,17 @@
 
 #include <abstractions/crypto/secp256k1.hpp>
 #include <abstractions/crypto/address.hpp>
+#include <abstractions/transaction.hpp>
 #include <data/encoding/base58.hpp>
-#include <satoshi_sv/src/script/interpreter.h>
-#include <satoshi_sv/src/serialize.h>
-#include <satoshi_sv/src/streams.h>
+#include <satoshi_sv/sv.hpp>
 #include <satoshi_sv/src/key.h>
 #include <satoshi_sv/src/script/sighashtype.h>
-#include <abstractions/transaction.hpp>
 
 namespace abstractions::secp256k1 {
     
-    static const int version = 0; // TODO
-    
     signature sign(const bytes_view out, const bytes_view tx, uint32 index, secret key) {
         timechain::output::serialized o{out};
-        auto stream = CDataStream((const char*)(tx.data()), (const char*)(tx.data() + tx.size()), 
-            SER_NETWORK, // TODO I don't know what should go here exactly. 
-            version 
-        );
-        CTransaction ct{deserialize, stream}; 
+        CTransaction ct = sv::read_transaction(tx); 
         std::vector<byte> vchSig;
         
         CKey k{};
@@ -29,7 +21,7 @@ namespace abstractions::secp256k1 {
             true // TODO I don't think this should matter though. 
         );
         bytes_view script = o.script();
-        CScript cs{script.data(), script.data() + script.size()};
+        CScript cs = sv::read_script(script);
         SigHashType x{};
         ::uint256 hash = SignatureHash(cs, ct, index, x, Amount{(uint64)(o.value())});
         if (!k.Sign(hash, vchSig)) {
