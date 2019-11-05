@@ -33,7 +33,9 @@ namespace abstractions::timechain::output {
         
         constexpr static interface<serialized, satoshi, const bytes_view> is_output{};
     };
-    
+
+
+
     template <typename Output>
     writer write(writer w, Output o) {
         bytes script = bytes(o.script());

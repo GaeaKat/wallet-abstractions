@@ -3,8 +3,8 @@
 
 #include <satoshi_sv/machine.hpp>
 
-#include <satoshi_sv/src/script/bitcoinconsensus.h>
-#include <satoshi_sv/src/script/script.h>
+#include <script/bitcoinconsensus.h>
+#include <script/script.h>
 
 #include <satoshi_sv/sv.hpp>
 

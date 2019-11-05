@@ -122,7 +122,7 @@ if(PACKAGE_TESTS)
 endif()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/extern/data/")
-
+add_subdirectory("${PROJECT_SOURCE_DIR}/extern/bitcoin-sv/")
 add_library(wallet-abstractions STATIC 
 	src/abstractions/crypto/secp265k1.cpp
 	src/abstractions/crypto/address.cpp
@@ -135,34 +135,9 @@ add_library(wallet-abstractions STATIC
 	src/abc/cashaddr.cpp
 	src/satoshi_sv/machine.cpp
 	src/satoshi_sv/sv.cpp
-	
-# The follwing files are from the satoshi reference client for SV. 
-# They are what is necessary to use the Bitcoin signature algorithm
-# and to validate transactions. In February, when the protocol is 
-# locked, it will be possible to chop out these files and remove
-# extraneous material. 
-	extern/bitcoin-sv/src/script/interpreter.cpp
-	extern/bitcoin-sv/src/support/lockedpool.cpp
-	extern/bitcoin-sv/src/support/cleanse.cpp
-	extern/bitcoin-sv/src/key.cpp
-	extern/bitcoin-sv/src/pubkey.cpp
-	extern/bitcoin-sv/src/crypto/ripemd160.cpp
-	extern/bitcoin-sv/src/crypto/sha1.cpp
-	extern/bitcoin-sv/src/crypto/sha256.cpp
-	extern/bitcoin-sv/src/script/script.cpp
-	extern/bitcoin-sv/src/uint256.cpp
-	extern/bitcoin-sv/src/random.cpp
-	extern/bitcoin-sv/src/hash.cpp
-	extern/bitcoin-sv/src/crypto/hmac_sha512.cpp
-	extern/bitcoin-sv/src/logging.cpp
-	extern/bitcoin-sv/src/crypto/sha512.cpp
-	extern/bitcoin-sv/src/utilstrencodings.cpp
-	extern/bitcoin-sv/src/crypto/chacha20.cpp
-	extern/bitcoin-sv/src/util.cpp
-	extern/bitcoin-sv/src/fs.cpp
-	extern/bitcoin-sv/src/utiltime.cpp
-)
-target_link_libraries(wallet-abstractions PUBLIC data)
+		src/abstractions/timechain/output.cpp
+		)
+target_link_libraries(wallet-abstractions PUBLIC data common util bitcoinconsensus)
 
 target_include_directories(wallet-abstractions PUBLIC include)
 
