@@ -6,8 +6,8 @@
 #include <abstractions/transaction.hpp>
 #include <data/encoding/base58.hpp>
 #include <satoshi_sv/sv.hpp>
-#include <satoshi_sv/src/key.h>
-#include <satoshi_sv/src/script/sighashtype.h>
+#include <key.h>
+#include <script/sighashtype.h>
 
 namespace abstractions::secp256k1 {
     

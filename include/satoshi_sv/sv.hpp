@@ -5,9 +5,8 @@
 #define SATOSHI_SV_SV
 
 #include <abstractions/crypto/hash/sha256.hpp>
-
-#include <satoshi_sv/src/uint256.h>
-#include <satoshi_sv/src/script/interpreter.h>
+#include <uint256.h>
+#include <script/interpreter.h>
 
 namespace abstractions::sv {
     

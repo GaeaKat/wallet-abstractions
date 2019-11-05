@@ -2,9 +2,9 @@
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #include <satoshi_sv/sv.hpp>
-#include <satoshi_sv/src/streams.h>
-#include <satoshi_sv/src/serialize.h>
-#include <satoshi_sv/src/primitives/transaction.h>
+#include <streams.h>
+#include <serialize.h>
+#include <primitives/transaction.h>
 
 namespace abstractions::sv {
     
