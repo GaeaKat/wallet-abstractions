@@ -97,7 +97,7 @@ namespace abstractions::secp256k1 {
                     if (!crypto::verify_checksum(b)) return false;
                     if (b[0] != 0x80) return false;
                     std::copy(b.begin() + 1, b.end() - 4, p.Value.begin());
-                    if (!p.valid()) return false;
+                    return p.valid();
                 }
                 catch(...)
                 {

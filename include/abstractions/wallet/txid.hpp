@@ -16,11 +16,11 @@ namespace abstractions {
             using parent::digest;
             
             bool operator==(const txid& t) const {
-                data::sha256::digest::operator==((parent)(t));
+                return data::sha256::digest::operator==((parent)(t));
             }
             
             bool operator!=(const txid& t) const {
-                data::sha256::digest::operator!=((parent)(t));
+                return data::sha256::digest::operator!=((parent)(t));
             }
             
             txid& operator=(const txid& a);
