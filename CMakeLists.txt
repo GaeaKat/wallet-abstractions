@@ -109,6 +109,10 @@ include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/data/CMakeLists.txt")
     message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif()
+
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/bitcoin-sv/CMakeLists.txt")
+	message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
 ## Enable testing
 include(CTest)
 
