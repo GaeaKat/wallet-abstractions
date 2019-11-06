@@ -12,7 +12,7 @@
 #include <data/io/unimplemented.hpp>
 
 namespace abstractions::script {
-    pointer<program> lock_with_pow(sha256::digest, work::target) {
+    inline pointer<program> lock_with_pow(sha256::digest, work::target) {
         throw data::method::unimplemented{};
     }
     
@@ -35,8 +35,12 @@ namespace abstractions::script {
         
         pow_lock() {}
         
-        virtual uint32 length() const final override;
-        virtual void write(writer&) const final override;
+        // TODO
+        // virtual uint32 length() const final override;
+    
+        virtual void write(writer&) const final override {
+            throw data::method::unimplemented{};
+        }
         
     private :
         pow_lock(bytes s, sha256::digest r) : Script{s}, Reference{r} {} 
@@ -62,8 +66,12 @@ namespace abstractions::script {
         
         pow_key() {}
         
-        virtual uint32 length() const final override;
-        virtual void write(writer&) const final override;
+        // TODO
+        //virtual uint32 length() const final override;
+        
+        virtual void write(writer&) const final override {
+            throw data::method::unimplemented{};
+        }
         
     private :
         pow_key(bytes b, 

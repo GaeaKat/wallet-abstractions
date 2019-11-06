@@ -8,6 +8,7 @@
 #include <abstractions/crypto/address.hpp>
 #include <abstractions/wallet/keys.hpp>
 #include <data/encoding/halves.hpp>
+#include <data/io/unimplemented.hpp>
 
 namespace abstractions::work {
     
@@ -116,7 +117,9 @@ namespace abstractions::work {
             return crypto::hash256(Data);
         }
         
-        work::target target() const;
+        work::target target() const {
+            throw data::method::unimplemented{};
+        }
     
         bool valid() const {
             return hash() < target().expand();
@@ -141,7 +144,9 @@ namespace abstractions::work {
         return m;
     };
     
-    message reference_and_pubkey(const sha256::digest& d, const bitcoin::pubkey& p, uint24 sequence);
+    inline message reference_and_pubkey(const sha256::digest& d, const bitcoin::pubkey& p, uint24 sequence) {
+        throw data::method::unimplemented{};
+    }
     
     inline message reference_and_pubkey(const sha256::digest& d, const bitcoin::pubkey& p) {
         return reference_and_pubkey(d, p, 0);

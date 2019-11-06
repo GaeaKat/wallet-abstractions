@@ -53,8 +53,8 @@ namespace abstractions::script {
         return std::make_shared<program::push>(b);
     }
     
-    inline pointer<program> push_data(hex) {
-        throw data::method::unimplemented{};
+    inline pointer<program> push_data(hex h) {
+        return push_data((bytes)(h));
     }
     
     inline pointer<program> push(const bitcoin::signature&) {
@@ -78,6 +78,10 @@ namespace abstractions::script {
     }
     
     inline pointer<program> push(const sha256::digest&) {
+        throw data::method::unimplemented{};
+    }
+    
+    inline pointer<program> push(int64) {
         throw data::method::unimplemented{};
     }
     

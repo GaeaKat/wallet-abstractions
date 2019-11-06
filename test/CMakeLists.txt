@@ -6,7 +6,7 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 
 
-ADD_EXECUTABLE(testAbstractions  testStage1.cpp testAddresses.cpp testLib.cpp )
+ADD_EXECUTABLE(testAbstractions  testStage1.cpp testAddresses.cpp testWork.cpp testPowLock.cpp testLib.cpp )
 target_include_directories(testAbstractions PUBLIC .)
 target_link_libraries(testAbstractions wallet-abstractions data ${CRYPTOPP_LIBRARIES} ${Boost_LIBRARIES} ${GMP_LIBRARY} ${GMPXX_LIBRARY} ${LIB_BITCOIN_LIBRARIES} gmock_main)
 get_target_property(OUT testAbstractions LINK_LIBRARIES)

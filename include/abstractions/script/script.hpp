@@ -8,13 +8,14 @@
 #define ABSTRACTIONS_SCRIPT_SCRIPT
 
 #include <abstractions/abstractions.hpp>
-//#include <data/fold.hpp>
 
 namespace abstractions::script {
     struct program {
-        virtual uint32 length() const = 0;
-        virtual void write(writer&) const = 0;
         bytes compile() const;
+        virtual void write(writer&) const = 0;
+        virtual uint32 length() const {
+            return compile().size();
+        };
         
         operator bytes() const {
             return compile();
