@@ -6,11 +6,11 @@
 namespace abstractions::timechain::output {
 
     const bytes_view serialized::script() const {
-        throw data::method::unimplemented{};
+        return Data.substr(4);
     }
 
     satoshi serialized::value() const {
-        throw data::method::unimplemented{};
+        return satoshi::as(*(uint32*)(Data.substr(0, 4).data()));
     }
 
 }
