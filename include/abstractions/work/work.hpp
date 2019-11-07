@@ -17,8 +17,8 @@ namespace abstractions::work {
     struct target {
         uint32 Encoded;
         
-        byte exponent() const {
-            return byte(Encoded >> 24);
+        uint32 exponent() const {
+            return Encoded >> 24;
         }
         
         uint24 value() const {
@@ -26,13 +26,13 @@ namespace abstractions::work {
         }
         
         bool valid() const {
-            return [](byte e, uint24 v)->bool{
+            return [](uint32 e, uint24 v)->bool{
                 return e >= 3 && e <= 32 && v != 0;
             } (exponent(), value());
         }
 
     private:
-        static uint32 encode(byte e, uint24 v) {
+        static uint32 encode(uint32 e, uint24 v) {
            if (e < 3 || e > 32 || v == 0 || v > 0x00ffffff) return 0;
            return (uint32(e) << 24) + v;
         }

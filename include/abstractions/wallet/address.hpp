@@ -53,7 +53,6 @@ namespace abstractions::bitcoin {
         namespace bitcoin_address {
             address read(string&);
             data::string write(const address&);
-
         }
         
         namespace cashaddr {
