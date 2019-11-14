@@ -9,8 +9,8 @@ namespace abstractions::timechain::output {
         return Data.substr(4);
     }
 
-    satoshi serialized::value() const {
-        return satoshi::as(*(uint32*)(Data.substr(0, 4).data()));
+    satoshi_little serialized::value() const {
+        return satoshi_little::as(*(uint32*)(Data.substr(0, 4).data()));
     }
 
 }

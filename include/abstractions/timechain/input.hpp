@@ -30,10 +30,10 @@ namespace abstractions::timechain::input {
         bytes_view Data;
         bool valid() const;
         outpoint::serialized previous();
-        const bytes_view script() const;
-        uint32 sequence() const;
+        bytes_view script() const;
+        uint32_little sequence() const;
         
-        constexpr static interface<serialized, outpoint::serialized, const bytes_view, uint32> is_input{};
+        constexpr static interface<serialized, outpoint::serialized, bytes_view, uint32_little> is_input{};
     };
     
     template <typename Input>

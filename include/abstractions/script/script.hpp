@@ -8,8 +8,10 @@
 #define ABSTRACTIONS_SCRIPT_SCRIPT
 
 #include <abstractions/abstractions.hpp>
+#include <data/stream.hpp>
 
 namespace abstractions::script {
+    using writer = data::writer;
     struct program {
         bytes compile() const;
         virtual void write(writer&) const = 0;

@@ -40,15 +40,15 @@ namespace abstractions::timechain::header {
     };
     
     struct serialized {
-        slice<byte, 80> Data;
+        data::slice<byte, 80> Data;
         bool valid() const;
-        int32 version() const;
-        digest parent() const;
-        digest root() const;
-        uint32 time() const;
-        uint32 target() const;
-        uint32 nonce() const;
-        constexpr static interface<serialized, int32, digest, uint32> is_header;
+        int32_little version() const;
+        digest_little parent() const;
+        digest_little root() const;
+        uint32_little time() const;
+        uint32_little target() const;
+        uint32_little nonce() const;
+        constexpr static interface<serialized, int32_little, digest_little, uint32_little> is_header;
     };
     
 } 

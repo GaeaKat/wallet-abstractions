@@ -27,18 +27,18 @@ namespace abstractions::timechain::outpoint {
     struct serialized {
         data::slice<byte, 36> Data;
         bool valid() const;
-        digest reference() const;
-        uint32 index() const;
+        digest_little reference() const;
+        uint32_little index() const;
         size_t size() const {
             return 36;
         }
         
-        constexpr static interface<serialized, digest, uint32> is_outpoint{};
+        constexpr static interface<serialized, digest_little, uint32_little> is_outpoint{};
     };
     
     template <typename Outpoint>
     writer write(writer w, Outpoint o) {
-        return w << digest(o.reference()) << uint32(o.index());
+        return w << o.reference() << uint32_little{o.index()};
     }
     
     template <typename Outpoint>

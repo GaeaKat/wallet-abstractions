@@ -28,7 +28,7 @@ namespace abstractions {
             explicit txid(hex s);
             explicit txid(string hex_string);
             
-            explicit operator timechain::digest() const {
+            explicit operator timechain::digest_little() const {
                 throw data::method::unimplemented{};
             }
             

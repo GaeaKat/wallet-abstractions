@@ -107,7 +107,7 @@ namespace abstractions::work {
         
         candidate() : Data{} {}
         candidate(data::uint<80> d) : Data{d} {}
-        candidate(int64, order);
+        candidate(int64 i, order o);
         
         bool operator==(const candidate& c) {
             return Data == c.Data;
@@ -128,7 +128,11 @@ namespace abstractions::work {
         int64 nonce() const;
         
         work::message message() const;
+    
+        static data::uint<80> write(int64, order);
     };
+    
+    inline candidate::candidate(int64 i, order o) : Data{write(i, o)} {}
     
     inline message bitcoin_header(const sha256::digest& d, uint32 timestamp) {
         message m{};

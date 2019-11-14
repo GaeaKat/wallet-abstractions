@@ -48,8 +48,6 @@ namespace abstractions {
     using knowledge = const uint64_t; 
     
     using stringstream = std::stringstream;
-    using reader = data::reader;
-    using writer = data::writer;
     
     using namespace data::exported;
 

@@ -40,12 +40,12 @@ namespace abstractions::timechain::transaction {
     struct serialized {
         bytes_view Data;
         bool valid() const;
-        int32 version();
+        int32_little version();
         list<input::serialized> inputs();
         list<output::serialized> outputs();
-        int32 locktime();
-        sha256::digest id();
-        constexpr static interface<serialized, int32, input::serialized, output::serialized, uint32, sha256::digest> is_transaction{};
+        int32_little locktime();
+        digest_little id();
+        constexpr static interface<serialized, int32_little, input::serialized, output::serialized, uint32_little, digest_little> is_transaction{};
     };
     
     template <typename tx>

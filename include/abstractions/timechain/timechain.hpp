@@ -5,18 +5,19 @@
 #define ABSTRACTIONS_TIMECHAIN_TIMECHAIN
 
 #include <abstractions/abstractions.hpp>
+#include <abstractions/crypto/hash/sha256.hpp>
 #include <data/slice.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace abstractions::timechain {
     
-    using digest = data::endian::ordered<data::slice<byte, 32>, data::endian::order::little>;
+    using digest_little = data::endian::ordered<data::slice<byte, 32>, data::endian::order::little>;
     
-    using uint32 = data::endian::ordered<uint32, data::endian::order::little>;
+    using uint32_little = data::endian::ordered<uint32, data::endian::order::little>;
     
-    using int32 = data::endian::ordered<int32, data::endian::order::little>;
+    using int32_little = data::endian::ordered<int32, data::endian::order::little>;
     
-    using satoshi = data::endian::ordered<uint64, data::endian::order::little>;
+    using satoshi_little = data::endian::ordered<uint64, data::endian::order::little>;
     
     static const string InvalidValueError = string{"Invalid value"};
     
@@ -28,60 +29,76 @@ namespace abstractions::timechain {
     
     struct reader {
         data::reader Reader;
-        reader(bytes b) : Reader{data::slice<byte>::make(b)} {}
+        reader(bytes_view b) : Reader{b} {}
         
-        reader operator>>(uint32&) const {
+        reader operator>>(uint32_little&) const {
             throw data::method::unimplemented{};
         }
         
-        reader operator>>(int32&) const {
+        reader operator>>(int32_little&) const {
             throw data::method::unimplemented{};
         }
         
-        reader operator>>(satoshi&) const {
+        reader operator>>(satoshi_little&) const {
             throw data::method::unimplemented{};
         }
         
-        reader operator>>(digest&) const {
+        reader operator>>(digest_little&) const {
             throw data::method::unimplemented{};
         }
         
-        reader operator>>(bytes&) const {
-            throw data::method::unimplemented{};
-        }
-        
-        reader read_var_int(uint&) const {
+        reader operator>>(bytes_view&) const {
             throw data::method::unimplemented{};
         }
     }; 
     
     struct writer {
         data::writer Writer;
-        writer(bytes b) : Writer{data::slice<byte>::make(b)} {}
+        writer(data::slice<byte> b) : Writer{b} {}
         
-        writer operator<<(uint32) const {
+        writer operator<<(uint32_little n) const {
+            using namespace data::endian;
+            return writer{Writer << n};
+        }
+        
+        writer operator<<(int32_little i) const {
+            using namespace data::endian;
+            throw writer{Writer << i};
+        }
+        
+        writer operator<<(satoshi_little i) const {
+            using namespace data::endian;
+            throw writer{Writer << i};
+        }
+        
+        writer operator<<(uint32 n) const {
+            using namespace data::endian;
+            return writer{Writer << uint32_little{n}};
+        }
+        
+        writer operator<<(int32 i) const {
+            using namespace data::endian;
+            throw writer{Writer << int32_little{i}};
+        }
+        
+        writer operator<<(satoshi i) const {
+            using namespace data::endian;
+            throw writer{Writer << satoshi_little{i}};
+        }
+        
+        writer operator<<(sha256::digest) const {
             throw data::method::unimplemented{};
         }
         
-        writer operator<<(int32) const {
-            throw data::method::unimplemented{};
-        }
-        
-        writer operator<<(satoshi) const {
-            throw data::method::unimplemented{};
-        }
-        
-        writer operator<<(digest) const {
-            throw data::method::unimplemented{};
-        }
-        
-        writer operator<<(bytes) const {
+        writer operator<<(bytes_view) const {
             throw data::method::unimplemented{};
         }
         
         writer write_var_int(uint) const {
             throw data::method::unimplemented{};
         }
+    private:
+        writer(data::writer w) : Writer{w} {}
     }; 
     
     inline size_t var_int_size(uint) {
