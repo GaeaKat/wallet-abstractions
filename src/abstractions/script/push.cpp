@@ -17,9 +17,15 @@ namespace abstractions::script {
         return push(x);
     }
     
-    instruction push(bitcoin::address y) {
+    instruction push(secp256k1::uncompressed_pubkey y) {
         bytes x{bitcoin::address::digest::size};
-        std::copy(y.Digest.Digest.begin(), y.Digest.Digest.end(), x.begin());
+        std::copy(y.begin(), y.end(), x.begin());
+        return push(x);
+    }
+    
+    instruction push(secp256k1::compressed_pubkey y) {
+        bytes x{bitcoin::address::digest::size};
+        std::copy(y.begin(), y.end(), x.begin());
         return push(x);
     }
 }

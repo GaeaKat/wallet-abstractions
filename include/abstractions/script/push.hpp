@@ -24,28 +24,24 @@ namespace abstractions::script {
         return instruction{(bytes)(h)};
     }
     
-    inline instruction push(secp256k1::uncompressed_pubkey) {
-        throw data::method::unimplemented{"abstractions::script::push"};
-    }
-    
-    inline instruction push(secp256k1::compressed_pubkey) {
-        throw data::method::unimplemented{"abstractions::script::push"};
+    inline instruction push(bitcoin::address y) {
+        return push(y.Digest);
     }
     
     inline instruction push(sha256::digest) {
-        throw data::method::unimplemented{"abstractions::script::push"};
+        throw data::method::unimplemented{"abstractions::script::push(sha256::digest)"};
     }
     
     inline instruction push(int64_little) {
-        throw data::method::unimplemented{"abstractions::script::push"};
+        throw data::method::unimplemented{"abstractions::script::push(int64_little)"};
     }
     
     inline instruction push(satoshi_little) {
-        throw data::method::unimplemented{"abstractions::script::push"};
+        throw data::method::unimplemented{"abstractions::script::push(satoshi_little)"};
     }
     
     inline instruction push(uint32_little) {
-        throw data::method::unimplemented{"abstractions::script::push"};
+        throw data::method::unimplemented{"abstractions::script::push(uint32_little)"};
     }
 }
 
