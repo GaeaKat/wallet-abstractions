@@ -12,35 +12,39 @@
 #include "testStage1.h"
 
 
-TEST_P(Stage1Test,SecretWIFValid) {
+TEST_P(Stage1Test, SecretWIFValid) {
     EXPECT_TRUE(this->SecretWIF.valid()) << "Secret WIF is not valid";
 }
 
-TEST_P(Stage1Test,SecretWIFUncompressedValid) {
+TEST_P(Stage1Test, SecretWIFUncompressedValid) {
     EXPECT_TRUE(this->SecretWIFUncompressed.valid()) << "Uncompressed Secret Wif is not valid";
 }
 
-TEST_P(Stage1Test,PubHexValid) {
+TEST_P(Stage1Test, SecretUncompressedToCompressedComparison) {
+    EXPECT_EQ(this->SecretWIF, this->SecretWIFUncompressed) << "Can't get public key from compressed secret";
+}
+
+TEST_P(Stage1Test, PubHexValid) {
     EXPECT_TRUE(this->PubkeyHex.valid()) << "Public Key is not valid";
 }
 
-TEST_P(Stage1Test,PubHexUncompressedValid) {
+TEST_P(Stage1Test, PubHexUncompressedValid) {
     EXPECT_TRUE(this->PubkeyHexUncompressed.valid()) << "Uncompressed Public Key is not valid";
 }
 
-TEST_P(Stage1Test,Addr58Valid) {
+TEST_P(Stage1Test, Addr58Valid) {
     EXPECT_TRUE(this->AddressBase58.valid()) << "Address in base 58 is not valid";
 }
 
-TEST_P(Stage1Test,DISABLED_CashValid) {
+TEST_P(Stage1Test, DISABLED_CashValid) {
     EXPECT_TRUE(this->AddressCashaddr.valid()) << "Address in Cash is not valid";
 }
 
-TEST_P(Stage1Test,SecretWIFDecompression) {
+TEST_P(Stage1Test, SecretWIFDecompression) {
     EXPECT_EQ(this->SecretWIF,this->SecretWIFUncompressed) << "Secret Wif not equal to it's decompressed version";
 }
 
-TEST_P(Stage1Test,DISABLED_AddressFormatComparison) {
+TEST_P(Stage1Test, DISABLED_AddressFormatComparison) {
     std::cout << "base58: " <<this->AddressBase58.write() << std::endl;
     std::cout << "cashaddr: " << this->AddressCashaddr.write() << std::endl;
 
@@ -50,50 +54,50 @@ TEST_P(Stage1Test,DISABLED_AddressFormatComparison) {
     EXPECT_EQ(this->AddressCashaddr,this->AddressBase58) << "CashAddr doesn't equal traditional format";
 }
 
-TEST_P(Stage1Test,SecretToPublicComparison) {
+TEST_P(Stage1Test, SecretToPublicComparison) {
     EXPECT_EQ(this->SecretWIF.to_public(),PubkeyHex) << "Can't get public key from compressed secret";
 }
 
-TEST_P(Stage1Test,GetAddressFromPublicKey) {
-    EXPECT_EQ(this->PubkeyHex.address(),this->AddressBase58) << "Can't get address from public key";
+TEST_P(Stage1Test, GetAddressFromPublicKey) {
+    EXPECT_EQ(this->PubkeyHex.address(), this->AddressBase58) << "Can't get address from public key";
 }
 
 // This test fails. 
-TEST_P(Stage1Test,WriteSecretWIF) {
-    EXPECT_EQ(this->SecretWIF.write(),GetParam().secret_wif);
+TEST_P(Stage1Test, WriteSecretWIF) {
+    EXPECT_EQ(this->SecretWIF.write(), GetParam().secret_wif);
 }
 
-TEST_P(Stage1Test,WritePubKey) {
-    EXPECT_EQ(this->PubkeyHex.write(),GetParam().pubkey_hex);
+TEST_P(Stage1Test, WritePubKey) {
+    EXPECT_EQ(this->PubkeyHex.write(), GetParam().pubkey_hex);
 }
 
-TEST_P(Stage1Test,WriteAddress) {
-    EXPECT_EQ(this->AddressBase58.write(),GetParam().addr_58);
+TEST_P(Stage1Test, WriteAddress) {
+    EXPECT_EQ(this->AddressBase58.write(), GetParam().addr_58);
 }
 
 // Invalid Tests
 
-TEST_P(Stage1InvalidTest,SecretWIFInvalid) {
+TEST_P(Stage1InvalidTest, SecretWIFInvalid) {
     EXPECT_FALSE(this->SecretWIF.valid()) << "Secret WIF is valid";
 }
 
-TEST_P(Stage1InvalidTest,SecretWIFUncompressedInvalid) {
+TEST_P(Stage1InvalidTest, SecretWIFUncompressedInvalid) {
     EXPECT_FALSE(this->SecretWIFUncompressed.valid()) << "Uncompressed Secret Wif is valid";
 }
 
-TEST_P(Stage1InvalidTest,PubHexInvalid) {
+TEST_P(Stage1InvalidTest, PubHexInvalid) {
     EXPECT_FALSE(this->PubkeyHex.valid()) << "Public Key isvalid";
 }
 
-TEST_P(Stage1InvalidTest,PubHexUncompressedInvalid) {
+TEST_P(Stage1InvalidTest, PubHexUncompressedInvalid) {
     EXPECT_FALSE(this->PubkeyHexUncompressed.valid()) << "Uncompressed Public Key is valid";
 }
 
-TEST_P(Stage1InvalidTest,Addr58Invalid) {
+TEST_P(Stage1InvalidTest, Addr58Invalid) {
     EXPECT_FALSE(this->AddressBase58.valid()) << "Address in base 58 is valid";
 }
 
-TEST_P(Stage1InvalidTest,DISABLED_CashInvalid) {
+TEST_P(Stage1InvalidTest, DISABLED_CashInvalid) {
     EXPECT_FALSE(this->AddressCashaddr.valid()) << "Address in Cash is valid";
 }
 

@@ -39,7 +39,7 @@ namespace abstractions::bitcoin {
         
         bitcoin::address address() const;
         bitcoin::address address_uncompressed() const;
-        inline string write();
+        string write();
         string write_uncompressed();
     };
     
