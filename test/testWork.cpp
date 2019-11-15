@@ -32,23 +32,18 @@ TEST(WorkTest, TestWork) {
     const target target_sixteenth = success_sixteenth;
     const target target_thirty_second = minimum_target;
     
+    // Unknown exception thrown here.
     const order work_order_half = order{to_do, target_half};
     const order work_order_quarter = order{to_do, target_quarter};
     const order work_order_eighth = order{to_do, target_eighth};
     const order work_order_sixteenth = order{to_do, target_sixteenth};
     const order work_order_thirty_second = order{to_do, target_thirty_second};
     
-    data::int64 nonce_half;
-    data::int64 nonce_quarter;
-    data::int64 nonce_eighth;
-    data::int64 nonce_sixteenth;
-    data::int64 nonce_thirty_second;
-    
-    EXPECT_NO_THROW(nonce_half = work(work_order_half));
-    EXPECT_NO_THROW(nonce_quarter = work(work_order_quarter));
-    EXPECT_NO_THROW(nonce_eighth = work(work_order_eighth));
-    EXPECT_NO_THROW(nonce_sixteenth = work(work_order_sixteenth));
-    EXPECT_NO_THROW(nonce_thirty_second = work(work_order_thirty_second));
+    const data::int64 nonce_half = work(work_order_half);
+    const data::int64 nonce_quarter = work(work_order_quarter);
+    const data::int64 nonce_eighth = work(work_order_eighth);
+    const data::int64 nonce_sixteenth = work(work_order_sixteenth);
+    const data::int64 nonce_thirty_second = work(work_order_thirty_second);
     
     const candidate candidate_half = candidate{nonce_half, work_order_half};
     const candidate candidate_quarter = candidate{nonce_quarter, work_order_quarter};

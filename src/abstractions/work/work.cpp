@@ -9,10 +9,14 @@ namespace abstractions::work {
     // roughly 1/16 odds. 
     const target minimum{32, 0x000fffff};
     
+    message reference_and_pubkey(sha256::digest d, bitcoin::pubkey p, uint24 sequence) {
+        throw data::method::unimplemented{"work::reference_and_pubkey, work.cpp line 13"};
+    }
+    
     data::uint<80> candidate::write(int64 i, order o) {
         data::uint<80> data;
         bytes_view message{o.Message.Array.data(), o.Message.Array.size()};
-        timechain::writer{data::slice<byte>::make(data)} << int32(data::greater(i)) << message << timechain::uint32_little{o.Target} << data::lesser(i);
+        timechain::writer{data::slice<byte>::make(data)} << int32(data::greater(i)) << message << uint32_little{o.Target} << data::lesser(i);
         return data;
     }
     

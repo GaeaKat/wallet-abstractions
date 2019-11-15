@@ -14,8 +14,7 @@ namespace abstractions::pattern {
         
     template <typename secret, typename pubkey, typename tx>
     struct pay_to_pubkey final : public pattern::interface::recognizable<secret, pubkey, bytes, pubkey, tx> {
-        using script = bytes;
-        using parent = pattern::interface::recognizable<secret, pubkey, script, pubkey, tx>;
+        using parent = pattern::interface::recognizable<secret, pubkey, bytes, pubkey, tx>;
         using parent::tag;
         using parent::pay;
                 
@@ -23,17 +22,17 @@ namespace abstractions::pattern {
             return k;
         };
         
-        script pay(const pubkey& k) const override {
-            return abstractions::script::pay_to(k.Pubkey)->compile();
+        bytes pay(const pubkey& k) const override {
+            return script::compile(script::pay_to(k.Pubkey));
         }
         
-        list<pubkey> recognize(script s) const override {
+        list<pubkey> recognize(bytes s) const override {
             return list<pubkey>::make(abstractions::script::pay_to_pubkey<pubkey>::to(s));
         }
         
-        script redeem(output<bytes> o, input_index<tx> i, const secret& k) const override {
-            return abstractions::script::redeem_from_pay_to_pubkey(
-                secp256k1::sign(o.serialize(), bytes(i.Transaction), i.Index, k.Secret))->compile();
+        bytes redeem(output<bytes> o, input_index<tx> i, const secret& k) const override {
+            return script::compile(script::redeem_from_pay_to_pubkey(
+                secp256k1::sign(o.serialize(), bytes(i.Transaction), i.Index, k.Secret)));
         }
     
     };

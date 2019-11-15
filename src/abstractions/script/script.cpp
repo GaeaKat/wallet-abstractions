@@ -5,10 +5,7 @@
 
 namespace abstractions::script {
     
-    bytes program::compile() const {
-        bytes b{static_cast<unsigned char>(length())};
-        data::writer s{b};
-        write(s);
-        return b;
-    };
+    bytes compile(program p) {
+        throw data::method::unimplemented{"script::compile"};
+    }
 }

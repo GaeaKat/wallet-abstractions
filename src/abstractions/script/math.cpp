@@ -2,49 +2,34 @@
 // Distributed under the Open BSV software license, see the accompanying file LICENSE.
 
 #include <abstractions/script/math.hpp>
+#include <abstractions/script/instructions.hpp>
 
 namespace abstractions::script {
         
-    pointer<program> get_words_32() {
-        return sequence({
-            split(4), 
-            swap(), 
-            to_alt(), 
-            swap(), 
-            split(4),
-            swap(), 
-            to_alt()
-        });
+    program get_words_32() {
+        return program{} + split(4) + swap() + to_alt() + swap() + split(4) + swap() + to_alt();
     }
         
-    pointer<program> less_256() {
-        return sequence({
-            repeat(sequence({get_words_32(), less_32(), from_alt(), from_alt()}), 7), 
-            less_32(),
-            repeat(sequence({op(program::OP_AND)}), 7)
-        });
+    program less_256() {
+        return repeat(program{} + get_words_32() + less() + from_alt() + from_alt(), 7) + 
+            less() + 
+            repeat(program{} + op_code(OP_AND), 7);
     }
     
-    pointer<program> greater_256() {
-        return sequence({
-            repeat(sequence({get_words_32(), greater_32(), from_alt(), from_alt()}), 7), 
-            greater_32(),
-            repeat(sequence({op(program::OP_AND)}), 7)
-        });
+    program greater_256() {
+        return repeat(program{} + get_words_32() + greater() + from_alt() + from_alt(), 7) + 
+            greater() + 
+            repeat(program{} + op_code(OP_AND), 7);
     }
     
-    pointer<program> less_256_verify() {
-        return sequence({
-            repeat(sequence({get_words_32(), less_32_verify(), from_alt(), from_alt()}), 7), 
-            less_32_verify()
-        });
+    program less_256_verify() {
+        return repeat(program{} + get_words_32() + less_verify() + from_alt() + from_alt(), 7) + 
+            less_verify();
     }
     
-    pointer<program> greater_256_verify() {
-        return sequence({
-            repeat(sequence({get_words_32(), greater_32_verify(), from_alt(), from_alt()}), 7), 
-            greater_32_verify()
-        });
+    program greater_256_verify() {
+        return repeat(program{} + get_words_32() + greater_verify() + from_alt() + from_alt(), 7) +  
+            greater_verify();
     }
 
 }

@@ -16,6 +16,7 @@
 
 TEST(PowLockTest, TestPowLock) {
     using namespace abstractions;
+    using namespace abstractions::script;
     
     bitcoin::secret key{"0x000000000000000100000000000000000000000100010000000000000000000f"};
     bitcoin::pubkey pub = key.to_public();
@@ -31,17 +32,18 @@ TEST(PowLockTest, TestPowLock) {
     // one nonce is good for pow with both messages. If so, increase difficulty.
     const work::target difficulty{31, 0xffffff};
     
+    // unimplemented exception thrown here. 
     work::order to_do_1 = {work::reference_and_pubkey(reference_1, pub), difficulty};
     work::order to_do_2 = {work::reference_and_pubkey(reference_2, pub), difficulty};
     
     int64 nonce_1 = work::work(to_do_1);
     int64 nonce_2 = work::work(to_do_2);
     
-    script::pow_lock pow_lock_1{script::lock_with_pow(reference_1, difficulty)->compile()};
-    script::pow_lock pow_lock_2{script::lock_with_pow(reference_2, difficulty)->compile()};
+    script::pow_lock pow_lock_1{compile(lock_with_pow(reference_1, difficulty))};
+    script::pow_lock pow_lock_2{compile(lock_with_pow(reference_2, difficulty))};
     
-    script::pow_key pow_key_1{script::unlock_with_pow(not_real, pub, nonce_1)->compile()};
-    script::pow_key pow_key_2{script::unlock_with_pow(not_real, pub, nonce_2)->compile()};
+    script::pow_key pow_key_1{compile(unlock_with_pow(not_real, pub, nonce_1))};
+    script::pow_key pow_key_2{compile(unlock_with_pow(not_real, pub, nonce_2))};
     
     work::candidate candidate_1 = work::candidate(nonce_1, to_do_1);
     work::candidate candidate_2 = work::candidate(nonce_2, to_do_2);

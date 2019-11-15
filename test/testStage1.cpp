@@ -40,10 +40,6 @@ TEST_P(Stage1Test,SecretWIFDecompression) {
     EXPECT_EQ(this->SecretWIF,this->SecretWIFUncompressed) << "Secret Wif not equal to it's decompressed version";
 }
 
-TEST_P(Stage1Test,DISABLED_PubkeyHexDecompression) {
-    //EXPECT_EQ(this->PubkeyHex,this->PubkeyHexUncompressed) << "Secret PubKey not equal to it's decompressed version";
-}
-
 TEST_P(Stage1Test,DISABLED_AddressFormatComparison) {
     std::cout << "base58: " <<this->AddressBase58.write() << std::endl;
     std::cout << "cashaddr: " << this->AddressCashaddr.write() << std::endl;
@@ -62,6 +58,7 @@ TEST_P(Stage1Test,GetAddressFromPublicKey) {
     EXPECT_EQ(this->PubkeyHex.address(),this->AddressBase58) << "Can't get address from public key";
 }
 
+// This test fails. 
 TEST_P(Stage1Test,WriteSecretWIF) {
     EXPECT_EQ(this->SecretWIF.write(),GetParam().secret_wif);
 }

@@ -129,8 +129,9 @@ add_library(wallet-abstractions STATIC
 	src/abstractions/wallet/address.cpp
 	src/abstractions/wallet/wallet.cpp
 	src/abstractions/script/script.cpp
-	src/abstractions/script/functions.cpp
+	src/abstractions/script/push.cpp
 	src/abstractions/script/math.cpp
+	src/abstractions/script/pow.cpp
 	src/abstractions/work/work.cpp
 	src/abc/cashaddr.cpp
 	src/satoshi_sv/machine.cpp

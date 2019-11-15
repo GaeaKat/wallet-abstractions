@@ -114,7 +114,7 @@ namespace abstractions::bitcoin {
             
             template <typename ... X>
             payment pay(to_address a, X ... rest) const {
-                return pay(output{a.Value, abstractions::script::pay_to(a.Address)->compile()}, rest...);
+                return pay(output{a.Value, abstractions::script::compile(abstractions::script::pay_to(a.Address))}, rest...);
             }
             
             template <typename ... X>

@@ -12,29 +12,33 @@
 
 namespace abstractions::work {
     
-    using uint24 = uint32;
+    struct uint24 {
+        uint32 Value;
+        
+        uint24(uint32 v) : Value{v & 0x00ffffff} {}
+    };
     
     struct target {
         uint32 Encoded;
         
-        uint32 exponent() const {
+        byte exponent() const {
             return Encoded >> 24;
         }
         
-        uint24 value() const {
-            return Encoded & 0x00ffffff;
+        uint24 factor() const {
+            return uint24{Encoded};
         }
         
         bool valid() const {
-            return [](uint32 e, uint24 v)->bool{
-                return e >= 3 && e <= 32 && v != 0;
-            } (exponent(), value());
+            return [](byte e, uint24 v)->bool{
+                return e >= 3 && e <= 32 && v.Value != 0;
+            } (exponent(), factor());
         }
 
     private:
-        static uint32 encode(uint32 e, uint24 v) {
-           if (e < 3 || e > 32 || v == 0 || v > 0x00ffffff) return 0;
-           return (uint32(e) << 24) + v;
+        static uint32 encode(byte e, uint24 v) {
+           if (e < 3 || e > 32 || v.Value == 0) return 0;
+           return (uint32(e) << 24) + v.Value;
         }
         
     public:
@@ -43,7 +47,7 @@ namespace abstractions::work {
         target(byte e, uint24 v) : Encoded{encode(e, v)} {}
         
         sha256::digest expand() const {
-            return data::uint<sha256::digest::size>{uint32(value())} << ((exponent() - 3) * 8);
+            return data::uint<sha256::digest::size>{factor().Value} << ((exponent() - 3) * 8);
         }
         
         operator uint32() const {
@@ -118,7 +122,7 @@ namespace abstractions::work {
         }
         
         work::target target() const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"work::candidate::target"};
         }
     
         bool valid() const {
@@ -134,25 +138,23 @@ namespace abstractions::work {
     
     inline candidate::candidate(int64 i, order o) : Data{write(i, o)} {}
     
-    inline message bitcoin_header(const sha256::digest& d, uint32 timestamp) {
+    inline message bitcoin_header(sha256::digest d, uint32 timestamp) {
         message m{};
         std::copy(d.Digest.begin(), d.Digest.end(), m.begin());
         m.words().set(8, timestamp);
         return m;
     };
     
-    inline message public_key(const bitcoin::pubkey& d) {
+    inline message public_key(bitcoin::pubkey d) {
         message m{};
         m.words().set(0, 0);
         std::copy(d.Pubkey.begin(), d.Pubkey.end(), m.begin() + 3);
         return m;
     };
     
-    inline message reference_and_pubkey(const sha256::digest& d, const bitcoin::pubkey& p, uint24 sequence) {
-        throw data::method::unimplemented{};
-    }
+    message reference_and_pubkey(sha256::digest, bitcoin::pubkey, uint24 sequence);
     
-    inline message reference_and_pubkey(const sha256::digest& d, const bitcoin::pubkey& p) {
+    inline message reference_and_pubkey(sha256::digest d, bitcoin::pubkey p) {
         return reference_and_pubkey(d, p, 0);
     }
     

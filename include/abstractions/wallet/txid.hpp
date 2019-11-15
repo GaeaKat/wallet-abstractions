@@ -29,11 +29,11 @@ namespace abstractions {
             explicit txid(string hex_string);
             
             explicit operator timechain::digest_little() const {
-                throw data::method::unimplemented{};
+                throw data::method::unimplemented{"abstractions::bitcoin::txid::operator digest_little"};
             }
             
             explicit operator bytes() const {
-                throw data::method::unimplemented{};
+                throw data::method::unimplemented{"abstractions::bitcoin::txid::operator bytes"};
             }
             
             txid(bytes&);

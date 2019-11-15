@@ -13,12 +13,6 @@ namespace abstractions::timechain {
     
     using digest_little = data::endian::ordered<data::slice<byte, 32>, data::endian::order::little>;
     
-    using uint32_little = data::endian::ordered<uint32, data::endian::order::little>;
-    
-    using int32_little = data::endian::ordered<int32, data::endian::order::little>;
-    
-    using satoshi_little = data::endian::ordered<uint64, data::endian::order::little>;
-    
     static const string InvalidValueError = string{"Invalid value"};
     
     struct invalid_value : std::exception {
@@ -32,23 +26,23 @@ namespace abstractions::timechain {
         reader(bytes_view b) : Reader{b} {}
         
         reader operator>>(uint32_little&) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::reader::>>"};
         }
         
         reader operator>>(int32_little&) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::reader::>>"};
         }
         
         reader operator>>(satoshi_little&) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::reader::>>"};
         }
         
         reader operator>>(digest_little&) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::reader::>>"};
         }
         
         reader operator>>(bytes_view&) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::reader::>>"};
         }
     }; 
     
@@ -87,22 +81,22 @@ namespace abstractions::timechain {
         }
         
         writer operator<<(sha256::digest) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::writer::<<"};
         }
         
         writer operator<<(bytes_view) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::writer::<<"};
         }
         
         writer write_var_int(uint) const {
-            throw data::method::unimplemented{};
+            throw data::method::unimplemented{"timechain::writer::<<"};
         }
     private:
         writer(data::writer w) : Writer{w} {}
     }; 
     
     inline size_t var_int_size(uint) {
-        throw data::method::unimplemented{};
+        throw data::method::unimplemented{"timechain::var_int_size"};
     }
     
     template <typename X> 

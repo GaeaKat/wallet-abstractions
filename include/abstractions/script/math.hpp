@@ -6,84 +6,61 @@
 
 #include "functions.hpp"
 
-namespace abstractions {
+namespace abstractions::script {
     
-    namespace script {
-        
-        pointer<program> subtract_32(uint32);
-        
-        pointer<program> less_32();
-        pointer<program> greater_32();
-        pointer<program> less_equal_32();
-        pointer<program> greater_equal_32();
-        
-        pointer<program> less_32_verify();
-        pointer<program> greater_32_verify();
-        pointer<program> less_equal_32_verify();
-        pointer<program> greater_equal_32_verify();
-        
-        pointer<program> less_256();
-        pointer<program> greater_256();
-        pointer<program> less_equal_256();
-        pointer<program> greater_equal_256();
-        
-        pointer<program> less_256_verify();
-        pointer<program> greater_256_verify();
-        pointer<program> less_equal_256_verify();
-        pointer<program> greater_equal_256_verify();
-        
-        inline pointer<program> subtract_32(uint32 n) {
-            return sequence({push(n), op(program::OP_SUB)});
-        }
-        
-        inline pointer<program> less_32() {
-            return op(program::OP_LESSTHAN);
-        }
-        
-        inline pointer<program> greater_32() {
-            return op(program::OP_GREATERTHAN);
-        }
-        
-        inline pointer<program> less_equal_32() {
-            return op(program::OP_LESSTHANOREQUAL);
-        }
-        
-        inline pointer<program> greater_equal_32() {
-            return op(program::OP_GREATERTHANOREQUAL);
-        }
-        
-        inline pointer<program> less_32_verify() {
-            return sequence({op(program::OP_LESSTHAN), op(program::OP_VERIFY)});
-        }
-        
-        inline pointer<program> greater_32_verify() {
-            return sequence({op(program::OP_GREATERTHAN), op(program::OP_VERIFY)});
-        }
-        
-        inline pointer<program> less_equal_32_verify() {
-            return sequence({op(program::OP_LESSTHANOREQUAL), op(program::OP_VERIFY)});
-        }
-        
-        inline pointer<program> greater_equal_32_verify() {
-            return sequence({op(program::OP_GREATERTHANOREQUAL), op(program::OP_VERIFY)});
-        }
-        
-        inline pointer<program> less_equal_256() {
-            return sequence({op(program::OP_SWAP), greater_256()});
-        }
-        
-        inline pointer<program> greater_equal_256() {
-            return sequence({op(program::OP_SWAP), less_256()});
-        }
-        
-        inline pointer<program> less_equal_256_verify() {
-            return sequence({op(program::OP_SWAP), greater_256()});
-        }
-        
-        inline pointer<program> greater_equal_256_verify() {
-            return sequence({op(program::OP_SWAP), less_256()});
-        }
-
+    program subtract(uint32);
+    
+    program less_verify();
+    program greater_verify();
+    program less_equal_verify();
+    program greater_equal_verify();
+    
+    // Before the genesis upgrade, less and greater only work for 32-bit numbers. 
+    // These functions enable big integer arithmetic for before this case. 
+    program less_256();
+    program greater_256();
+    program less_equal_256();
+    program greater_equal_256();
+    
+    program less_256_verify();
+    program greater_256_verify();
+    program less_equal_256_verify();
+    program greater_equal_256_verify();
+    
+    inline program subtract(uint32 n) {
+        return program{} + push(uint32_little{n}) + op_code(OP_SUB);
+    }
+    
+    inline program less_verify() {
+        return program{} + op_code(OP_LESSTHAN) + op_code(OP_VERIFY);
+    }
+    
+    inline program greater_verify() {
+        return program{} + op_code(OP_GREATERTHAN) + op(OP_VERIFY);
+    }
+    
+    inline program less_equal_verify() {
+        return program{} + op_code(OP_LESSTHANOREQUAL) + op_code(OP_VERIFY);
+    }
+    
+    inline program greater_equal_verify() {
+        return program{} + op_code(OP_GREATERTHANOREQUAL) + op_code(OP_VERIFY);
+    }
+    
+    inline program less_equal_256() {
+        return program{} + op_code(OP_SWAP), greater_256();
+    }
+    
+    inline program greater_equal_256() {
+        return program{} + op_code(OP_SWAP) + less_256();
+    }
+    
+    inline program less_equal_256_verify() {
+        return program{} + op_code(OP_SWAP) + greater_256_verify();
+    }
+    
+    inline program greater_equal_256_verify() {
+        return program{} + op_code(OP_SWAP) + less_256_verify();
     }
 
 }

@@ -50,6 +50,14 @@ namespace abstractions {
     using stringstream = std::stringstream;
     
     using namespace data::exported;
+    
+    using uint32_little = data::endian::ordered<uint32, data::endian::order::little>;
+    
+    using int32_little = data::endian::ordered<int32, data::endian::order::little>;
+    
+    using satoshi_little = data::endian::ordered<uint64, data::endian::order::little>;
+    
+    using int64_little = data::endian::ordered<int64, data::endian::order::little>;
 
 }
 
