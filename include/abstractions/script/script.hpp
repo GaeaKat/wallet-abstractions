@@ -255,6 +255,8 @@ namespace abstractions::script {
         op Op;
         bytes Data;
         
+        instruction() : Op{OP_INVALIDOPCODE}, Data{} {}
+        
         instruction(op p, bytes d) : Op{p}, Data{d} {}
         
         instruction(op p) : Op{p}, Data{} {}
@@ -274,6 +276,7 @@ namespace abstractions::script {
         }
         
         bool valid() {
+            if (Op == OP_INVALIDOPCODE) return false;
             size_t size = Data.size();
             return (!is_push_data(Op) && size == 0) || (Op <= OP_PUSHSIZE75 && Op == size) 
                 || (Op == OP_PUSHDATA1 && size <= 0xffff) 
@@ -344,21 +347,9 @@ namespace abstractions::script {
         return write(write(w, p.first()), p.rest());
     }
     
-    struct writer {
-        timechain::writer Writer;
-        writer operator<<(instruction o) const {
-            return writer{write(Writer, o)};
-        }
-        
-        writer operator<<(program p) const {
-            return writer{write(Writer, p)};
-        }
-        
-        writer(timechain::writer w) : Writer{w.Writer} {}
-        writer(bytes& b) : Writer{timechain::writer{data::slice<byte>{b}}} {}
-    };
-    
     bytes compile(program p);
+    
+    program decompile(bytes);
     
 }
 

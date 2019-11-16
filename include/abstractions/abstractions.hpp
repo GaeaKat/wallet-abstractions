@@ -51,6 +51,8 @@ namespace abstractions {
     
     using namespace data::exported;
     
+    using uint16_little = data::endian::ordered<uint32, data::endian::order::little>;
+    
     using uint32_little = data::endian::ordered<uint32, data::endian::order::little>;
     
     using int32_little = data::endian::ordered<int32, data::endian::order::little>;

@@ -5,6 +5,60 @@
 
 namespace abstractions::script {
     
+    struct writer {
+        timechain::writer Writer;
+        writer operator<<(instruction o) const {
+            return writer{write(Writer, o)};
+        }
+        
+        writer operator<<(program p) const {
+            return writer{write(Writer, p)};
+        }
+        
+        writer(timechain::writer w) : Writer{w.Writer} {}
+        writer(bytes& b) : Writer{timechain::writer{data::slice<byte>{b}}} {}
+    };
+    
+    timechain::reader read_push(timechain::reader r, instruction& rest) {
+        uint32 size;
+        if (rest.Op <= OP_PUSHSIZE75) size = rest.Op;
+        if (rest.Op == OP_PUSHDATA1) {
+            byte x;
+            r = r >> x;
+            size = x;
+        }
+        if (rest.Op == OP_PUSHDATA2) {
+            uint16_little x;
+            r = r >> x;
+            size = x;
+        }
+        if (rest.Op == OP_PUSHDATA4) {
+            uint32_little x;
+            r = r >> x;
+            size = x;
+        }
+        rest.Data.resize(size);
+        return r >> rest.Data;
+    }
+    
+    struct reader {
+        timechain::reader Reader;
+        reader operator>>(instruction& i) const {
+            byte next;
+            timechain::reader r = Reader >> next;
+            i.Op = op{next};
+            if (is_push_data(i.Op)) return read_push(r, i);
+            return r;
+        }
+        
+        bool empty() const {
+            return Reader.empty();
+        }
+        
+        reader(timechain::reader r) : Reader{r} {}
+        reader(bytes_view b) : Reader{timechain::reader{b}} {}
+    };
+    
     // TODO there is an exception thrown here. 
     // I am not initializing the string correctly. 
     // I don't know how to do it right. 
@@ -13,6 +67,17 @@ namespace abstractions::script {
         compiled.resize(length(p));
         writer{compiled} << p;
         return compiled;
+    }
+    
+    program decompile(bytes_view b) {
+        program p{};
+        reader r{b};
+        while(!r.empty()) {
+            instruction i{};
+            r = r >> i;
+            p = p + i;
+        }
+        return p;
     }
     
 }

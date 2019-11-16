@@ -22,8 +22,9 @@ namespace abstractions::timechain {
     };
     
     struct reader {
-        data::reader Reader;
-        reader(bytes_view b) : Reader{b} {}
+        data::reader<bytes_view::iterator> Reader;
+        reader(bytes_view b) : Reader{b.begin(), b.end()} {}
+        reader(data::reader<bytes_view::iterator> r) : Reader{r} {}
         
         reader operator>>(uint32_little&) const {
             throw data::method::unimplemented{"timechain::reader::>>"};
@@ -41,8 +42,16 @@ namespace abstractions::timechain {
             throw data::method::unimplemented{"timechain::reader::>>"};
         }
         
-        reader operator>>(bytes_view&) const {
-            throw data::method::unimplemented{"timechain::reader::>>"};
+        reader operator>>(bytes& b) const {
+            return reader{Reader >> b};
+        }
+        
+        reader operator>>(byte& b) const {
+            return reader{Reader >> b};
+        }
+        
+        bool empty() const {
+            return Reader.empty();
         }
     }; 
     
@@ -76,11 +85,6 @@ namespace abstractions::timechain {
         
         template <size_t size> writer operator<<(const data::math::number::uint_little<size>& n) const {
             return writer{Writer << bytes_view{n.Array.data(), n.Array.size()}};
-        }
-        
-        // Bitcoin uses little endian, so we reverse big numbers. 
-        template <size_t size> writer operator<<(const data::math::number::uint_big<size>& n) const {
-            return operator<<(data::math::number::uint_little<size>{n});
         }
         
         writer operator<<(sha256::digest d) const {
