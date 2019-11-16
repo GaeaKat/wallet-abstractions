@@ -9,7 +9,7 @@
 
 #include <abstractions/abstractions.hpp>
 #include <abstractions/timechain/timechain.hpp>
-#include <data/io/unimplemented.hpp>
+#include <iostream>
 
 namespace abstractions::script {
     enum op : byte {
@@ -243,38 +243,21 @@ namespace abstractions::script {
         OP_INVALIDOPCODE = 0xff,
     };
     
+    inline bool is_push(op o) {
+        return o <= OP_16 && o != OP_RESERVED;
+    }
+    
+    inline bool is_push_data(op o) {
+        return o <= OP_PUSHDATA4;
+    }
+    
     struct instruction {
         op Op;
         bytes Data;
         
-        static bool is_push(op o) {
-            return o <= OP_PUSHDATA4;
-        }
-        
         instruction(op p, bytes d) : Op{p}, Data{d} {}
+        
         instruction(op p) : Op{p}, Data{} {}
-        
-        bool is_push() const {
-            return is_push(Op);
-        }
-        
-        bool valid() {
-            size_t size = Data.size();
-            return (!is_push() && size == 0) || (Op <= OP_PUSHSIZE75 && Op == size) 
-                || (Op == OP_PUSHDATA1 && size <= 0xffff) 
-                || (Op == OP_PUSHDATA2 && size <= 0xffffffff) 
-                || (Op == OP_PUSHDATA4 && size <= 0xffffffffffffffff);
-        }
-        
-        size_t length() const {
-            if (!is_push()) return 1;
-            uint32 size = Data.size();
-            if (Op <= OP_PUSHSIZE75) return size + 1;
-            if (Op == OP_PUSHDATA1) return size + 2;
-            if (Op == OP_PUSHDATA2) return size + 3;
-            if (Op == OP_PUSHDATA4) return size + 5;
-            return 0; // invalid 
-        }
         
         instruction(bytes data) : Op{[](size_t size)->op{
             if (size <= OP_PUSHSIZE75) return static_cast<op>(size);
@@ -282,6 +265,31 @@ namespace abstractions::script {
             if (size <= 0xffffffff) return OP_PUSHDATA2;
             return OP_PUSHDATA4;
         }(data.size())}, Data{data} {}
+        
+        bytes data() const {
+            if (!is_push(Op)) return {};
+            if (is_push_data(Op)) return Data;
+            if (Op == OP_1NEGATE) return {{OP_1NEGATE}};
+            return {{byte{Op} - byte{0x50}}};
+        }
+        
+        bool valid() {
+            size_t size = Data.size();
+            return (!is_push_data(Op) && size == 0) || (Op <= OP_PUSHSIZE75 && Op == size) 
+                || (Op == OP_PUSHDATA1 && size <= 0xffff) 
+                || (Op == OP_PUSHDATA2 && size <= 0xffffffff) 
+                || (Op == OP_PUSHDATA4 && size <= 0xffffffffffffffff);
+        }
+        
+        size_t length() const {
+            if (!is_push_data(Op)) return 1;
+            uint32 size = Data.size();
+            if (Op <= OP_PUSHSIZE75) return size + 1;
+            if (Op == OP_PUSHDATA1) return size + 2;
+            if (Op == OP_PUSHDATA2) return size + 3;
+            if (Op == OP_PUSHDATA4) return size + 5;
+            return 0; // invalid 
+        }
         
         bool operator==(instruction x) const {
             return Op == x.Op && Data == x.Data;
@@ -299,11 +307,7 @@ namespace abstractions::script {
             return !operator==(o);
         }
         
-        bool is_push(bytes_view b) const {
-            return is_push() && b == Data;
-        }
-        
-        static timechain::writer write_push(timechain::writer w, op Push, size_t size) {
+        static timechain::writer write_push_data(timechain::writer w, op Push, size_t size) {
             return Push <= OP_PUSHSIZE75 ? w << Push : 
                 Push == OP_PUSHDATA1 ? w << OP_PUSHDATA1 << static_cast<byte>(size) : 
                 Push == OP_PUSHDATA2 ? w << OP_PUSHDATA2 << static_cast<uint32_little>(size) : 
@@ -311,16 +315,12 @@ namespace abstractions::script {
         }
         
         timechain::writer write(timechain::writer w) const {
-            return is_push() ? write_push(w, Op, Data.size()) << Data : w << Op;
+            return is_push_data(Op) ? write_push_data(w, Op, Data.size()) << Data : w << Op;
         }
         
     };
     
     using program = queue<instruction>;
-    
-    inline instruction push(bytes Data) {
-        return instruction{Data};
-    }
     
     inline instruction op_code(op o) {
         return instruction{o};
@@ -360,6 +360,13 @@ namespace abstractions::script {
     
     bytes compile(program p);
     
+}
+
+std::ostream& operator<<(std::ostream& o, abstractions::script::op);
+
+inline std::ostream& operator<<(std::ostream& o, abstractions::script::instruction i) {
+    if (!abstractions::script::is_push_data(i.Op)) return o << i.Op;
+    return o << i.Op << "{" << data::encoding::hex::write(i.Data) << "}";
 }
 
 #endif

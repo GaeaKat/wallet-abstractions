@@ -9,6 +9,20 @@ namespace abstractions::work {
     // roughly 1/16 odds. 
     const target minimum{32, 0x000fffff};
     
+    message bitcoin_header(sha256::digest d, uint32 timestamp) {
+        message m{};
+        std::copy(d.Digest.begin(), d.Digest.end(), m.begin());
+        m.words().set(8, timestamp);
+        return m;
+    };
+    
+    message public_key(bitcoin::pubkey d) {
+        message m{};
+        m.words().set(0, 0);
+        std::copy(d.Pubkey.begin(), d.Pubkey.end(), m.begin() + 3);
+        return m;
+    };
+    
     message reference_and_pubkey(sha256::digest d, bitcoin::pubkey p, uint24 sequence) {
         throw data::method::unimplemented{"work::reference_and_pubkey, work.cpp line 13"};
     }

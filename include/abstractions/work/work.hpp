@@ -138,19 +138,9 @@ namespace abstractions::work {
     
     inline candidate::candidate(int64 i, order o) : Data{write(i, o)} {}
     
-    inline message bitcoin_header(sha256::digest d, uint32 timestamp) {
-        message m{};
-        std::copy(d.Digest.begin(), d.Digest.end(), m.begin());
-        m.words().set(8, timestamp);
-        return m;
-    };
+    message bitcoin_header(sha256::digest d, uint32 timestamp);
     
-    inline message public_key(bitcoin::pubkey d) {
-        message m{};
-        m.words().set(0, 0);
-        std::copy(d.Pubkey.begin(), d.Pubkey.end(), m.begin() + 3);
-        return m;
-    };
+    message public_key(bitcoin::pubkey d);
     
     message reference_and_pubkey(sha256::digest, bitcoin::pubkey, uint24 sequence);
     

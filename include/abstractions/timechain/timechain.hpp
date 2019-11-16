@@ -74,12 +74,12 @@ namespace abstractions::timechain {
             return writer{Writer << satoshi_little{i}};
         }
         
-        template <size_t size> writer operator<<(const data::math::number::uint_little<size> n) const {
+        template <size_t size> writer operator<<(const data::math::number::uint_little<size>& n) const {
             return writer{Writer << bytes_view{n.Array.data(), n.Array.size()}};
         }
         
         // Bitcoin uses little endian, so we reverse big numbers. 
-        template <size_t size> writer operator<<(const data::math::number::uint_big<size> n) const {
+        template <size_t size> writer operator<<(const data::math::number::uint_big<size>& n) const {
             return operator<<(data::math::number::uint_little<size>{n});
         }
         

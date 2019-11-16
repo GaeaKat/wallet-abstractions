@@ -30,7 +30,7 @@ namespace abstractions::secp256k1 {
 
         vchSig.push_back(uint8_t(x.getRawSigHashType()));
         
-        return vchSig;
+        return signature{vchSig.begin(), vchSig.end()};
     }
     
     namespace wif {

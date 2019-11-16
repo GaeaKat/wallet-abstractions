@@ -8,13 +8,13 @@
 #include "push.hpp"
 #include "instructions.hpp"
 #include <abstractions/wallet/address.hpp>
-#include <abstractions/crypto/secp256k1.hpp>
+#include <abstractions/wallet/keys.hpp>
 #include <data/io/unimplemented.hpp>
 
 namespace abstractions::script {
-    program pay_to(secp256k1::compressed_pubkey);
-    program pay_to(secp256k1::uncompressed_pubkey);
-    program redeem_from_pay_to_pubkey(bitcoin::signature);
+    program pay_to(const bitcoin::pubkey&);
+    program pay_to(const bitcoin::uncompressed_pubkey&);
+    program redeem_from_pay_to_pubkey(const bitcoin::signature&);
     
     template <typename pubkey>
     struct pay_to_pubkey : public program {
@@ -39,15 +39,15 @@ namespace abstractions::script {
         
     };
     
-    inline program pay_to(secp256k1::compressed_pubkey p) {
-        return program{} + push(p) + check_signature();
+    inline program pay_to(const bitcoin::pubkey& p) {
+        return program{} + push(p.Pubkey) + check_signature();
     }
     
-    inline program pay_to(secp256k1::uncompressed_pubkey p) {
-        return program{} + push(p) + check_signature();
+    inline program pay_to(const bitcoin::uncompressed_pubkey& p) {
+        return program{} + push(p.Pubkey) + check_signature();
     }
     
-    inline program redeem_from_pay_to_pubkey(bitcoin::signature x) {
+    inline program redeem_from_pay_to_pubkey(const bitcoin::signature& x) {
         return program{} + push(x);
     }
     

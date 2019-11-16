@@ -14,7 +14,7 @@
 #include "gtest/gtest.h"
 
 namespace abstractions::bitcoin {
-    // Disabled due to stack smashing. 
+    
     TEST(AddressTest, TestAddresses) {
         
         const auto pay_to_address_compressed =
@@ -35,6 +35,8 @@ namespace abstractions::bitcoin {
         
         pubkey pubkey_compressed = key.to_public();
         uncompressed_pubkey pubkey_uncompressed = key.to_public_uncompressed();
+        
+        std::cout << "attempting to pay to pubkey with pubkey " << pubkey_compressed << std::endl;;
         
         // unimplemented exception thrown here. 
         script script_pay_to_pubkey_compressed = pay_to_pubkey_compressed.pay(pubkey_compressed);

@@ -107,6 +107,18 @@ namespace data::crypto {
     };
 }
 
+inline std::ostream& operator<<(std::ostream& o, abstractions::bitcoin::secret& s) {
+    return o << "secret{" << s.write() << "}";
+}
+
+inline std::ostream& operator<<(std::ostream& o, abstractions::bitcoin::pubkey& p) {
+    return o << "pubkey{" << p.write() << "}";
+}
+
+inline std::ostream& operator<<(std::ostream& o, abstractions::bitcoin::uncompressed_pubkey& p) {
+    return o << "pubkey{" << p.write() << "}";
+}
+
 namespace abstractions::bitcoin {
     inline pubkey secret::to_public() const {
         return Secret.to_public_compressed();

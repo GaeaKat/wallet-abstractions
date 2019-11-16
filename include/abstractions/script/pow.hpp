@@ -66,8 +66,8 @@ namespace abstractions::script {
         return work::candidate{k.Nonce, work::order{work::reference_and_pubkey(l.Reference, k.Pubkey), l.Target}};
     }
     
-    inline program unlock_with_pow(bitcoin::signature x, bitcoin::pubkey p, int64 nonce) {
-        return program{} + push(x) + push(p) + push(int64_little{nonce});
+    inline program unlock_with_pow(const bitcoin::signature& x, const bitcoin::pubkey& p, int64 nonce) {
+        return program{} + push(x) + push(p.Pubkey) + push(int64_little{nonce});
     }
     
 }

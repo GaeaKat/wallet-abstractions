@@ -11,9 +11,9 @@
 #include <data/io/unimplemented.hpp>
 
 namespace abstractions::script {
-    program pay_to(bitcoin::address);
-    program redeem_from_pay_to_address(bitcoin::signature, secp256k1::compressed_pubkey);
-    program redeem_from_pay_to_address(bitcoin::signature, secp256k1::uncompressed_pubkey);
+    program pay_to(const bitcoin::address&);
+    program redeem_from_pay_to_address(const bitcoin::signature&, const bitcoin::pubkey&);
+    program redeem_from_pay_to_address(const bitcoin::signature&, const bitcoin::uncompressed_pubkey&);
     
     struct pay_to_address {
         bitcoin::address Address;
@@ -37,16 +37,16 @@ namespace abstractions::script {
         
     };
     
-    inline program pay_to(bitcoin::address a) {
-        return program{} + dup() + address_hash() + push(a) + equal_verify() + check_signature();
+    inline program pay_to(const bitcoin::address& a) {
+        return program{} + dup() + address_hash() + push(a.Digest) + equal_verify() + check_signature();
     }
     
-    inline program redeem_from_pay_to_address(bitcoin::signature x, secp256k1::compressed_pubkey p) {
-        return program{} + push(x) + push(p);
+    inline program redeem_from_pay_to_address(const bitcoin::signature& x, const bitcoin::pubkey& p) {
+        return program{} + push(x) + push(p.Pubkey);
     }
     
-    inline program redeem_from_pay_to_address(bitcoin::signature x, secp256k1::uncompressed_pubkey p) {
-        return program{} + push(x) + push(p);
+    inline program redeem_from_pay_to_address(const bitcoin::signature& x, const bitcoin::uncompressed_pubkey& p) {
+        return program{} + push(x) + push(p.Pubkey);
     }
     
 }

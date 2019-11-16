@@ -9,26 +9,30 @@
 #include <abstractions/wallet/keys.hpp>
 
 namespace abstractions::script {
+    instruction push(bytes_view);
+    instruction push(const bytes& b);
     instruction push(hex);
-    instruction push(bitcoin::signature);
-    instruction push(bitcoin::pubkey);
-    instruction push(secp256k1::uncompressed_pubkey);
-    instruction push(secp256k1::compressed_pubkey);
-    instruction push(bitcoin::address);
-    instruction push(sha256::digest);
+    instruction push(const secp256k1::uncompressed_pubkey&);
+    instruction push(const secp256k1::compressed_pubkey&);
+    instruction push(const ripemd160::digest&);
+    instruction push(const sha256::digest&);
     instruction push(int64_little);
     instruction push(satoshi_little);
     instruction push(uint32_little);
+    
+    inline instruction push(const bytes& b) {
+        return instruction{b};
+    }
     
     inline instruction push(hex h) {
         return instruction{(bytes)(h)};
     }
     
-    inline instruction push(bitcoin::address y) {
+    inline instruction push(const ripemd160::digest& y) {
         return push(y.Digest);
     }
     
-    inline instruction push(sha256::digest) {
+    inline instruction push(const sha256::digest&) {
         throw data::method::unimplemented{"abstractions::script::push(sha256::digest)"};
     }
     

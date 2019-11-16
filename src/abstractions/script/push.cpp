@@ -5,28 +5,16 @@
 
 namespace abstractions::script {
     
-    instruction push(bitcoin::signature y) {
-        bytes x{static_cast<unsigned char>(y.size())};
-        std::copy(y.begin(), y.end(), x.begin());
-        return push(x);
+    instruction push(bytes_view b) {
+        return instruction{bytes{b.begin(), b.end()}};
     }
     
-    instruction push(bitcoin::pubkey y) {
-        bytes x{static_cast<unsigned char>(y.Pubkey.size())};
-        std::copy(y.Pubkey.begin(), y.Pubkey.end(), x.begin());
-        return push(x);
+    instruction push(const secp256k1::uncompressed_pubkey& y) {
+        return instruction{bytes{y.begin(), y.end()}};
     }
     
-    instruction push(secp256k1::uncompressed_pubkey y) {
-        bytes x{bitcoin::address::digest::size};
-        std::copy(y.begin(), y.end(), x.begin());
-        return push(x);
-    }
-    
-    instruction push(secp256k1::compressed_pubkey y) {
-        bytes x{bitcoin::address::digest::size};
-        std::copy(y.begin(), y.end(), x.begin());
-        return push(x);
+    instruction push(const secp256k1::compressed_pubkey& y) {
+        return instruction{bytes{y.begin(), y.end()}};
     }
 }
 
