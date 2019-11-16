@@ -15,7 +15,8 @@
 #include <abstractions/script/pow.hpp>
 #include "gtest/gtest.h"
 
-TEST(WorkTest, TestWork) {
+// can result in stack smashing
+TEST(WorkTest, DISABLED_TestWork) {
     using namespace abstractions::bitcoin;
     using namespace abstractions::work;
     

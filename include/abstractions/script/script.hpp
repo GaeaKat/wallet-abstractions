@@ -330,7 +330,7 @@ namespace abstractions::script {
         return o.length();
     }
     
-    inline uint32 length(program p) {
+    inline size_t length(program p) {
         if (p.empty()) return 0;
         return length(p.first()) + length(p.rest());
     }
@@ -353,6 +353,9 @@ namespace abstractions::script {
         writer operator<<(program p) const {
             return writer{write(Writer, p)};
         }
+        
+        writer(timechain::writer w) : Writer{w.Writer} {}
+        writer(bytes& b) : Writer{timechain::writer{data::slice<byte>{b}}} {}
     };
     
     bytes compile(program p);

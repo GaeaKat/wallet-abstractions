@@ -47,52 +47,55 @@ namespace abstractions::timechain {
     }; 
     
     struct writer {
-        data::writer Writer;
-        writer(data::slice<byte> b) : Writer{b} {}
+        data::writer<data::slice<byte>::iterator> Writer;
+        writer(data::slice<byte> b) : Writer{b.begin(), b.end()} {}
         
         writer operator<<(uint32_little n) const {
-            using namespace data::endian;
             return writer{Writer << n};
         }
         
         writer operator<<(int32_little i) const {
-            using namespace data::endian;
-            throw writer{Writer << i};
+            return writer{Writer << i};
         }
         
         writer operator<<(satoshi_little i) const {
-            using namespace data::endian;
-            throw writer{Writer << i};
+            return writer{Writer << i};
         }
         
         writer operator<<(uint32 n) const {
-            using namespace data::endian;
             return writer{Writer << uint32_little{n}};
         }
         
         writer operator<<(int32 i) const {
-            using namespace data::endian;
-            throw writer{Writer << int32_little{i}};
+            return writer{Writer << int32_little{i}};
         }
         
         writer operator<<(satoshi i) const {
-            using namespace data::endian;
-            throw writer{Writer << satoshi_little{i}};
+            return writer{Writer << satoshi_little{i}};
         }
         
-        writer operator<<(sha256::digest) const {
-            throw data::method::unimplemented{"timechain::writer::<<"};
+        template <size_t size> writer operator<<(const data::math::number::uint_little<size> n) const {
+            return writer{Writer << bytes_view{n.Array.data(), n.Array.size()}};
         }
         
-        writer operator<<(bytes_view) const {
-            throw data::method::unimplemented{"timechain::writer::<<"};
+        // Bitcoin uses little endian, so we reverse big numbers. 
+        template <size_t size> writer operator<<(const data::math::number::uint_big<size> n) const {
+            return operator<<(data::math::number::uint_little<size>{n});
+        }
+        
+        writer operator<<(sha256::digest d) const {
+            return operator<<(d.Digest);
+        }
+        
+        writer operator<<(bytes_view b) const {
+            return writer{Writer << b};
         }
         
         writer write_var_int(uint) const {
             throw data::method::unimplemented{"timechain::writer::<<"};
         }
-    private:
-        writer(data::writer w) : Writer{w} {}
+        
+        writer(data::writer<data::slice<byte>::iterator> w) : Writer{w} {}
     }; 
     
     inline size_t var_int_size(uint) {

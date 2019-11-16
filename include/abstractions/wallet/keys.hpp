@@ -39,8 +39,8 @@ namespace abstractions::bitcoin {
         
         bitcoin::address address() const;
         bitcoin::address address_uncompressed() const;
-        string write();
-        string write_uncompressed();
+        string write() const;
+        string write_uncompressed() const;
     };
     
     struct pubkey : public tag {
@@ -60,7 +60,7 @@ namespace abstractions::bitcoin {
         explicit pubkey(string hex);
         
         bitcoin::address address() const;
-        string write();
+        string write() const;
     };
     
     struct uncompressed_pubkey : public tag {
@@ -77,7 +77,7 @@ namespace abstractions::bitcoin {
         explicit uncompressed_pubkey(string hex);
         
         bitcoin::address address() const;
-        string write();
+        string write() const;
     };
     
     constexpr data::math::module<pubkey, secret> is_module{};
@@ -163,11 +163,11 @@ namespace abstractions::bitcoin {
         return secp256k1::address_compressed(Secret);
     }
     
-    inline string secret::write() {
+    inline string secret::write() const {
         return secp256k1::wif::compressed::write(Secret);
     }
     
-    inline string secret::write_uncompressed() {
+    inline string secret::write_uncompressed() const {
         return secp256k1::wif::uncompressed::write(Secret);
     }
 
@@ -180,7 +180,7 @@ namespace abstractions::bitcoin {
         secp256k1::wif::compressed::read(hex, Pubkey);
     }
 
-    inline string pubkey::write() {
+    inline string pubkey::write() const {
         return secp256k1::wif::compressed::write(Pubkey);
     }
 

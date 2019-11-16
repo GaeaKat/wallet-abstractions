@@ -5,7 +5,12 @@
 
 namespace abstractions::script {
     
+    // TODO there is an exception thrown here. 
+    // I am not initializing the string correctly. 
+    // I don't know how to do it right. 
     bytes compile(program p) {
-        throw data::method::unimplemented{"script::compile"};
+        bytes compiled{length(p), byte{0}};
+        writer{compiled} << p;
+        return compiled;
     }
 }

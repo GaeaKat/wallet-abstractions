@@ -14,7 +14,7 @@
 #include "gtest/gtest.h"
 
 namespace abstractions::bitcoin {
-
+    // Disabled due to stack smashing. 
     TEST(AddressTest, TestAddresses) {
         
         const auto pay_to_address_compressed =
