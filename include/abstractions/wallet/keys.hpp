@@ -150,7 +150,7 @@ namespace abstractions::bitcoin {
         return Pubkey * s.Secret;
     }
     
-    inline bool pubkey::operator==(const pubkey &p) const {
+    inline bool pubkey::operator==(const pubkey& p) const {
         return Pubkey == p.Pubkey;
     }
 
@@ -203,9 +203,12 @@ namespace abstractions::bitcoin {
         return secp256k1::wif::compressed::write(Pubkey);
     }
 
-
     inline uncompressed_pubkey::uncompressed_pubkey(string hex) : Pubkey{} {
         secp256k1::wif::uncompressed::read(hex, Pubkey);
+    }
+
+    inline string uncompressed_pubkey::write() const {
+        return secp256k1::wif::uncompressed::write(Pubkey);
     }
     
 } 

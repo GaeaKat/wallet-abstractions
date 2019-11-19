@@ -44,7 +44,8 @@ namespace abstractions::timechain::output {
     
     template <typename Output>
     bytes serialize(Output x) {
-        bytes b{x.size(), 0};
+        bytes b;
+        b.resize(x.size());
         writer w{b};
         write(w, x);
         return b;

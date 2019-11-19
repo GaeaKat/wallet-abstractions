@@ -67,7 +67,8 @@ namespace abstractions::timechain::transaction {
     
     template <typename tx>
     bytes serialize(tx x) {
-        bytes b{x.size(), ' '};
+        bytes b{};
+        b.resize(x.size());
         writer w{b};
         write(w, x);
         return b;

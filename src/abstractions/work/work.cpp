@@ -19,7 +19,7 @@ namespace abstractions::work {
     message public_key(bitcoin::pubkey d) {
         message m{};
         m.words().set(0, 0);
-        std::copy(d.Pubkey.begin(), d.Pubkey.end(), m.begin() + 3);
+        std::copy(d.Pubkey.Value.begin(), d.Pubkey.Value.end(), m.begin() + 3);
         return m;
     };
     

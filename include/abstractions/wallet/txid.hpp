@@ -5,7 +5,7 @@
 #define ABSTRACTIONS_WALLET_TXID
 
 #include <data/crypto/sha256.hpp>
-#include <abstractions/abstractions.hpp>
+#include <abstractions/timechain/timechain.hpp>
 
 namespace abstractions {
     

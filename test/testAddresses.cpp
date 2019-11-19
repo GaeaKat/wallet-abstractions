@@ -33,10 +33,13 @@ namespace abstractions::bitcoin {
         
         secret key{"0x00000000000000000000000000000000000000000000000000000000000101a7"};
         
+        std::cout << "using key " << key << " for testing addresses" << std::endl;
+        
         pubkey pubkey_compressed = key.to_public();
         uncompressed_pubkey pubkey_uncompressed = key.to_public_uncompressed();
         
-        std::cout << "attempting to pay to pubkey with pubkey " << pubkey_compressed << std::endl;;
+        std::cout << "attempting to pay to pubkey with pubkey compressed " << pubkey_compressed << std::endl;
+        std::cout << "attempting to pay to pubkey with pubkey uncompressed " << pubkey_uncompressed << std::endl;
         
         // unimplemented exception thrown here. 
         script script_pay_to_pubkey_compressed = pay_to_pubkey_compressed.pay(pubkey_compressed);
@@ -52,6 +55,9 @@ namespace abstractions::bitcoin {
         
         address address_compressed = pubkey_compressed.address();
         address address_uncompressed = pubkey_uncompressed.address();
+        
+        std::cout << "attempting to pay to address with address compressed " << address_compressed << std::endl;
+        std::cout << "attempting to pay to address with address uncompressed " << address_uncompressed << std::endl;
         
         script script_pay_to_address_compressed = pay_to_address_compressed.pay(address_compressed);
         script script_pay_to_address_uncompressed = pay_to_address_uncompressed.pay(address_uncompressed);

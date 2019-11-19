@@ -38,12 +38,13 @@ namespace abstractions::timechain::outpoint {
     
     template <typename Outpoint>
     writer write(writer w, Outpoint o) {
-        return w << o.reference() << uint32_little{o.index()};
+        return w << digest_little(o.reference()) << uint32_little{o.index()};
     }
     
     template <typename Outpoint>
     bytes serialize(Outpoint x) {
-        bytes b{x.size(), 0};
+        bytes b{};
+        b.resize(x.size());
         writer w{b};
         write(w, x);
         return b;

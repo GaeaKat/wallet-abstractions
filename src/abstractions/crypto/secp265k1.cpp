@@ -76,7 +76,7 @@ namespace abstractions::secp256k1 {
                     data::encoding::hex::string hex{s};
                     if (!hex.valid()) return false;
                     if (bytes(hex).size() != data::crypto::secp256k1::compressed_pubkey_size) return false;
-                    std::copy_n(bytes(hex).begin(), data::crypto::secp256k1::compressed_pubkey_size, p.begin());
+                    std::copy_n(bytes(hex).begin(), data::crypto::secp256k1::compressed_pubkey_size, p.Value.begin());
                     return true;
                 }
                 catch(...)
@@ -86,7 +86,7 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const compressed_pubkey& p) {
-                return data::encoding::hex::write(bytes_view{p.data(), p.size()});
+                return data::encoding::hex::write(p);
             }
         }
         
@@ -126,7 +126,7 @@ namespace abstractions::secp256k1 {
                     data::encoding::hex::string hex{s};
                     if (!hex.valid()) return false;
                     if (bytes(hex).size() != data::crypto::secp256k1::uncompressed_pubkey_size) return false;
-                    std::copy_n(bytes(hex).begin(), data::crypto::secp256k1::uncompressed_pubkey_size, p.begin());
+                    std::copy_n(bytes(hex).begin(), data::crypto::secp256k1::uncompressed_pubkey_size, p.Value.begin());
                     return true;
                 }
                 catch(...)
@@ -136,7 +136,7 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const uncompressed_pubkey& p) {
-                return data::encoding::hex::write(bytes_view{p.data(), p.size()});
+                return data::encoding::hex::write(p);
             }
         }
     }

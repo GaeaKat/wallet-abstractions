@@ -11,7 +11,7 @@
 
 namespace abstractions::timechain {
     
-    using digest_little = data::endian::ordered<data::slice<byte, 32>, data::endian::order::little>;
+    using digest_little = data::math::number::uint_little<32>;
     
     static const string InvalidValueError = string{"Invalid value"};
     
@@ -85,10 +85,6 @@ namespace abstractions::timechain {
         
         template <size_t size> writer operator<<(const data::math::number::uint_little<size>& n) const {
             return writer{Writer << bytes_view{n.Array.data(), n.Array.size()}};
-        }
-        
-        writer operator<<(sha256::digest d) const {
-            return operator<<(d.Digest);
         }
         
         writer operator<<(bytes_view b) const {

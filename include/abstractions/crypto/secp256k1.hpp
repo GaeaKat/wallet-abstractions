@@ -18,6 +18,10 @@ namespace abstractions::secp256k1 {
     using compressed_pubkey = data::crypto::secp256k1::compressed_pubkey;
     using uncompressed_pubkey = data::crypto::secp256k1::uncompressed_pubkey;
     
+    const size_t compressed_pubkey_size = data::crypto::secp256k1::compressed_pubkey_size;
+    const size_t uncompressed_pubkey_size = data::crypto::secp256k1::uncompressed_pubkey_size;
+    const size_t secret_size = 32;
+    
     signature sign(const bytes_view output, const bytes_view transaction, uint32 index, secret key);
     
     inline ripemd160::digest address(const compressed_pubkey& p) {
@@ -26,7 +30,7 @@ namespace abstractions::secp256k1 {
     }
     
     inline ripemd160::digest address(const uncompressed_pubkey& p) {
-        return ripemd160::hash<data::crypto::secp256k1::uncompressed_pubkey_size>(p);
+        return ripemd160::hash(p);
     }
     
     inline ripemd160::digest address_uncompressed(const secret& s) {
