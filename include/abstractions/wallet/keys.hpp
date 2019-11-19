@@ -56,7 +56,6 @@ namespace abstractions::bitcoin {
         pubkey operator*(const secret&) const;
         bool operator==(const pubkey&) const;
 
-
         explicit pubkey(string hex);
         
         bitcoin::address address() const;
@@ -74,10 +73,13 @@ namespace abstractions::bitcoin {
         
         uncompressed_pubkey operator+(const uncompressed_pubkey&) const;
         uncompressed_pubkey operator*(const secret&) const;
+        bool operator==(const uncompressed_pubkey&) const;
         explicit uncompressed_pubkey(string hex);
         
         bitcoin::address address() const;
         string write() const;
+        
+        pubkey compress() const;
     };
     
     constexpr data::math::module<pubkey, secret> is_module{};
@@ -147,6 +149,7 @@ namespace abstractions::bitcoin {
     inline pubkey pubkey::operator*(const secret& s) const {
         return Pubkey * s.Secret;
     }
+    
     inline bool pubkey::operator==(const pubkey &p) const {
         return Pubkey == p.Pubkey;
     }
@@ -157,6 +160,10 @@ namespace abstractions::bitcoin {
     
     inline uncompressed_pubkey uncompressed_pubkey::operator*(const secret& s) const {
         return Pubkey * s.Secret;
+    }
+    
+    inline bool uncompressed_pubkey::operator==(const uncompressed_pubkey& p) const {
+        return Pubkey == p.Pubkey;
     }
     
     inline bitcoin::address pubkey::address() const {

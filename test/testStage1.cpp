@@ -12,24 +12,18 @@
 #include "testStage1.h"
 
 
-TEST_P(Stage1Test, SecretWIFValid) {
+TEST_P(Stage1Test, WIF) {
     EXPECT_TRUE(this->SecretWIF.valid()) << "Secret WIF is not valid";
-}
-
-TEST_P(Stage1Test, SecretWIFUncompressedValid) {
     EXPECT_TRUE(this->SecretWIFUncompressed.valid()) << "Uncompressed Secret Wif is not valid";
-}
-
-TEST_P(Stage1Test, SecretUncompressedToCompressedComparison) {
     EXPECT_EQ(this->SecretWIF, this->SecretWIFUncompressed) << "Can't get public key from compressed secret";
 }
 
 TEST_P(Stage1Test, PubHexValid) {
     EXPECT_TRUE(this->PubkeyHex.valid()) << "Public Key is not valid";
-}
-
-TEST_P(Stage1Test, PubHexUncompressedValid) {
     EXPECT_TRUE(this->PubkeyHexUncompressed.valid()) << "Uncompressed Public Key is not valid";
+    EXPECT_EQ(this->SecretWIF.to_public(), PubkeyHex) << "Can't get compressed public key from secret";
+    EXPECT_EQ(this->SecretWIFUncompressed.to_public_uncompressed(), PubkeyHexUncompressed) << "Can't get uncompressed public key from secret";
+    //EXPECT_TRUE(this->PubkeyHexUncompressed.compress() == this->PubkeyHex)
 }
 
 TEST_P(Stage1Test, Addr58Valid) {
@@ -41,21 +35,17 @@ TEST_P(Stage1Test, DISABLED_CashValid) {
 }
 
 TEST_P(Stage1Test, SecretWIFDecompression) {
-    EXPECT_EQ(this->SecretWIF,this->SecretWIFUncompressed) << "Secret Wif not equal to it's decompressed version";
+    EXPECT_EQ(this->SecretWIF, this->SecretWIFUncompressed) << "Secret Wif not equal to it's decompressed version";
 }
 
 TEST_P(Stage1Test, DISABLED_AddressFormatComparison) {
-    std::cout << "base58: " <<this->AddressBase58.write() << std::endl;
+    std::cout << "base58: " << this->AddressBase58.write() << std::endl;
     std::cout << "cashaddr: " << this->AddressCashaddr.write() << std::endl;
 
 
     std::cout << "base58 as cash: " <<abstractions::bitcoin::cashaddr::write(this->AddressBase58) << std::endl;
     std::cout << "cashaddr as cash: " << abstractions::bitcoin::cashaddr::write(this->AddressCashaddr) << std::endl;
-    EXPECT_EQ(this->AddressCashaddr,this->AddressBase58) << "CashAddr doesn't equal traditional format";
-}
-
-TEST_P(Stage1Test, SecretToPublicComparison) {
-    EXPECT_EQ(this->SecretWIF.to_public(),PubkeyHex) << "Can't get public key from compressed secret";
+    EXPECT_EQ(this->AddressCashaddr, this->AddressBase58) << "CashAddr doesn't equal traditional format";
 }
 
 TEST_P(Stage1Test, GetAddressFromPublicKey) {
@@ -64,7 +54,7 @@ TEST_P(Stage1Test, GetAddressFromPublicKey) {
 
 // This test fails. 
 TEST_P(Stage1Test, WriteSecretWIF) {
-    EXPECT_EQ(this->SecretWIF.write(), GetParam().secret_wif);
+    EXPECT_EQ(this->SecretWIF.write(), GetParam().secret_wif) << "cannot derive wif " << GetParam().secret_wif << " from key " << SecretWIF.Secret.Value;
 }
 
 TEST_P(Stage1Test, WritePubKey) {

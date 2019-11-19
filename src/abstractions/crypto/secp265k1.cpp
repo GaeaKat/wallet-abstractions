@@ -8,6 +8,7 @@
 #include <satoshi_sv/sv.hpp>
 #include <key.h>
 #include <script/sighashtype.h>
+#include <iostream>
 
 namespace abstractions::secp256k1 {
     
@@ -35,6 +36,10 @@ namespace abstractions::secp256k1 {
     
     namespace wif {
         namespace compressed {
+            // why is wif compressed bigger than wif uncompressed? 
+            // because compressed keys were invented after uncompressed keys. 
+            // A compressed wif code is denoted with an extra character to
+            // distinguish it from an uncompressed wif code. 
             const size_t wif_compressed_size=38;
             typedef std::array<byte, wif_compressed_size> wif_compressed;
 
@@ -56,7 +61,8 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const secret& s) {
-                bytes wif{wif_compressed_size};
+                bytes wif{};
+                wif.resize(wif_compressed_size);
                 wif[0] = 0x80;
                 wif[33] = 0x01;
                 std::copy(s.Value.begin(), s.Value.end(), wif.begin() + 1);
@@ -106,11 +112,12 @@ namespace abstractions::secp256k1 {
             }
             
             string write(const secret& s) {
-                bytes wif{wif_uncompressed_size};
+                bytes wif{};
+                wif.resize(wif_uncompressed_size);
                 wif[0] = 0x80;
                 std::copy(s.Value.begin(), s.Value.end(), wif.begin() + 1);
-                std::array<byte, 4> checksum = crypto::checksum(wif.substr(0, 34));
-                std::copy(checksum.begin(), checksum.end(), wif.begin() + 34);
+                std::array<byte, 4> checksum = crypto::checksum(wif.substr(0, 33));
+                std::copy(checksum.begin(), checksum.end(), wif.begin() + 33);
                 return data::encoding::base58::write(wif);
             }
             
