@@ -35,11 +35,16 @@ namespace abstractions::bitcoin {
         
         std::cout << "using key " << key << " for testing addresses" << std::endl;
         
+        EXPECT_TRUE(key.valid());
+        
         pubkey pubkey_compressed = key.to_public();
         uncompressed_pubkey pubkey_uncompressed = key.to_public_uncompressed();
         
         std::cout << "attempting to pay to pubkey with pubkey compressed " << pubkey_compressed << std::endl;
         std::cout << "attempting to pay to pubkey with pubkey uncompressed " << pubkey_uncompressed << std::endl;
+        
+        std::cout << "pubkey compressed value is " << N{bytes_view{pubkey_compressed.Pubkey.Value.data(), 33}, boost::endian::order::big} << std::endl;
+        std::cout << "pubkey uncompressed value is " << N{bytes_view{pubkey_uncompressed.Pubkey.Value.data(), 65}, boost::endian::order::big} << std::endl;
         
         // unimplemented exception thrown here. 
         script script_pay_to_pubkey_compressed = pay_to_pubkey_compressed.pay(pubkey_compressed);

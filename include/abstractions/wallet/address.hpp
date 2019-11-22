@@ -43,7 +43,7 @@ namespace abstractions::bitcoin {
         
         explicit address(const string& s) : address{read(s)} {}
         
-        string write();
+        string write() const;
         
         bool valid() const {
             return Digest.valid();
@@ -71,12 +71,12 @@ namespace abstractions::bitcoin {
         return cashaddr::read(s);
     }
     
-    inline string address::write() {
+    inline string address::write() const {
         return bitcoin_address::write(*this);
     };
 }
 
-inline std::ostream& operator<<(std::ostream& o, abstractions::bitcoin::address& a) {
+inline std::ostream& operator<<(std::ostream& o, const abstractions::bitcoin::address& a) {
     return o << "address{" << a.write() << "}";
 }
 

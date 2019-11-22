@@ -9,7 +9,6 @@
 
 #include <abstractions/abstractions.hpp>
 #include <abstractions/timechain/timechain.hpp>
-#include <iostream>
 
 namespace abstractions::script {
     enum op : byte {
@@ -311,19 +310,24 @@ namespace abstractions::script {
         }
         
         static timechain::writer write_push_data(timechain::writer w, op Push, size_t size) {
-            return Push <= OP_PUSHSIZE75 ? w << Push : 
-                Push == OP_PUSHDATA1 ? w << OP_PUSHDATA1 << static_cast<byte>(size) : 
-                Push == OP_PUSHDATA2 ? w << OP_PUSHDATA2 << static_cast<uint32_little>(size) : 
-                w << OP_PUSHDATA4 << satoshi_little{size};
+            if (Push <= OP_PUSHSIZE75) return w << static_cast<byte>(Push);
+            if (Push == OP_PUSHDATA1) return w << static_cast<byte>(OP_PUSHDATA1) << static_cast<byte>(size); 
+            if (Push == OP_PUSHDATA2) return w << static_cast<byte>(OP_PUSHDATA2) << static_cast<uint32_little>(size); 
+            return w << static_cast<byte>(OP_PUSHDATA4) << satoshi_little{size};
         }
         
         timechain::writer write(timechain::writer w) const {
-            return is_push_data(Op) ? write_push_data(w, Op, Data.size()) << Data : w << Op;
+            if (is_push_data(Op))return write_push_data(w, Op, Data.size());
+            return w << static_cast<byte>(Op);
         }
         
     };
     
     using program = queue<instruction>;
+    
+    bytes compile(program p);
+    
+    program decompile(bytes);
     
     inline instruction op_code(op o) {
         return instruction{o};
@@ -338,6 +342,17 @@ namespace abstractions::script {
         return length(p.first()) + length(p.rest());
     }
     
+}
+
+std::ostream& operator<<(std::ostream& o, abstractions::script::op);
+
+inline std::ostream& operator<<(std::ostream& o, abstractions::script::instruction i) {
+    if (!abstractions::script::is_push_data(i.Op)) return o << i.Op;
+    return o << i.Op << "{" << data::encoding::hex::write(i.Data) << "}";
+}
+
+namespace abstractions::script {
+    
     inline timechain::writer write(timechain::writer w, instruction o) {
         return o.write(w);
     }
@@ -347,17 +362,6 @@ namespace abstractions::script {
         return write(write(w, p.first()), p.rest());
     }
     
-    bytes compile(program p);
-    
-    program decompile(bytes);
-    
-}
-
-std::ostream& operator<<(std::ostream& o, abstractions::script::op);
-
-inline std::ostream& operator<<(std::ostream& o, abstractions::script::instruction i) {
-    if (!abstractions::script::is_push_data(i.Op)) return o << i.Op;
-    return o << i.Op << "{" << data::encoding::hex::write(i.Data) << "}";
 }
 
 #endif

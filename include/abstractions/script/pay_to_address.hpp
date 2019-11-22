@@ -9,6 +9,7 @@
 #include "instructions.hpp"
 #include <abstractions/wallet/address.hpp>
 #include <data/io/unimplemented.hpp>
+#include <iostream>
 
 namespace abstractions::script {
     program pay_to(const bitcoin::address&);
@@ -38,6 +39,7 @@ namespace abstractions::script {
     };
     
     inline program pay_to(const bitcoin::address& a) {
+        std::cout << "pay_to " << a << std::endl;
         return program{} + dup() + address_hash() + push(a.Digest) + equal_verify() + check_signature();
     }
     

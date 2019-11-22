@@ -59,6 +59,14 @@ namespace abstractions::timechain {
         data::writer<data::slice<byte>::iterator> Writer;
         writer(data::slice<byte> b) : Writer{b.begin(), b.end()} {}
         
+        writer operator<<(byte b) const {
+            return writer{Writer << b};
+        }
+        
+        writer operator<<(bytes_view b) const {
+            return writer{Writer << b};
+        }
+        
         writer operator<<(uint32_little n) const {
             return writer{Writer << n};
         }
@@ -85,10 +93,6 @@ namespace abstractions::timechain {
         
         template <size_t size> writer operator<<(const data::math::number::uint_little<size>& n) const {
             return writer{Writer << bytes_view{n.Array.data(), n.Array.size()}};
-        }
-        
-        writer operator<<(bytes_view b) const {
-            return writer{Writer << b};
         }
         
         writer write_var_int(uint) const {

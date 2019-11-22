@@ -109,15 +109,15 @@ namespace data::crypto {
     };
 }
 
-inline std::ostream& operator<<(std::ostream& o, abstractions::bitcoin::secret& s) {
+inline std::ostream& operator<<(std::ostream& o, const abstractions::bitcoin::secret& s) {
     return o << "secret{" << s.write() << "}";
 }
 
-inline std::ostream& operator<<(std::ostream& o, abstractions::bitcoin::pubkey& p) {
+inline std::ostream& operator<<(std::ostream& o, const abstractions::bitcoin::pubkey& p) {
     return o << "pubkey{" << p.write() << "}";
 }
 
-inline std::ostream& operator<<(std::ostream& o, abstractions::bitcoin::uncompressed_pubkey& p) {
+inline std::ostream& operator<<(std::ostream& o, const abstractions::bitcoin::uncompressed_pubkey& p) {
     return o << "pubkey{" << p.write() << "}";
 }
 
@@ -190,9 +190,11 @@ namespace abstractions::bitcoin {
         return secp256k1::wif::uncompressed::write(Secret);
     }
 
-    inline secret::secret(string wif) : Secret{} {
-        if (!secp256k1::wif::compressed::read(wif, Secret)) 
-            secp256k1::wif::uncompressed::read(wif, Secret);
+    inline secret::secret(string s) : Secret{} {
+        if (!secp256k1::wif::compressed::read(s, Secret)) 
+            if (!secp256k1::wif::uncompressed::read(s, Secret)) try {
+                Secret.Value = data::uint<32>{s};
+            } catch (...) {}
     }
 
     inline pubkey::pubkey(string hex) : Pubkey{} {
