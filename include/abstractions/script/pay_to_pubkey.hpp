@@ -40,15 +40,15 @@ namespace abstractions::script {
     };
     
     inline program pay_to(const bitcoin::pubkey& p) {
-        return program{} + push(p.Pubkey) + check_signature();
+        return program{} << push(p.Pubkey) << check_signature();
     }
     
     inline program pay_to(const bitcoin::uncompressed_pubkey& p) {
-        return program{} + push(p.Pubkey) + check_signature();
+        return program{} << push(p.Pubkey) << check_signature();
     }
     
     inline program redeem_from_pay_to_pubkey(const bitcoin::signature& x) {
-        return program{} + push(x);
+        return program{} << push(x);
     }
     
 }

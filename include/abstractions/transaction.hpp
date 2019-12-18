@@ -189,12 +189,14 @@ namespace abstractions {
             return Version;
         }
         
-        size_t size() const {
+        size_t size() const; /*{
             return 8 + timechain::size_with_var_int_prefix(vertex::Inputs) + 
                 timechain::size_with_var_int_prefix(vertex::Outputs) + 
-                reduce(data::plus<size_t>{}, for_each(timechain::size_with_var_int_prefix<in>, vertex::Inputs)) + 
-                reduce(data::plus<size_t>{}, for_each(timechain::size_with_var_int_prefix<out>, vertex::Outputs));
-        }
+                reduce(, // TODO fill that in
+                    for_each(timechain::size_with_var_int_prefix<in>, vertex::Inputs)) + 
+                reduce(, // TODO fill that in
+                    for_each(timechain::size_with_var_int_prefix<out>, vertex::Outputs));
+        }*/
         
         txid id() const {
             return crypto::txid(serialize());

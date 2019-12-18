@@ -40,15 +40,15 @@ namespace abstractions::script {
     
     inline program pay_to(const bitcoin::address& a) {
         std::cout << "pay_to " << a << std::endl;
-        return program{} + dup() + address_hash() + push(a.Digest) + equal_verify() + check_signature();
+        return program{} << dup() << address_hash() << push(a.Digest) << equal_verify() << check_signature();
     }
     
     inline program redeem_from_pay_to_address(const bitcoin::signature& x, const bitcoin::pubkey& p) {
-        return program{} + push(x) + push(p.Pubkey);
+        return program{} << push(x) << push(p.Pubkey);
     }
     
     inline program redeem_from_pay_to_address(const bitcoin::signature& x, const bitcoin::uncompressed_pubkey& p) {
-        return program{} + push(x) + push(p.Pubkey);
+        return program{} << push(x) << push(p.Pubkey);
     }
     
 }

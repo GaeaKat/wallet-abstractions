@@ -53,12 +53,12 @@ namespace abstractions::timechain::transaction {
         auto ins = t.inputs();
         auto outs = t.outputs();
         w = (w << int32(t.version())).write_var_int(ins.size());
-        while(!empty(ins)) {
+        while(!data::empty(ins)) {
             w = input::write(w, ins.first());
             ins = ins.rest();
         }
         w = w.write_var_int(outs.size());
-        while(!empty(outs)) {
+        while(!data::empty(outs)) {
             w = output::write(w, outs.first());
             outs = outs.rest();
         }

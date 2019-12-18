@@ -126,6 +126,7 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/extern/bitcoin-sv/")
 add_library(wallet-abstractions STATIC 
     src/abstractions/crypto/secp265k1.cpp
     src/abstractions/crypto/address.cpp
+
     src/abstractions/wallet/address.cpp
     src/abstractions/wallet/wallet.cpp
     src/abstractions/script/script.cpp
@@ -133,8 +134,10 @@ add_library(wallet-abstractions STATIC
     src/abstractions/script/pow.cpp
     src/abstractions/work/work.cpp
     src/abc/cashaddr.cpp
+
     src/satoshi_sv/machine.cpp
     src/satoshi_sv/sv.cpp
+
     src/abstractions/timechain/output.cpp
 )
 target_link_libraries(wallet-abstractions PUBLIC data common util bitcoinconsensus)

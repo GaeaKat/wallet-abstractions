@@ -95,14 +95,14 @@ namespace abstractions::timechain {
             return writer{Writer << bytes_view{n.Array.data(), n.Array.size()}};
         }
         
-        writer write_var_int(uint) const {
+        writer write_var_int(uint64) const {
             throw data::method::unimplemented{"timechain::writer::<<"};
         }
         
         writer(data::writer<data::slice<byte>::iterator> w) : Writer{w} {}
     }; 
     
-    inline size_t var_int_size(uint) {
+    inline size_t var_int_size(uint64) {
         throw data::method::unimplemented{"timechain::var_int_size"};
     }
     
