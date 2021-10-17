@@ -45,6 +45,7 @@ if(NOT TARGET gtest_main AND PACKAGE_TESTS)
 	# the gtest and gtest_main targets.
 	add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 			${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
+	include(GoogleTest)
 endif()
 
 
@@ -72,8 +73,8 @@ endif()
 set(Boost_LIB_PREFIX            "lib"       CACHE STRING "")
 set(Boost_USE_MULTITHREADED     ON          CACHE BOOL "") # '-mt' flag
 set(Boost_USE_STATIC_LIBS       ON          CACHE BOOL "")
-set(Boost_USE_STATIC_RUNTIME    ON          CACHE BOOL "") # '-s' tag
-set(Boost_USE_DEBUG_RUNTIME     ON          CACHE BOOL "") # '-g' tag
+set(Boost_USE_STATIC_RUNTIME    OFF          CACHE BOOL "") # '-s' tag
+set(Boost_USE_DEBUG_RUNTIME     OFF          CACHE BOOL "") # '-g' tag
 set(Boost_COMPILER              "-mgw49"    CACHE STRING "")
 
 # Include Boost
@@ -102,17 +103,22 @@ endif()
 set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig/:$ENV{PKG_CONFIG_PATH}")
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIB_BITCOIN REQUIRED libbitcoin-system)
-include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
+#pkg_check_modules(LIB_BITCOIN REQUIRED libbitcoin-system)
+#include_directories(${LIB_BITCOIN_INCLUDE_DIRS})
 
 # Check data library
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/data/CMakeLists.txt")
     message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif()
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/bitcoin-sv/CMakeLists.txt")
-	message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+if(NOT CHAIN_SRC_ROOT)
+	message(FATAL_ERROR "Root dir of chain's source code not defined! (-DCHAIN_SRC_ROOT=<path>)")
 endif()
+message("-- Root Dir of ${CHAIN_NAME}: ${CHAIN_SRC_ROOT} (-DCHAIN_SRC_ROOT=${CHAIN_SRC_ROOT})")
+if (NOT EXISTS "${CHAIN_SRC_ROOT}/src/version.h")
+	message(FATAL_ERROR "The source code of bitcoin SV does not exist!")
+endif()
+
 ## Enable testing
 include(CTest)
 
@@ -122,7 +128,7 @@ if(PACKAGE_TESTS)
 endif()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/extern/data/")
-add_subdirectory("${PROJECT_SOURCE_DIR}/extern/bitcoin-sv/")
+add_subdirectory("${CHAIN_SRC_ROOT}" extern/bitcoin-sv/)
 add_library(wallet-abstractions STATIC 
     src/abstractions/crypto/secp265k1.cpp
     src/abstractions/crypto/address.cpp
@@ -131,7 +137,6 @@ add_library(wallet-abstractions STATIC
     src/abstractions/wallet/wallet.cpp
     src/abstractions/script/script.cpp
     src/abstractions/script/math.cpp
-    src/abstractions/script/pow.cpp
     src/abstractions/work/work.cpp
     src/abc/cashaddr.cpp
 

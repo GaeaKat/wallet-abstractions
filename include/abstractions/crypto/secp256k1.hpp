@@ -4,7 +4,6 @@
 #ifndef ABSTRACTIONS_CRYPTO_SECP256K1
 #define ABSTRACTIONS_CRYPTO_SECP256K1
 
-#include <data/crypto/secp256k1.hpp>
 #include <abstractions/crypto/hash/sha256.hpp>
 #include <abstractions/crypto/hash/ripemd160.hpp>
 #include "address.hpp"
